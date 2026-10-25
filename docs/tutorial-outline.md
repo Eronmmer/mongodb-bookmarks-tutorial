@@ -1,6 +1,6 @@
 # Tutorial outline: build a shared bookmarks app with Next.js and MongoDB
 
-This outline guided the implementation and verification. The [working Google Doc draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was created afterward. The final public code location remains pending.
+This outline guided the implementation and verification. The [working Google Doc draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was created afterward. The [completed source](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) is now hosted privately; public reader access remains pending.
 
 ## 1. Show the finished app and define its scope
 
@@ -8,7 +8,7 @@ Introduce create, read, update and delete using a bookmark's title, URL and note
 
 ## 2. Start from the official template
 
-Credit [the upstream template at the reviewed commit](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6) and retain its licence. Explain that the starter provides a MongoDB connection check, not bookmarks CRUD. The completed adaptation's hosting URL is pending; do not direct readers to deploy the unmodified starter as the finished app.
+Credit [the upstream template at the reviewed commit](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6) and retain its licence. Explain that the starter provides a MongoDB connection check, not bookmarks CRUD. The completed adaptation is hosted in [the private companion repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial); do not direct readers to deploy the unmodified starter as the finished app.
 
 Pin the environment to `.nvmrc` (Node 24.22.1) and `package-lock.json`; show `npm ci`. The refreshed lockfile includes Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Mention the recorded four moderate Tailwind 3 parser-chain advisory findings without claiming a clean audit.
 
@@ -42,7 +42,7 @@ Include only outcomes supported by the separate verification report. CI and Code
 
 ## 8. Deploy with restricted access
 
-Import the completed source repository once its URL is confirmed. Configure Vercel Authentication → All Deployments before enabling working CRUD credentials, preferably through a team default before project creation. Verify every production, preview and generated URL and review protection exceptions/share-link bypasses. This access gate does not add per-user ownership inside the app.
+Import the [completed source repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) through an account with access to it. Configure Vercel Authentication → All Deployments before enabling working CRUD credentials, preferably through a team default before project creation. Verify every production, preview and generated URL and review protection exceptions/share-link bypasses. This access gate does not add per-user ownership inside the app.
 
 Set `MONGODB_URI` for Production and any deployed Preview environment, then redeploy after changes. Explain dynamic Vercel outbound IPs and Static IPs on Pro/Enterprise. If the learning path deliberately uses Atlas `0.0.0.0/0`, explain that database connection attempts are permitted from everywhere; strong scoped credentials remain required. Do not imply Vercel Authentication protects the database port or supplies Atlas network access.
 

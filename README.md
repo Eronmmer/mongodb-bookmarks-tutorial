@@ -4,7 +4,16 @@ A learning app for saving, listing, editing and deleting bookmarks with Next.js 
 
 This is a **shared learning demo**. There are no application accounts or per-user records: everyone with access can see and change the same list. Use sample links, never private information. Restrict any hosted deployment before enabling writes.
 
-See the [verification report](docs/verification.md) for the executed clean-checkout checks and their limits. The [working tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was prepared after local verification; public source hosting and live cloud checks remain pending.
+See the [verification report](docs/verification.md) for the executed clean-checkout checks and their limits. The [working tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was prepared after local verification; the source repository is private, and live cloud checks remain pending.
+
+## Source repository
+
+The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository. Cloning requires access to that repository. Public reader access must be arranged before the tutorial is published.
+
+```bash
+git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git
+cd mongodb-bookmarks-tutorial
+```
 
 ## Run locally
 
@@ -93,7 +102,7 @@ The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for for
 
 ## Deploy a restricted demo
 
-Final source hosting and deployment URLs are pending. The original template's Deploy button targets the original template, not this app. Import the completed bookmarks repository once its hosting location is confirmed.
+Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) using a Vercel account with access to the private repository. No deployment URL has been created. The original template's Deploy button targets the original template, not this app.
 
 Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Security → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
 

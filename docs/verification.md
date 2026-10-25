@@ -60,7 +60,7 @@ Fixed asynchronous collection access, driver ObjectId typing, blank-title valida
 - A restricted deployment still needs an unauthenticated page check and a valid Server Action POST check, plus authorized CRUD, before sharing it. There is no application-level authentication or per-user ownership.
 - A fresh npm audit reported four moderate findings in the Tailwind 3/PostCSS selector parser dependency chain, with no high or critical findings. This remains a dependency limitation; no zero-vulnerability or production-readiness claim is made.
 - The verification wrapper supports POSIX process groups (macOS/Linux/WSL). Only the macOS environment above was executed. Native Windows, Firefox, WebKit, load behavior and live database failover were not tested.
-- The completed app's public repository URL and hosted demo URL are not yet assigned. No upstream repository was modified or published.
+- The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access and the hosted demo URL remain pending. No upstream repository was modified.
 - MongoDB technical/editorial review and publication approval remain separate from this engineering verification.
 
 ## Reproduce
