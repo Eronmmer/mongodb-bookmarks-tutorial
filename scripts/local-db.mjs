@@ -1,9 +1,16 @@
 import { MongoMemoryServer } from "mongodb-memory-server-core";
 
-const mongo = await MongoMemoryServer.create({
-  binary: { version: "8.2.6" },
-  instance: { ip: "127.0.0.1", port: 27028, dbName: "bookmarks_demo" },
-});
+let mongo;
+try {
+  mongo = await MongoMemoryServer.create({
+    binary: { version: "8.2.6" },
+    // .env.example uses this exact port. Never silently start elsewhere.
+    instance: { ip: "127.0.0.1", port: 27028, portGeneration: false, dbName: "bookmarks_demo" },
+  });
+} catch {
+  console.error("Could not start local MongoDB on 127.0.0.1:27028. Check that the port is free and the MongoDB binary can be downloaded.");
+  process.exit(1);
+}
 console.log("Temporary local MongoDB; all data is lost when this process stops.");
 console.log(`MONGODB_URI=${mongo.getUri("bookmarks_demo")}`);
 let stopping = false;
