@@ -49,6 +49,8 @@ Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/con
 
 ## Verify the app
 
+The verification helper supports macOS, Linux and WSL; it uses POSIX process groups to clean up the app and its workers. Native Windows execution has not been implemented or tested.
+
 Install Chromium once, including operating-system dependencies where needed:
 
 ```bash
@@ -81,7 +83,7 @@ These commands describe the checks, not evidence that they passed on your machin
 | `scripts/verify.mjs` | Isolated verification orchestration |
 | `docs/tutorial-outline.md` | Planned tutorial structure |
 
-The list shows the 100 newest bookmarks and discloses when more exist. MongoDB generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership, pagination or application authentication.
+The list shows the 100 newest bookmarks and discloses when more exist. The MongoDB driver generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership, pagination or application authentication.
 
 ## Codespaces
 
