@@ -86,6 +86,9 @@ function readTrimmedString(value: unknown): string | null {
 }
 
 function validateUrl(url: string): string | null {
+  if (!/^https?:\/\//i.test(url)) {
+    return "Enter an absolute http or https URL, for example https://example.com.";
+  }
   let parsed: URL;
   try {
     parsed = new URL(url);
