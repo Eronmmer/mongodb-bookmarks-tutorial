@@ -77,7 +77,7 @@ npm run verify:dev
 
 Use these wrappers for the full suite. Never point destructive tests at an Atlas database, shared demo database, or URI copied from `.env`. Tests need disposable data. `test:e2e` is a lower-level entry point; inspect its configuration before using it directly.
 
-These commands describe the checks, not evidence that they passed on your machine. Local results are recorded separately. GitHub Actions is configured to run `verify`; this is not proof of a successful hosted CI run.
+These commands describe the checks, not evidence that they passed on your machine. Local results are recorded separately. The [first hosted GitHub Actions run](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40238792328) passed `verify` on commit `1b7f100`, including six unit tests and twelve production browser checks.
 
 ## Code map
 

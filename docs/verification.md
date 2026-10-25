@@ -31,6 +31,7 @@ Verified on 25 October 2026. Application and verification code: `32a6c7ce838489f
 | Manual README setup and CRUD in Chrome | Passed |
 | Local helper with port 27028 already occupied | Exited 1; did not switch to another port |
 | Independent review of final runtime commit | No outstanding findings |
+| Hosted GitHub Actions production verification | Passed on `1b7f100`; 6 unit tests and 12 browser checks |
 
 The browser total is **24 executed checks across two runtimes**. Scenario-inapplicable cases are reported as skipped by Playwright; they are not counted as passes.
 
@@ -54,12 +55,16 @@ The desktop screenshot in `docs/images/bookmarks-desktop.png` was captured from 
 
 Fixed asynchronous collection access, driver ObjectId typing, blank-title validation, malformed shorthand HTTP URLs, repeated-create form reset, long-text wrapping, pending cancellation controls, a missing template font variable, fixed-port local database startup, and signaling of already-exited test processes. Corrected browser-test expectations for native URL whitespace normalization and scoped alerts to avoid Next.js's route announcer.
 
+## Hosted CI follow-up
+
+After the private repository was created, [GitHub Actions run 40238792328](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40238792328) passed on commit `1b7f100de227df763afdbae548da60d3183048e7` using the GitHub-hosted `ubuntu-latest` runner. It installed dependencies and Chromium, ran `npm run verify` (lint, types, 6 unit tests, production build and 12 production browser checks), and uploaded the Playwright reports. Development-mode verification remains the local evidence recorded above.
+
 ## Limits and publication follow-up
 
-- Atlas provisioning/credentials/network access, Codespaces creation, hosted GitHub Actions and Vercel deployment/protection were **not executed**. README instructions cite primary documentation, but local results do not prove those hosted flows.
+- Atlas provisioning/credentials/network access, Codespaces creation and Vercel deployment/protection were **not executed**. README instructions cite primary documentation, but local results do not prove those hosted flows.
 - A restricted deployment still needs an unauthenticated page check and a valid Server Action POST check, plus authorized CRUD, before sharing it. There is no application-level authentication or per-user ownership.
 - A fresh npm audit reported four moderate findings in the Tailwind 3/PostCSS selector parser dependency chain, with no high or critical findings. This remains a dependency limitation; no zero-vulnerability or production-readiness claim is made.
-- The verification wrapper supports POSIX process groups (macOS/Linux/WSL). Only the macOS environment above was executed. Native Windows, Firefox, WebKit, load behavior and live database failover were not tested.
+- The verification wrapper supports POSIX process groups (macOS/Linux/WSL). The local macOS environment and the linked GitHub-hosted Ubuntu CI run were executed. Native Windows, Firefox, WebKit, load behavior and live database failover were not tested.
 - The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access and the hosted demo URL remain pending. No upstream repository was modified.
 - MongoDB technical/editorial review and publication approval remain separate from this engineering verification.
 
