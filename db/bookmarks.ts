@@ -1,6 +1,6 @@
 import "server-only";
 
-import { ObjectId } from "mongodb";
+import { ObjectId, type WithId } from "mongodb";
 
 import { isBookmarkId } from "@/lib/bookmark-validation";
 import type { BookmarkInput, BookmarkView } from "@/lib/bookmark-types";
@@ -12,7 +12,6 @@ const COLLECTION_NAME = "bookmarks";
 export const BOOKMARK_LIST_LIMIT = 100;
 
 interface BookmarkDocument {
-  _id: ObjectId;
   title: string;
   url: string;
   note: string;
@@ -25,7 +24,7 @@ async function getCollection() {
   return database.collection<BookmarkDocument>(COLLECTION_NAME);
 }
 
-function toBookmarkView(document: BookmarkDocument): BookmarkView {
+function toBookmarkView(document: WithId<BookmarkDocument>): BookmarkView {
   return {
     id: document._id.toString(),
     title: document.title,
