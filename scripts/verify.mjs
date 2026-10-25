@@ -31,12 +31,17 @@ async function freePort() {
   return port;
 }
 async function stop(proc) {
-  if (!proc.pid) return;
+  children.delete(proc);
+  // Completed commands no longer own a live process group. In particular,
+  // do not signal a departed child's numeric PID after the OS can reuse it.
+  if (!proc.pid || proc.exitCode !== null || proc.signalCode !== null) return;
   // Includes Next's workers, rather than only npm's wrapper process.
   try { process.kill(-proc.pid, "SIGTERM"); } catch (error) { if (error.code !== "ESRCH") throw error; }
-  await delay(500);
-  try { process.kill(-proc.pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
-  children.delete(proc);
+  const deadline = Date.now() + 5000;
+  while (proc.exitCode === null && proc.signalCode === null && Date.now() < deadline) await delay(50);
+  if (proc.exitCode === null && proc.signalCode === null) {
+    try { process.kill(-proc.pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
+  }
 }
 async function ready(server, baseURL) {
   const deadline = Date.now() + 120_000;
