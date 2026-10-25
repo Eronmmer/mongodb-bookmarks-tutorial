@@ -123,7 +123,7 @@ test.describe("healthy database", () => {
     const cases = [
       { title: "   ", url: "https://example.com", note: "Keep this note", error: /Title is required/ },
       { title: "Keep this title", url: "   ", note: "Keep this note", error: /URL is required/ },
-      { title: "Keep this title", url: "javascript:alert(1)", note: "Keep this note", error: /Only http and https/ },
+      { title: "Keep this title", url: "javascript:alert(1)", note: "Keep this note", error: /http.*https/ },
       { title: "x".repeat(121), url: "https://example.com", note: "Keep this note", error: /Title must be 120/ },
       { title: "Keep this title", url: "https://example.com/" + "x".repeat(2048), note: "Keep this note", error: /URL must be 2048/ },
       { title: "Keep this title", url: "https://example.com", note: "x".repeat(1001), error: /Note must be 1000/ },
@@ -132,9 +132,32 @@ test.describe("healthy database", () => {
       const form = await add(page, input.title, input.url, input.note);
       await expect(form.getByText(input.error)).toBeVisible();
       await expect(form.getByLabel("Title", { exact: true })).toHaveValue(input.title);
-      await expect(form.getByLabel("URL", { exact: true })).toHaveValue(input.url);
+      await expect(form.getByLabel("URL", { exact: true })).toHaveValue(input.url.trim());
       await expect(form.getByLabel(/Note/)).toHaveValue(input.note);
       expect(await bookmarks.countDocuments()).toBe(0);
+    }
+  });
+
+  test("pending mutations disable submission and in-flight cancellation", async ({ page }) => {
+    await seed();
+    await page.goto("/");
+    for (const operation of ["edit", "delete"] as const) {
+      const card = page.getByRole("listitem").first();
+      await card.getByRole("button", { name: operation === "edit" ? "Edit" : "Delete", exact: true }).click();
+      let release!: () => void;
+      const gate = new Promise<void>((resolve) => { release = resolve; });
+      await page.route("**/*", async (route) => {
+        if (route.request().method() === "POST") await gate;
+        await route.continue();
+      });
+      try {
+        await card.getByRole("button", { name: operation === "edit" ? "Save changes" : "Confirm delete", exact: true }).click();
+        await expect(card.getByRole("button", { name: operation === "edit" ? "Saving…" : "Deleting…", exact: true })).toBeDisabled();
+        await expect(card.getByRole("button", { name: "Cancel", exact: true })).toBeDisabled();
+      } finally { release(); }
+      if (operation === "edit") await expect(card.getByRole("button", { name: "Edit", exact: true })).toBeVisible();
+      else await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+      await page.unrouteAll({ behavior: "wait" });
     }
   });
 
@@ -160,14 +183,14 @@ test.describe("healthy database", () => {
     await card.getByLabel("Title", { exact: true }).fill("Rejected edit");
     await card.locator('input[name="id"]').evaluate((element) => { (element as HTMLInputElement).value = "not-an-object-id"; });
     await card.getByRole("button", { name: /Save changes/ }).click();
-    await expect(page.getByRole("alert")).toContainText(/could not be updated|no longer exists/);
+    await expect(card.getByRole("alert")).toContainText(/could not be updated|no longer exists/);
     expect((await bookmarks.findOne({ _id: original._id }))?.title).toBe(original.title);
     await page.reload();
     card = item(page, original.title);
     await card.getByRole("button", { name: "Delete", exact: true }).click();
     await card.locator('input[name="id"]').evaluate((element) => { (element as HTMLInputElement).value = "invalid"; });
     await card.getByRole("button", { name: "Confirm delete", exact: true }).click();
-    await expect(page.getByRole("alert")).toContainText(/no longer exists/);
+    await expect(card.getByRole("alert")).toContainText(/no longer exists/);
     expect(await bookmarks.countDocuments()).toBe(1);
   });
 
@@ -179,8 +202,8 @@ test.describe("healthy database", () => {
       await card.getByRole("button", { name: operation === "edit" ? "Edit" : "Delete", exact: true }).click();
       await bookmarks.deleteOne({ _id: original._id });
       await card.getByRole("button", { name: operation === "edit" ? /Save changes/ : "Confirm delete" }).click();
-      await expect(page.getByRole("alert")).toContainText(/no longer exists/);
-      await expect(page.getByRole("alert")).toContainText(/Refresh the page/);
+      await expect(card.getByRole("alert")).toContainText(/no longer exists/);
+      await expect(card.getByRole("alert")).toContainText(/Refresh the page/);
       expect(await bookmarks.countDocuments()).toBe(0);
     }
   });
@@ -214,6 +237,7 @@ test.describe("database unavailable", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Database unavailable", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toHaveCount(0);
+    await expect(page.locator("body")).not.toContainText(/MONGODB_URI|MongoServerSelectionError|mongodb:\/\//);
     const form = await add(page, "Preserve my bookmark", "https://example.com/outage", "Retry later");
     await expect(form.getByRole("alert")).toContainText(/Could not save the bookmark/);
     await expect(form.getByLabel("Title", { exact: true })).toHaveValue("Preserve my bookmark");

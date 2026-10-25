@@ -72,7 +72,7 @@ These commands describe the checks, not evidence that they passed on your machin
 | --- | --- |
 | `app/page.tsx` | Dynamic Node.js page, list, empty and database-error states |
 | `app/actions.ts` | Server Actions, validation, mutation feedback and refresh |
-| `components/bookmark-form.tsx` | Create/edit form and field errors |
+| `components/bookmark-form.tsx` | Create form and field errors |
 | `components/bookmark-item.tsx` | Display, edit and delete controls |
 | `db/bookmarks.ts` | Fixed-field MongoDB CRUD and browser-safe values |
 | `lib/mongodb.ts` | Lazy shared client and retry after connection failure |

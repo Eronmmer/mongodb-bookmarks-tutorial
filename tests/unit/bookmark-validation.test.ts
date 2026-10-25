@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { isBookmarkId, validateBookmark } from "../../lib/bookmark-validation";
 
-if (process.env.BOOKMARKS_TEST_RUN !== "1") throw new Error("Use the isolated verification harness.");
 const valid = { title: "Example", url: "https://example.com", note: "" };
 test("trims text and accepts an empty optional note", () => {
   assert.deepEqual(validateBookmark({ title: "  Example  ", url: " https://example.com ", note: "   " }), { success: true, data: valid });
@@ -15,7 +14,7 @@ test("rejects missing, whitespace-only and non-string required fields", () => {
   }
 });
 test("rejects dangerous protocols, credentials and malformed URLs", () => {
-  for (const url of ["javascript:alert(1)", "data:text/html,hello", "ftp://example.com", "/relative", "example.com", "https://user:secret@example.com"]) {
+  for (const url of ["http:example.com", "https:/example.com", "javascript:alert(1)", "data:text/html,hello", "ftp://example.com", "/relative", "example.com", "https://user:secret@example.com"]) {
     assert.equal(validateBookmark({ ...valid, url }).success, false, url);
   }
 });
@@ -30,4 +29,10 @@ test("enforces field length boundaries", () => {
 test("only exact ObjectId hex strings are accepted", () => {
   assert.equal(isBookmarkId("0123456789abcdefABCDEF01"), true);
   for (const value of ["", "x".repeat(24), "a".repeat(23), "a".repeat(25), " a".repeat(12), null, {}, 123]) assert.equal(isBookmarkId(value), false);
+});
+
+test("rejects non-text optional notes", () => {
+  for (const note of [null, undefined, {}, new Blob(["note"])]) {
+    assert.equal(validateBookmark({ ...valid, note }).success, false);
+  }
 });

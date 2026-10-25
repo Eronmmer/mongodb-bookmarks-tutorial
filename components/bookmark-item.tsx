@@ -60,7 +60,7 @@ function EditBookmarkForm({
   bookmark: BookmarkView;
   onDone: () => void;
 }) {
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     updateBookmarkAction,
     emptyActionState,
   );
@@ -156,7 +156,7 @@ function EditBookmarkForm({
 
       <div className="flex items-center gap-2">
         <SaveEditButton />
-        <button type="button" onClick={onDone} className={secondaryButtonClasses}>
+        <button type="button" disabled={isPending} onClick={onDone} className={secondaryButtonClasses}>
           Cancel
         </button>
       </div>
@@ -181,7 +181,7 @@ function EditBookmarkForm({
 export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [deleteState, deleteFormAction] = useActionState(
+  const [deleteState, deleteFormAction, isDeleting] = useActionState(
     deleteBookmarkAction,
     emptyActionState,
   );
@@ -212,6 +212,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
+                disabled={isDeleting}
                 className={secondaryButtonClasses}
               >
                 Edit
@@ -219,6 +220,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
               <button
                 type="button"
                 onClick={() => setIsConfirmingDelete(true)}
+                disabled={isDeleting}
                 className={deleteButtonClasses}
               >
                 Delete
@@ -248,6 +250,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
                 <button
                   type="button"
                   onClick={() => setIsConfirmingDelete(false)}
+                  disabled={isDeleting}
                   className={secondaryButtonClasses}
                 >
                   Cancel
