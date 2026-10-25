@@ -29,9 +29,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "playwright test",
+    "test": "npm run verify",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "tsx --test tests/unit/*.test.ts",
+    "verify": "node scripts/verify.mjs",
+    "verify:dev": "node scripts/verify.mjs --dev",
+    "db:local": "node scripts/local-db.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.2",
@@ -58,5 +63,8 @@
     "tailwindcss": "^3.4.1",
     "tsx": "4.23.15",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

@@ -1,6 +1,14 @@
 {
-  "name": "nextjs-template-mongodb",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "postCreateCommand": "npm install && bash .devcontainer/track.sh created || true",
-  "postStartCommand": "bash .devcontainer/track.sh started || true"
+  "name": "mongodb-bookmarks-tutorial",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Bookmarks demo",
+      "onAutoForward": "notify"
+    }
+  }
 }
