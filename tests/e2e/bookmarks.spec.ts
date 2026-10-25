@@ -1,0 +1,224 @@
+import { test, expect, type Page } from "@playwright/test";
+import { MongoClient, type Collection, type Document } from "mongodb";
+
+if (process.env.BOOKMARKS_TEST_RUN !== "1") throw new Error("Disposable test run required.");
+const rawURI = process.env.BOOKMARKS_TEST_URI;
+if (!rawURI) throw new Error("Missing disposable database URI.");
+const parsedURI = new URL(rawURI);
+if (parsedURI.protocol !== "mongodb:" || parsedURI.hostname !== "127.0.0.1" || !/^\/bookmarks_test_[a-zA-Z0-9_]+$/.test(parsedURI.pathname) || parsedURI.username || parsedURI.password) {
+  throw new Error("Tests may only mutate a loopback bookmarks_test_ database.");
+}
+const scenario = process.env.BOOKMARKS_TEST_SCENARIO;
+if (!["healthy", "missing", "unreachable"].includes(scenario ?? "")) throw new Error("Unknown verification scenario.");
+const healthy = scenario === "healthy";
+if (healthy && process.env.MONGODB_URI !== rawURI) throw new Error("Application and tests must share the disposable database.");
+let client: MongoClient;
+let bookmarks: Collection<Document>;
+test.beforeAll(async () => {
+  client = await new MongoClient(rawURI, { serverSelectionTimeoutMS: 5000 }).connect();
+  bookmarks = client.db().collection("bookmarks");
+});
+test.afterAll(async () => { await client?.close(); });
+test.beforeEach(async () => { await bookmarks.deleteMany({}); });
+
+function createForm(page: Page) { return page.locator("form").filter({ has: page.getByRole("button", { name: "Add bookmark", exact: true }) }); }
+async function add(page: Page, title: string, url = "https://example.com", note = "") {
+  const form = createForm(page);
+  await form.getByLabel("Title", { exact: true }).fill(title);
+  await form.getByLabel("URL", { exact: true }).fill(url);
+  await form.getByLabel(/Note/).fill(note);
+  await form.getByRole("button", { name: "Add bookmark", exact: true }).click();
+  return form;
+}
+function item(page: Page, title: string) { return page.getByRole("listitem").filter({ has: page.getByRole("link", { name: title, exact: true }) }); }
+async function seed(title = "Seed bookmark", extra: Document = {}) {
+  const now = new Date("2025-01-01T12:00:00.000Z");
+  const doc = { title, url: "https://example.com", note: "Original note", createdAt: now, updatedAt: now, ...extra };
+  const result = await bookmarks.insertOne(doc);
+  return { ...doc, _id: result.insertedId };
+}
+
+test.describe("healthy database", () => {
+  test.skip(!healthy, "Only run against the healthy disposable database.");
+
+  test("empty state; two consecutive creates clear fields and persist through reload", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+    await expect(page.getByText("Database unavailable", { exact: true })).toHaveCount(0);
+    await createForm(page).evaluate((form) => {
+      for (const [name, value] of [["createdAt", "2000-01-01"], ["unexpected", "must not persist"]]) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      }
+    });
+    for (const title of ["First bookmark", "Second bookmark"]) {
+      const form = await add(page, `  ${title}  `, "  https://example.com/guide  ", "  A useful guide  ");
+      await expect(item(page, title)).toBeVisible();
+      await expect(form.getByLabel("Title", { exact: true })).toHaveValue("");
+      await expect(form.getByLabel("URL", { exact: true })).toHaveValue("");
+      await expect(form.getByLabel(/Note/)).toHaveValue("");
+    }
+    await page.reload();
+    await expect(page.getByRole("listitem")).toHaveCount(2);
+    await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText("Second bookmark");
+    const documents = await bookmarks.find().sort({ createdAt: -1, _id: -1 }).toArray();
+    expect(documents.map((doc) => doc.title)).toEqual(["Second bookmark", "First bookmark"]);
+    for (const doc of documents) {
+      expect(doc.url).toBe("https://example.com/guide");
+      expect(doc.note).toBe("A useful guide");
+      expect(doc.createdAt).toBeInstanceOf(Date);
+      expect(doc.createdAt.getTime()).toBeGreaterThan(Date.parse("2025-01-01"));
+      expect(doc.updatedAt.getTime()).toBe(doc.createdAt.getTime());
+      expect(Object.keys(doc).sort()).toEqual(["_id", "createdAt", "note", "title", "updatedAt", "url"]);
+    }
+  });
+
+  test("edit persists exact fields and preserves creation timestamp; cancel does not write", async ({ page }) => {
+    const original = await seed();
+    await page.goto("/");
+    let card = page.getByRole("listitem").first();
+    await card.getByRole("button", { name: "Edit", exact: true }).click();
+    await card.getByLabel("Title", { exact: true }).fill("Discarded title");
+    await card.getByRole("button", { name: "Cancel", exact: true }).click();
+    expect((await bookmarks.findOne({ _id: original._id }))?.title).toBe(original.title);
+    await card.getByRole("button", { name: "Edit", exact: true }).click();
+    await card.getByLabel("Title", { exact: true }).fill("Updated bookmark");
+    await card.getByLabel("URL", { exact: true }).fill("https://example.org/updated");
+    await card.getByLabel(/Note/).fill("Updated note");
+    await card.getByRole("button", { name: /Save changes/ }).click();
+    card = item(page, "Updated bookmark");
+    await expect(card).toBeVisible();
+    await expect(card.getByText(/Updated note/)).toBeVisible();
+    const stored = await bookmarks.findOne({ _id: original._id });
+    expect(stored?.createdAt.getTime()).toBe(original.createdAt.getTime());
+    expect(stored?.updatedAt.getTime()).toBeGreaterThan(original.updatedAt.getTime());
+    expect(stored?.url).toBe("https://example.org/updated");
+    expect(stored?.note).toBe("Updated note");
+    await page.reload();
+    await expect(item(page, "Updated bookmark")).toBeVisible();
+    expect(await bookmarks.countDocuments()).toBe(1);
+  });
+
+  test("delete requires confirmation and cancel leaves the document intact", async ({ page }) => {
+    const original = await seed();
+    await page.goto("/");
+    const card = item(page, original.title);
+    await card.getByRole("button", { name: "Delete", exact: true }).click();
+    await expect(card.getByText("Delete this bookmark?", { exact: true })).toBeVisible();
+    await card.getByRole("button", { name: "Cancel", exact: true }).click();
+    expect(await bookmarks.countDocuments()).toBe(1);
+    await card.getByRole("button", { name: "Delete", exact: true }).click();
+    await card.getByRole("button", { name: "Confirm delete", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+    expect(await bookmarks.countDocuments()).toBe(0);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+  });
+
+  test("invalid fields are rejected server-side and inputs are retained", async ({ page }) => {
+    await page.goto("/");
+    const cases = [
+      { title: "   ", url: "https://example.com", note: "Keep this note", error: /Title is required/ },
+      { title: "Keep this title", url: "   ", note: "Keep this note", error: /URL is required/ },
+      { title: "Keep this title", url: "javascript:alert(1)", note: "Keep this note", error: /Only http and https/ },
+      { title: "x".repeat(121), url: "https://example.com", note: "Keep this note", error: /Title must be 120/ },
+      { title: "Keep this title", url: "https://example.com/" + "x".repeat(2048), note: "Keep this note", error: /URL must be 2048/ },
+      { title: "Keep this title", url: "https://example.com", note: "x".repeat(1001), error: /Note must be 1000/ },
+    ];
+    for (const input of cases) {
+      const form = await add(page, input.title, input.url, input.note);
+      await expect(form.getByText(input.error)).toBeVisible();
+      await expect(form.getByLabel("Title", { exact: true })).toHaveValue(input.title);
+      await expect(form.getByLabel("URL", { exact: true })).toHaveValue(input.url);
+      await expect(form.getByLabel(/Note/)).toHaveValue(input.note);
+      expect(await bookmarks.countDocuments()).toBe(0);
+    }
+  });
+
+  test("HTML-like notes remain plain text and external links have safe attributes", async ({ page }) => {
+    const note = '<img src=x onerror="window.bookmarkXSS=1"><script>window.bookmarkXSS=1</script>';
+    await page.goto("/");
+    await add(page, "Escaped note", "https://example.com", note);
+    const card = item(page, "Escaped note");
+    await expect(card.getByText(note, { exact: true })).toBeVisible();
+    await expect(card.locator("img, script")).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { bookmarkXSS?: number }).bookmarkXSS)).toBeUndefined();
+    await expect(card.getByRole("link")).toHaveAttribute("target", "_blank");
+    await expect(card.getByRole("link")).toHaveAttribute("rel", /noopener/);
+    await expect(card.getByRole("link")).toHaveAttribute("rel", /noreferrer/);
+    expect((await bookmarks.findOne({ title: "Escaped note" }))?.note).toBe(note);
+  });
+
+  test("invalid hidden update/delete IDs fail without changing another record", async ({ page }) => {
+    const original = await seed();
+    await page.goto("/");
+    let card = page.getByRole("listitem").first();
+    await card.getByRole("button", { name: "Edit", exact: true }).click();
+    await card.getByLabel("Title", { exact: true }).fill("Rejected edit");
+    await card.locator('input[name="id"]').evaluate((element) => { (element as HTMLInputElement).value = "not-an-object-id"; });
+    await card.getByRole("button", { name: /Save changes/ }).click();
+    await expect(page.getByRole("alert")).toContainText(/could not be updated|no longer exists/);
+    expect((await bookmarks.findOne({ _id: original._id }))?.title).toBe(original.title);
+    await page.reload();
+    card = item(page, original.title);
+    await card.getByRole("button", { name: "Delete", exact: true }).click();
+    await card.locator('input[name="id"]').evaluate((element) => { (element as HTMLInputElement).value = "invalid"; });
+    await card.getByRole("button", { name: "Confirm delete", exact: true }).click();
+    await expect(page.getByRole("alert")).toContainText(/no longer exists/);
+    expect(await bookmarks.countDocuments()).toBe(1);
+  });
+
+  test("stale update and delete show recovery guidance", async ({ page }) => {
+    for (const operation of ["edit", "delete"]) {
+      const original = await seed(`Stale ${operation}`);
+      await page.goto("/");
+      const card = page.getByRole("listitem").first();
+      await card.getByRole("button", { name: operation === "edit" ? "Edit" : "Delete", exact: true }).click();
+      await bookmarks.deleteOne({ _id: original._id });
+      await card.getByRole("button", { name: operation === "edit" ? /Save changes/ : "Confirm delete" }).click();
+      await expect(page.getByRole("alert")).toContainText(/no longer exists/);
+      await expect(page.getByRole("alert")).toContainText(/Refresh the page/);
+      expect(await bookmarks.countDocuments()).toBe(0);
+    }
+  });
+
+  test("only the newest 100 of 101 records are rendered and the limit is disclosed", async ({ page }) => {
+    const baseTime = Date.parse("2025-01-01T00:00:00.000Z");
+    await bookmarks.insertMany(Array.from({ length: 101 }, (_, index) => ({ title: `Bookmark ${String(index).padStart(3, "0")}`, url: "https://example.com", note: "", createdAt: new Date(baseTime + index * 1000), updatedAt: new Date(baseTime + index * 1000) })));
+    await page.goto("/");
+    await expect(page.getByRole("listitem")).toHaveCount(100);
+    await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText("Bookmark 100");
+    await expect(page.getByRole("listitem").last().getByRole("link")).toHaveText("Bookmark 001");
+    await expect(page.getByRole("link", { name: "Bookmark 000", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("status")).toContainText("Showing the newest 100 of 101 bookmarks");
+  });
+
+  test("long unbroken text fits a narrow mobile viewport", async ({ page }) => {
+    await seed("T".repeat(120), { url: "https://example.com/" + "u".repeat(1000), note: "N".repeat(1000) });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    await expect(page.getByRole("listitem")).toHaveCount(1);
+    const dimensions = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, viewport: window.innerWidth }));
+    expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.viewport);
+    await page.getByRole("button", { name: "Edit", exact: true }).click();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+});
+
+test.describe("database unavailable", () => {
+  test.skip(healthy, "Run in both missing and unreachable URI scenarios.");
+  test("shows an outage rather than empty data, and retains rejected mutation input", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Database unavailable", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toHaveCount(0);
+    const form = await add(page, "Preserve my bookmark", "https://example.com/outage", "Retry later");
+    await expect(form.getByRole("alert")).toContainText(/Could not save the bookmark/);
+    await expect(form.getByLabel("Title", { exact: true })).toHaveValue("Preserve my bookmark");
+    await expect(form.getByLabel("URL", { exact: true })).toHaveValue("https://example.com/outage");
+    await expect(form.getByLabel(/Note/)).toHaveValue("Retry later");
+    expect(await bookmarks.countDocuments()).toBe(0);
+  });
+});
