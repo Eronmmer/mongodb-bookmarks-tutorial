@@ -4,6 +4,8 @@ A learning app for saving, listing, editing and deleting bookmarks with Next.js 
 
 This is a **shared learning demo**. There are no application accounts or per-user records: everyone with access can see and change the same list. Use sample links, never private information. Restrict any hosted deployment before enabling writes.
 
+See the [verification report](docs/verification.md) for the executed clean-checkout checks and their limits. The [working tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was prepared after local verification; public source hosting and live cloud checks remain pending.
+
 ## Run locally
 
 Use Node.js **24.22.1**, recorded in `.nvmrc`. With nvm:

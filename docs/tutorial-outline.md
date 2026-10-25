@@ -1,6 +1,6 @@
 # Tutorial outline: build a shared bookmarks app with Next.js and MongoDB
 
-This is a working outline for a later tutorial draft. Implementation and verification come first; no Google Doc draft or final public code location is implied by this file.
+This outline guided the implementation and verification. The [working Google Doc draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was created afterward. The final public code location remains pending.
 
 ## 1. Show the finished app and define its scope
 
