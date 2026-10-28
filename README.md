@@ -4,11 +4,11 @@ An app for saving, listing, editing and deleting bookmarks with Next.js App Rout
 
 The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
 
-See the [verification report](docs/verification.md) for the executed checks and their limits. The [tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) has been reviewed against the pinned source. The repository is private. Atlas connectivity and index setup, Vercel deployment, live CRUD and unauthenticated GET/POST redirects have been checked. An exact valid Server Action replay without authentication remains unverified.
+See the [verification report](docs/verification.md) for the executed checks and their limits. The [self-contained tutorial](docs/tutorial.md) starts from MongoDB's public template and includes all the code and commands needed to build the app. This repository is an optional reference. Atlas connectivity and index setup, Vercel deployment, live CRUD and unauthenticated GET/POST redirects have been checked. An exact valid Server Action replay without authentication remains unverified.
 
 ## Source repository
 
-The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository. Cloning requires access to that repository. Public reader access must be arranged before the tutorial is published.
+The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository. Cloning this reference implementation requires access; following the tutorial does not. Its optional reference links need public access or a public destination before publication. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the build instructions.
 
 ```bash
 git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git
@@ -95,7 +95,7 @@ These commands describe the checks, not evidence that they passed on your machin
 | `lib/bookmark-validation.ts` | String lengths, HTTP(S) URLs and identifier checks |
 | `EDD.md` | Document model and database behavior |
 | `scripts/verify.mjs` | Isolated verification orchestration |
-| `docs/tutorial-outline.md` | Planned tutorial structure |
+| `docs/tutorial.md` | Self-contained build from the public MongoDB template |
 
 The list shows 100 bookmarks per page. “Older bookmarks” uses a validated timestamp/ID cursor, and “Back to newest” returns to recent links. Reads request at most 101 records to detect another page without counting the entire collection. The MongoDB driver generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership or application authentication. Fields are read-only while a save is pending. A write whose result cannot be confirmed asks the user to refresh and check before retrying.
 

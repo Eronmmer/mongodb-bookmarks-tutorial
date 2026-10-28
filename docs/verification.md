@@ -2,6 +2,8 @@
 
 Latest application revision: `07361f2c747a9e05be119c69f2582f59306fbabd`, verified on 28 October 2026. Earlier runs below retain their original dates and scope.
 
+The latest tutorial setup is self-contained. The reconstruction at the end of this report supersedes the earlier instructions that fetched supporting files from the companion repository; those earlier runs remain historical evidence.
+
 Full-suite verification was performed on 25 October 2026. Application and verification code: `32a6c7ce838489f7f9fb2b8f591f2b185904adfe`. Subsequent evidence/document changes do not change that runtime. A separate build-along reconstruction was verified on 26 October 2026, as recorded below.
 
 ## Environment and provenance
@@ -180,3 +182,37 @@ The POST probes contained valid bookmark field values but omitted the hidden Ser
 The article prose was revised using the approved writing references. All 32 native code blocks (15 Shell and 17 TypeScript), 39 links, 35 titles/headings and the existing app screenshot were preserved. Independent readback comparison confirmed all code text exactly. Visual QA covered the exported 41-page PDF, including long TSX examples. Reader access to the private source and the brief's MongoDB technical/editorial reviews remain publication prerequisites.
 
 Vercel's installation output included an ESLint 9 end-of-life warning and deprecated `glob` in the Tailwind/Sucrase development dependency chain. These need a coordinated tooling-maintenance review; they are separate from the dated zero-advisory audit result. This work did not force dependency upgrades or enable all install scripts.
+
+## Self-contained tutorial reconstruction, 28 October 2026
+
+Rebuilt the tutorial in `/tmp/bookmarks-selfcontained-acceptance-20261028` from a fresh clone of the public MongoDB template at `09278fa9369ce03c3e988156351655f87317ecf6`, on the reader branch `bookmarks`. During reconstruction, the official template was the only Git remote. No companion repository was fetched and no application files, lockfile, environment file, build output or installed dependencies were copied from the completed app. Existing npm, MongoDB binary and Chromium download caches were reused.
+
+The article now prints the environment example, local database and index scripts, layout, Tailwind adjustment, stylesheet, favicon, isolated verification runner, Playwright configuration and GitHub Actions workflow. It retains the eight core application files and explains each replace/append step. The companion repository is an optional comparison source; no `git fetch companion` or cross-repository `git restore` is needed. The optional reference links still point to a private repository and need public access or a public destination before publication.
+
+The first reconstruction exposed old transitive dependencies and a lint configuration mismatch inherited from the pinned template. The corrected instructions explicitly install `eslint-config-next@16.4.3` alongside Next.js 16.4.3 and run `npm update` within the declared ranges. A second fresh clone executed the corrected commands from the beginning. This generates a new lockfile for the reader to commit and subsequently reproduce with `npm ci`; it does not promise that future registry resolutions will be identical. No dependency or application-code change was made to the companion repository's main branch for this documentation update.
+
+| Check against the corrected article | Result |
+| --- | --- |
+| Node 24.22.1 / npm 11.19.1; original template `npm ci`, exact dependency installs and `npm update` | Passed |
+| Fresh dependency audit | Zero known findings on 28 October 2026 |
+| Starter page connection checkpoint | HTTP 200, original heading and “Database connected” text |
+| `npm run db:setup` | Compound bookmark index confirmed |
+| Eight core files assembled from article blocks | Match the article and reference revision `7bbfb8b22facd05af7d3df3c5181c59d849cc324`, ignoring file-edge whitespace |
+| ESLint, TypeScript and production build without a database URI | Passed |
+| Article browser sample in production | 3 executed passes: healthy database, missing URI and unreachable database |
+| Article browser sample in development | Same 3 checks passed |
+| Additional comprehensive browser suite against the reconstructed app | 14 production and 14 development checks passed |
+| Manual built-in-browser CRUD | Create, reload persistence, edit title/note, cancel deletion, confirm deletion and reload to empty state passed |
+| Owned process cleanup | Temporary app/database processes stopped; existing preview on ports 3000/27028 untouched |
+
+The comprehensive suite was a separate QA step: only the existing browser test fixture was temporarily copied into the reconstructed checkout after the article-only run. No application source or dependencies were copied. The article's smaller test file and runner were restored afterward. Its standalone runner has no `test:unit` prerequisite, and this reconstruction did not run the companion repository's eight unit tests. The 28 browser checks cover pagination, validation, pending forms, persistence and database failures; skipped scenarios are not counted as passes.
+
+Manual database/app ports 27029/3022 replaced the article defaults 27028/3000 to protect the user's running preview. The local helper's documented port was restored on disk before the final checks. A copied Tailwind line had inherited mixed indentation from the template; the final verification source uses spaces and the trailing comma already printed in the article. No runtime logic changed.
+
+Local evidence is retained under `/tmp/mongodb-bookmarks-work/selfcontained-acceptance-*`, including the initial article-only result, full-suite result and command logs. The canonical 43-code-block digest is `5a529c56f6822bf81c73c34d286711893d2dea74a63993e8cb66f7a06d3efbc9` (SHA-256 of the UTF-8 compact JSON array of exact code texts). A caption-only YAML label and internal assembly-metadata correction did not change those code texts.
+
+After local acceptance, the reconstructed source was committed as `4606d3ca29481fca387280e6ac74125c390e706a` on `codex/self-contained-tutorial` and pushed to the existing private companion repository through a separately named verification remote. No push targeted MongoDB's repository. [GitHub Actions run 40786151207](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40786151207) passed on that exact commit using the article's workflow on `ubuntu-latest`: dependency installation, Chromium installation, lint, types, production build, all three article browser scenarios and report upload succeeded. The workflow was dispatched manually because this verification branch is outside the example's `bookmarks`/`main` push filter. The reader's article test fixture was restored before this commit; the comprehensive QA fixture was not published on that branch.
+
+The Google Doc was updated only after local and hosted acceptance passed. Independent readback comparison confirmed all 206 logical blocks, all 43 code samples including whitespace, all 38 hyperlinks, the 35 heading styles and the original screenshot. The 43 native code containers use Roboto Mono 9 pt and syntax colors; filenames and code identifiers have separate inline styling. Google Docs has no YAML language option, so the workflow uses its neutral `None` option with an explicit YAML caption and manual syntax colors. Visual review covered the title, setup, JavaScript helpers, CSS, SVG, verification runner and workflow in the refreshed 49-page PDF, plus the live editor. An all-page text-bounds check found no text outside the PDF pages. Thirty accidental inline-code styles on ordinary prose words were corrected without changing content. The final Markdown code fences match the same 43-code-block digest.
+
+The self-contained path targets macOS/Linux. Codespaces, WSL and native Windows were not exercised by this reconstruction. Atlas/Vercel execution evidence remains the earlier hosted checkpoint above; the new local checks do not establish additional cloud coverage, exact valid-action replay, load behavior or database failover.

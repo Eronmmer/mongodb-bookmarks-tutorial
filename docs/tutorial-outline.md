@@ -1,6 +1,6 @@
 # Tutorial outline: build a shared bookmarks app with Next.js and MongoDB
 
-This outline guided the implementation and verification. The [working Google Doc draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was created afterward. The [completed source](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) is now hosted privately; public reader access remains pending.
+This outline guided the implementation and verification. The current [self-contained tutorial](tutorial.md) and [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) include every required file and command, starting from the public MongoDB template. The [completed source](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) is a private, optional reference; its links need a public destination before publication.
 
 ## 1. Show the finished app and define its scope
 
@@ -16,7 +16,7 @@ Pin the environment to `.nvmrc` (Node 24.22.1) and `package-lock.json`; show `np
 
 Make Atlas the main teaching path: create/select a project and cluster, create a database user scoped to the demo database, configure the app host's outbound IP access, then obtain the Node.js driver URI and store it as `MONGODB_URI` in `.env`. Distinguish the Atlas login from the database user; explain URI credential encoding. Never expose the URI through `NEXT_PUBLIC_`, screenshots or committed files.
 
-For local/Codespaces setup, explain changing outbound addresses and private forwarded ports. Do not promise a fixed Codespaces IP. Offer the exact local alternative from the README: `.env.example` selects `mongodb://127.0.0.1:27028/bookmarks_demo`; run `npm run db:local` and, in another terminal, `npm run dev -- --hostname 127.0.0.1`. Explain the real downloaded MongoDB 8.2.6 process and loss of data when the ephemeral helper stops.
+Explain changing outbound addresses for the app server. The verified build path uses macOS/Linux; Codespaces remains untested. Offer the local alternative from the README: `.env.example` selects `mongodb://127.0.0.1:27028/bookmarks_demo`; run `npm run db:local` and, in another terminal, `npm run db:setup` followed by `npm run dev -- --hostname 127.0.0.1`. Include the helper scripts in the article, explain the real downloaded MongoDB 8.2.6 process and loss of data when it stops, and prepare the index again after restarting the helper.
 
 Primary references: [Atlas connect](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [database users](https://www.mongodb.com/docs/atlas/security-add-mongodb-users/), [network access](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [Codespaces security](https://docs.github.com/en/codespaces/reference/security-in-github-codespaces).
 
@@ -42,7 +42,7 @@ Include only outcomes supported by the separate verification report. CI and Code
 
 ## 8. Deploy with restricted access
 
-Import the [completed source repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) through an account with access to it. Configure Vercel Authentication → All Deployments before enabling working CRUD credentials, preferably through a team default before project creation. Verify every production, preview and generated URL and review protection exceptions/share-link bypasses. This access gate does not add per-user ownership inside the app.
+Push the app built from the tutorial to the reader's own GitHub repository and import that repository into Vercel. Configure Vercel Authentication → All Deployments before enabling working CRUD credentials, preferably through a team default before project creation. Verify every production, preview and generated URL and review protection exceptions/share-link bypasses. This access gate does not add per-user ownership inside the app.
 
 Set `MONGODB_URI` for Production and any deployed Preview environment, then redeploy after changes. Explain dynamic Vercel outbound IPs and Static IPs on Pro/Enterprise. If the learning path deliberately uses Atlas `0.0.0.0/0`, explain that database connection attempts are permitted from everywhere; strong scoped credentials remain required. Do not imply Vercel Authentication protects the database port or supplies Atlas network access.
 
