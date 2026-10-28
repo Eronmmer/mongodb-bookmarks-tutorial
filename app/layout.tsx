@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Bookmarks",
   description:
-    "A small place for links worth keeping. A shared MongoDB learning demo built with Next.js.",
+    "Save your useful links in one place.",
 };
 
 export default function RootLayout({

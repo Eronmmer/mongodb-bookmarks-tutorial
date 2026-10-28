@@ -4,13 +4,13 @@ This outline guided the implementation and verification. The [working Google Doc
 
 ## 1. Show the finished app and define its scope
 
-Introduce create, read, update and delete using a bookmark's title, URL and note. Show an empty list, a saved bookmark and an edit. Explain the accepted shared-demo model before setup: everyone admitted to the demo can change the same records. There are no application accounts or private bookmarks. Use public sample links.
+Introduce create, read, update and delete using a bookmark's title, URL and note. Show an empty list, a saved bookmark and an edit. Explain the accepted single-list model before setup: everyone admitted to the demo can change the same records. There are no application accounts or private bookmarks. Use public sample links.
 
 ## 2. Start from the official template
 
 Credit [the upstream template at the reviewed commit](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6) and retain its licence. Explain that the starter provides a MongoDB connection check, not bookmarks CRUD. The completed adaptation is hosted in [the private companion repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial); do not direct readers to deploy the unmodified starter as the finished app.
 
-Pin the environment to `.nvmrc` (Node 24.22.1) and `package-lock.json`; show `npm ci`. The refreshed lockfile includes Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Mention the recorded four moderate Tailwind 3 parser-chain advisory findings without claiming a clean audit.
+Pin the environment to `.nvmrc` (Node 24.22.1) and `package-lock.json`; show `npm ci`. The refreshed lockfile includes Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Keep dated audit results in the verification report.
 
 ## 3. Connect to Atlas, with a local alternative
 
@@ -28,7 +28,7 @@ Use `EDD.md`, `lib/bookmark-types.ts` and `lib/bookmark-validation.ts` to introd
 
 Walk through `lib/mongodb.ts`: a server-only client, lazy connection, development cache, production module cache, bounded server-selection feedback and cache reset after rejection. Explain why imports/builds need not open a database connection.
 
-Use `db/bookmarks.ts` to teach `insertOne`, `find`, `updateOne` and `deleteOne`, exact `_id` targeting, fixed `$set` fields and conversion of ObjectIds/dates to strings. The list is bounded to the newest 100 records; the UI discloses older records rather than implying they were deleted.
+Use `db/bookmarks.ts` to teach `insertOne`, `find`, `updateOne` and `deleteOne`, exact `_id` targeting, fixed `$set` fields and conversion of ObjectIds/dates to strings. Each page displays at most 100 records and fetches one extra to determine whether an older page exists. Explain the timestamp/ID cursor and the compound index installed by `npm run db:setup`.
 
 ## 6. Render and mutate from the app
 
@@ -52,4 +52,4 @@ Primary references: [All Deployments on every plan, 9 September 2026](https://ve
 
 ## 9. Explain limits and next steps
 
-Recap implemented CRUD and its evidence. Identify application accounts, per-user authorization, pagination and persistent local database management as future work. Keep current shared-demo access restrictions explicit. Add final source/demo links and screenshots only after their locations and behavior are verified; do not invent deployment results.
+Recap implemented CRUD and its evidence. Identify search, tags and persistent local database management as possible extensions. Application sign-in is outside the selected scope. Keep current access restrictions explicit. Add final source/demo links and screenshots only after their locations and behavior are verified; do not invent deployment results.

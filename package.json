@@ -1,28 +1,21 @@
 {
-  "name": "nextjs-template-mongodb",
+  "name": "mongodb-bookmarks",
   "version": "0.1.0",
   "private": true,
-  "description": "A Next.js template for building applications with MongoDB, featuring TypeScript and shadcn/ui / Tailwind CSS integration",
-  "author": {
-    "name": "Jesse Hall",
-    "url": "https://github.com/codeSTACKr"
-  },
-  "homepage": "https://github.com/mongodb-developer/nextjs-template-mongodb#readme",
+  "description": "A bookmark app built with Next.js, TypeScript and MongoDB.",
+  "homepage": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mongodb-developer/nextjs-template-mongodb.git"
+    "url": "git+https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git"
   },
   "bugs": {
-    "url": "https://github.com/mongodb-developer/nextjs-template-mongodb/issues"
+    "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/issues"
   },
   "keywords": [
+    "bookmarks",
     "nextjs",
     "mongodb",
-    "typescript",
-    "tailwindcss",
-    "vercel",
-    "template",
-    "shadcn"
+    "typescript"
   ],
   "scripts": {
     "dev": "next dev",
@@ -36,7 +29,8 @@
     "test:unit": "tsx --test tests/unit/*.test.ts",
     "verify": "node scripts/verify.mjs",
     "verify:dev": "node scripts/verify.mjs --dev",
-    "db:local": "node scripts/local-db.mjs"
+    "db:local": "node scripts/local-db.mjs",
+    "db:setup": "node --env-file-if-exists=.env scripts/setup-db.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.2",

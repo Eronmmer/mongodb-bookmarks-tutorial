@@ -8,7 +8,7 @@ import { getDatabase } from "@/lib/mongodb";
 
 const COLLECTION_NAME = "bookmarks";
 
-// The shared demo list is bounded to the 100 newest bookmarks.
+// Each page shows at most 100 bookmarks, with a cursor for older records.
 export const BOOKMARK_LIST_LIMIT = 100;
 
 interface BookmarkDocument {
@@ -35,21 +35,41 @@ function toBookmarkView(document: WithId<BookmarkDocument>): BookmarkView {
   };
 }
 
-/** Newest first, bounded to the newest 100 documents. */
-export async function listBookmarks(): Promise<BookmarkView[]> {
-  const collection = await getCollection();
-  const documents = await collection
-    .find()
-    .sort({ createdAt: -1, _id: -1 })
-    .limit(BOOKMARK_LIST_LIMIT)
-    .toArray();
-  return documents.map(toBookmarkView);
+/** Reject malformed cursors before constructing a database filter. */
+function readCursor(value: string | string[] | undefined) {
+  if (typeof value !== "string" || value.length > 64) return null;
+  const parts = value.split("_");
+  if (parts.length !== 2 || !isBookmarkId(parts[1])) return null;
+  const createdAt = new Date(parts[0]);
+  if (!Number.isFinite(createdAt.getTime()) || createdAt.toISOString() !== parts[0]) {
+    return null;
+  }
+  return { createdAt, _id: new ObjectId(parts[1]) };
 }
 
-/** Total stored bookmarks, used to disclose the list limit on the page. */
-export async function countBookmarks(): Promise<number> {
+/** Read one page plus one record to determine whether an older page exists. */
+export async function listBookmarks(before?: string | string[]) {
+  const cursor = readCursor(before);
   const collection = await getCollection();
-  return collection.countDocuments();
+  const filter = cursor
+    ? { $or: [
+        { createdAt: { $lt: cursor.createdAt } },
+        { createdAt: cursor.createdAt, _id: { $lt: cursor._id } },
+      ] }
+    : {};
+  const documents = await collection
+    .find(filter)
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(BOOKMARK_LIST_LIMIT + 1)
+    .toArray();
+  const hasMore = documents.length > BOOKMARK_LIST_LIMIT;
+  const bookmarks = documents.slice(0, BOOKMARK_LIST_LIMIT).map(toBookmarkView);
+  const last = bookmarks.at(-1);
+  return {
+    bookmarks,
+    nextCursor: hasMore && last ? `${last.createdAt}_${last.id}` : null,
+    isOlderPage: cursor !== null,
+  };
 }
 
 /**

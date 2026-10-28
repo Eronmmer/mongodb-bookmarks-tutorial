@@ -15,8 +15,8 @@ import type {
 } from "@/lib/bookmark-types";
 import { emptyActionState } from "@/lib/bookmark-types";
 
-const DATABASE_UNAVAILABLE_SUFFIX =
-  "The database may be unavailable — please try again.";
+const UNCONFIRMED_WRITE_SUFFIX =
+  "Refresh the page to check the result before trying again.";
 const RECORD_GONE_SUFFIX =
   "Refresh the page to see the current list.";
 
@@ -67,7 +67,7 @@ export async function createBookmarkAction(
     await createBookmark(parsed.data);
   } catch {
     return errorState(
-      `Could not save the bookmark. ${DATABASE_UNAVAILABLE_SUFFIX}`,
+      `Could not confirm that the bookmark was saved. ${UNCONFIRMED_WRITE_SUFFIX}`,
       {},
       values,
     );
@@ -116,7 +116,7 @@ export async function updateBookmarkAction(
     }
   } catch {
     return errorState(
-      `Could not save your changes. ${DATABASE_UNAVAILABLE_SUFFIX}`,
+      `Could not confirm your changes. ${UNCONFIRMED_WRITE_SUFFIX}`,
       {},
       values,
     );
@@ -153,7 +153,7 @@ export async function deleteBookmarkAction(
     return {
       ...emptyActionState,
       status: "error",
-      message: `Could not delete the bookmark. ${DATABASE_UNAVAILABLE_SUFFIX}`,
+      message: `Could not confirm the deletion. ${UNCONFIRMED_WRITE_SUFFIX}`,
     };
   }
 

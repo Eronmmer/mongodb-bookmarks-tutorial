@@ -3,11 +3,10 @@ import { connection } from "next/server";
 import { BookmarkForm } from "@/components/bookmark-form";
 import { BookmarkItem } from "@/components/bookmark-item";
 import {
-  BOOKMARK_LIST_LIMIT,
-  countBookmarks,
   listBookmarks,
 } from "@/db/bookmarks";
 import type { BookmarkView } from "@/lib/bookmark-types";
+import Link from "next/link";
 
 // MongoDB is reached from Node.js server code only.
 export const runtime = "nodejs";
@@ -15,29 +14,32 @@ export const runtime = "nodejs";
 // The page reads the database on every request; never connect during a
 // static build.
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ before?: string | string[] }>;
+}) {
   // Marks the page dynamic and waits for a request connection, so the
   // database is only queried for real visitors, never at build time.
   await connection();
 
   let bookmarks: BookmarkView[] = [];
-  let totalCount = 0;
+  const { before } = await searchParams;
+  let nextCursor: string | null = null;
+  let isOlderPage = false;
   let isDatabaseUnavailable = false;
 
   try {
-    [bookmarks, totalCount] = await Promise.all([
-      listBookmarks(),
-      countBookmarks(),
-    ]);
+    const result = await listBookmarks(before);
+    bookmarks = result.bookmarks;
+    nextCursor = result.nextCursor;
+    isOlderPage = result.isOlderPage;
   } catch {
     // Distinguish "database down" from "empty database" for the visitor.
     // Do not log raw driver errors or connection details here.
     console.error("Failed to read bookmarks from the database.");
     isDatabaseUnavailable = true;
   }
-
-  const hasMoreBookmarks =
-    !isDatabaseUnavailable && totalCount > BOOKMARK_LIST_LIMIT;
 
   return (
     <div className="min-h-screen bg-[#FAF7F0] text-[#1C2B26]">
@@ -51,21 +53,13 @@ export default async function Home() {
               A small place for links worth keeping.
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full border border-[#00684A]/25 bg-[#00684A]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#00684A]">
-            Shared learning demo
-          </span>
         </header>
-
-        <p className="mt-3 max-w-xl text-sm text-[#4B5F58]">
-          Everyone visiting this demo shares the same bookmark list — anything
-          you add or change can be seen and edited by others.
-        </p>
 
         <main className="mt-8 grid items-start gap-8 lg:grid-cols-[21rem_minmax(0,1fr)]">
           <aside className="rounded-2xl border border-[#1C2B26]/10 bg-white p-5 shadow-sm lg:sticky lg:top-8">
             <h2 className="text-lg font-semibold">Add a bookmark</h2>
             <p className="mt-1 text-sm text-[#4B5F58]">
-              New bookmarks appear at the top of the shared list.
+              Save a link with a title and an optional note.
             </p>
             <BookmarkForm />
           </aside>
@@ -77,31 +71,25 @@ export default async function Home() {
                 className="rounded-2xl border border-[#B3261E]/30 bg-[#B3261E]/5 p-6"
               >
                 <h2 className="text-lg font-semibold text-[#8C1D18]">
-                  Database unavailable
+                  Couldn’t load bookmarks
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-[#8C1D18]">
-                  We could not reach the database, so bookmarks cannot be shown
-                  or saved right now. Please try again later.
+                  Please try again in a moment.
                 </p>
               </div>
             ) : bookmarks.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#1C2B26]/20 bg-white/60 p-8 text-center">
-                <h2 className="text-lg font-semibold">No bookmarks yet</h2>
+                <h2 className="text-lg font-semibold">
+                  {isOlderPage ? "No older bookmarks" : "No bookmarks yet"}
+                </h2>
                 <p className="mt-2 text-sm text-[#4B5F58]">
-                  Add your first link with the form on this page.
+                  {isOlderPage
+                    ? "You’ve reached the end of the list."
+                    : "Add your first link with the form on this page."}
                 </p>
               </div>
             ) : (
               <>
-                {hasMoreBookmarks ? (
-                  <p
-                    role="status"
-                    className="mb-4 rounded-xl border border-[#8A6D1F]/30 bg-[#FFF8E1] px-4 py-3 text-sm text-[#6E5611]"
-                  >
-                    Showing the newest {BOOKMARK_LIST_LIMIT} of {totalCount}{" "}
-                    bookmarks. Older bookmarks are not loaded in this demo.
-                  </p>
-                ) : null}
                 <ul className="space-y-3">
                   {bookmarks.map((bookmark) => (
                     <BookmarkItem key={bookmark.id} bookmark={bookmark} />
@@ -109,12 +97,23 @@ export default async function Home() {
                 </ul>
               </>
             )}
+            {!isDatabaseUnavailable && (isOlderPage || nextCursor) ? (
+              <nav aria-label="Bookmark pages" className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+                {isOlderPage ? (
+                  <Link href="/" className="rounded-lg px-3 py-2 font-medium text-[#00684A] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
+                    Back to newest
+                  </Link>
+                ) : <span />}
+                {nextCursor ? (
+                  <Link href={`/?${new URLSearchParams({ before: nextCursor })}`} className="rounded-lg border border-[#1C2B26]/15 bg-white px-3 py-2 font-medium text-[#00684A] hover:bg-[#1C2B26]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
+                    Older bookmarks
+                  </Link>
+                ) : null}
+              </nav>
+            ) : null}
           </section>
         </main>
 
-        <footer className="mt-12 border-t border-[#1C2B26]/10 pt-6 text-xs text-[#6B7F77]">
-          Built with Next.js and MongoDB as a hands-on learning demo.
-        </footer>
       </div>
     </div>
   );

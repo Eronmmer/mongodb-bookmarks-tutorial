@@ -75,7 +75,7 @@ function EditBookmarkForm({
   }, [state, onDone]);
 
   return (
-    <form action={formAction} className="mt-3 space-y-3" noValidate>
+    <form action={formAction} className="mt-3 space-y-3" aria-busy={isPending} noValidate>
       <input type="hidden" name="id" value={bookmark.id} />
       <div className="space-y-1.5">
         <label
@@ -89,6 +89,7 @@ function EditBookmarkForm({
           name="title"
           type="text"
           autoComplete="off"
+          readOnly={isPending}
           defaultValue={state.status === "idle" ? bookmark.title : state.values.title}
           aria-invalid={state.fieldErrors.title ? true : undefined}
           aria-describedby={
@@ -115,6 +116,7 @@ function EditBookmarkForm({
           name="url"
           type="url"
           autoComplete="off"
+          readOnly={isPending}
           defaultValue={state.status === "idle" ? bookmark.url : state.values.url}
           aria-invalid={state.fieldErrors.url ? true : undefined}
           aria-describedby={
@@ -134,12 +136,13 @@ function EditBookmarkForm({
           htmlFor={`edit-note-${bookmark.id}`}
           className="block text-sm font-medium text-[#1C2B26]"
         >
-          Note <span className="font-normal text-[#6B7F77]">(optional)</span>
+          Note <span className="font-normal text-[#4B5F58]">(optional)</span>
         </label>
         <textarea
           id={`edit-note-${bookmark.id}`}
           name="note"
           rows={3}
+          readOnly={isPending}
           defaultValue={state.status === "idle" ? bookmark.note : state.values.note}
           aria-invalid={state.fieldErrors.note ? true : undefined}
           aria-describedby={
@@ -211,7 +214,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
             <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={() => { setIsConfirmingDelete(false); setIsEditing(true); }}
                 disabled={isDeleting}
                 className={secondaryButtonClasses}
               >
@@ -234,7 +237,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
             </p>
           ) : null}
 
-          <p className="mt-2 text-xs text-[#6B7F77]">
+          <p className="mt-2 text-xs text-[#4B5F58]">
             Added {formatDate(bookmark.createdAt)}
             {wasUpdated ? ` · Updated ${formatDate(bookmark.updatedAt)}` : ""}
           </p>

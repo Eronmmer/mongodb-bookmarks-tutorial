@@ -2,7 +2,7 @@
 
 ## Overview
 
-This EDD documents the MongoDB data model for the **Bookmarks** learning app
+This EDD documents the MongoDB data model for the **Bookmarks** app
 (single-page Next.js App Router + MongoDB application).
 
 - Client source of truth: `lib/mongodb.ts`
@@ -10,7 +10,7 @@ This EDD documents the MongoDB data model for the **Bookmarks** learning app
 - Application validation source of truth: `lib/bookmark-validation.ts`
 - Application name (connection metadata): `devrel-tutorial-javascript-nextjstemplate`
 
-The app is a **shared learning demo**: every visitor reads and writes the same
+The app has one bookmark list: every admitted visitor reads and writes the same
 `bookmarks` collection. There are no accounts, no per-user scoping, and
 nothing about the data is private. The deployment platform (e.g. Vercel with
 Authentication enabled) is responsible for restricting access to authorized
@@ -42,8 +42,7 @@ server-generated timestamps; clients can never set `_id` or the timestamps.
 
 | Operation | Query / Command | Notes |
 | --- | --- | --- |
-| List | `find({}).sort({ createdAt: -1, _id: -1 }).limit(100)` | Newest first; bounded to the 100 newest documents |
-| Count | `countDocuments({})` | Used to disclose the 100-bookmark list limit on the page when more exist |
+| List | `find(filter).sort({ createdAt: -1, _id: -1 }).limit(101)` | Displays at most 100 records. The extra record signals an older page. A validated cursor filters to an earlier `createdAt` or the same timestamp with a smaller `_id`; invalid cursors fall back to the newest page. |
 | Create | `insertOne` | Server sets `createdAt`/`updatedAt` to the same instant |
 | Update | `updateOne({ _id }, { $set: { title, url, note, updatedAt } })` | `createdAt` is preserved; stale ids (record already deleted) return no match |
 | Delete | `deleteOne({ _id })` | Exact `_id` targeting; returns whether a document was deleted |
@@ -66,12 +65,12 @@ erDiagram
     }
 ```
 
-## Demo Constraints
+## Access and operation constraints
 
 - **Shared data**: one global collection, no user ownership field. All
   authorized visitors see and modify the same bookmarks.
-- **Bounded list**: reads return at most the 100 newest bookmarks; the UI
-  discloses when older bookmarks exist.
+- **Pagination**: queries fetch at most 101 records and display 100. Timestamp/ID cursors are validated before database filters are built. “Older bookmarks” advances through records and “Back to newest” returns to the first page.
+- **Index setup**: `npm run db:setup` creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`. Run it for each target database before deployment; the application does not create indexes during requests. The verification harness creates it on its disposable database.
 - **Connection behavior**: `lib/mongodb.ts` sets
   `serverSelectionTimeoutMS: 5000` for bounded feedback when the database is
   unavailable — a UX bound for this small interactive demo, not a performance

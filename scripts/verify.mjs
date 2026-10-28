@@ -70,6 +70,7 @@ try {
   const dbName = `bookmarks_test_${randomUUID().replaceAll("-", "")}`;
   mongo = await MongoMemoryServer.create({ binary: { version: "8.2.6" }, instance: { ip: "127.0.0.1", dbName } });
   const uri = mongo.getUri(dbName);
+  await run("npm", ["run", "db:setup"], { ...cleanEnv, MONGODB_URI: uri });
   const unavailablePort = await freePort();
   for (const [scenario, databaseURI] of [
     ["healthy", uri],

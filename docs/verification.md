@@ -99,7 +99,7 @@ These are dated advisory-service snapshots; neither result proves the absence of
 
 - Atlas provisioning/credentials/network access, Codespaces creation and Vercel deployment/protection were **not executed**. README instructions cite primary documentation, but local results do not prove those hosted flows.
 - A restricted deployment still needs unauthenticated checks of production, preview and generated URLs, a valid Server Action POST replay from the same deployment with authentication/bypass data removed and confirmation that no record changed, plus authorized CRUD, before sharing it. These checks remain unexecuted. A malformed POST failing validation does not establish protection. There is no application-level authentication or per-user ownership.
-- The verification wrapper uses POSIX process groups. The local macOS environment and the linked GitHub-hosted Ubuntu CI run were executed. Native Windows support is not implemented. WSL, Firefox, WebKit, a full accessibility review, load behavior and live database failover/recovery were not tested. Retry-cache reset, tied-timestamp ordering and create-button disabling were inspected in source but do not have direct behavioral coverage in the suite.
+- The verification wrapper uses POSIX process groups. The local macOS environment and the linked GitHub-hosted Ubuntu CI run were executed. Native Windows support is not implemented. WSL, Firefox, WebKit, a full accessibility review, load behavior and live database failover/recovery were not tested. Retry-cache reset still lacks direct recovery coverage. The 28 October checks below add behavioral coverage for tied-timestamp pagination and create-button disabling.
 - The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access and the hosted demo URL remain pending. No upstream repository was modified.
 - Before publication, obtain a technical review from a MongoDB Developer Advocate and an editorial review from Hugh Murray. Ask Jacob Payne whether the tutorial can be published on mongodb.com; DEV is the brief's alternative. These are pending editorial actions, not completed reviews or authorization to contact anyone.
 
@@ -115,3 +115,25 @@ npm run verify:dev
 ```
 
 The test harness does not require an Atlas account or a local `.env` file. The local demo helper is disposable: stopping it deletes its data.
+
+## Product cleanup and pagination, 28 October 2026
+
+The app remains one bookmark list with no application sign-in, as requested. Removed the learning-demo badge, shared-list disclaimer, technology footer and URL placeholder from the interface. Replaced template metadata and favicon, removed the unused template social image/logos/font module, and updated package and Codespaces labels. Small optional/date labels now use a text color with a calculated 6.82:1 contrast ratio on white (previously 4.26:1); this is a targeted contrast check, not a full accessibility audit.
+
+Older bookmarks are now reachable through timestamp/ObjectId cursor pagination. Each query fetches at most 101 records and displays 100, without a collection-wide count. `npm run db:setup` installs the matching compound index explicitly; it does not run as a side effect of page requests. Malformed cursors fall back to the newest page, and an empty older page offers a return link. Adding a bookmark from an older page returns to the newest list.
+
+Create/edit fields are read-only while a submission is pending. Unconfirmed write results ask the user to refresh and check the list before retrying; the app does not promise that a failed acknowledgement means no write occurred. Separate form submissions are not idempotent.
+
+Verification used `/tmp/bookmarks-polish-Fgk5jc`, a separate clone of `e47f17a` with the candidate patch applied and new files copied in. `npm ci` installed dependencies; no primary `.env`, database or build output was copied. Existing download caches were reused. On Node 24.22.1 / npm 11.19.1:
+
+- `npm run verify` passed lint, TypeScript, eight unit tests, a production build without a URI, twelve healthy-database browser checks, one missing-URI check and one unreachable-database check.
+- `npm run verify:dev` passed the same fourteen browser checks, for **28 executed browser checks across both runtimes**.
+- New coverage includes all 205 records across three pages with mixed dates and tied timestamps, invalid/repeated cursor parameters, creation from an older page, empty older-page recovery, the installed index, pending create/edit fields, and malformed setup URI output that must not reveal synthetic credentials.
+- A fresh audit on 28 October returned zero known vulnerabilities. No dependency upgrades were performed.
+- Independent code review found a setup-URI constructor outside its error handler; it was moved inside the handler and regression tests added. The reviewer rechecked the repair and independently passed all eight unit tests, with no outstanding code findings.
+- Two test-only timing issues were corrected: the create-form locator depended on a button label that changes while pending, and the pagination check read the prior page before navigation finished. The final successful runs use stable form identity and wait for the expected first record on each page.
+- The last change after the full runs only darkened three small text labels. A fresh production build checked that revision before the screenshot was captured.
+
+The refreshed article screenshot was captured from the running production build with two public documentation links in an isolated temporary database. The user's local preview database was not seeded, cleared or used by the tests. The preview remains available on port 3000.
+
+Atlas, Codespaces and Vercel execution/protection checks above are still pending. Local verification does not establish hosted production readiness, data durability or deployment access control.

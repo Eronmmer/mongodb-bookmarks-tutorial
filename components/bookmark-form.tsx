@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 
 import { createBookmarkAction } from "@/app/actions";
 import { emptyActionState } from "@/lib/bookmark-types";
@@ -26,7 +27,8 @@ function SubmitButton() {
 }
 
 export function BookmarkForm() {
-  const [state, formAction] = useActionState(
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(
     createBookmarkAction,
     emptyActionState,
   );
@@ -37,11 +39,12 @@ export function BookmarkForm() {
   useEffect(() => {
     if (state.status === "success") {
       formRef.current?.reset();
+      router.replace("/", { scroll: false });
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
-    <form ref={formRef} action={formAction} className="mt-4 space-y-4" noValidate>
+    <form ref={formRef} action={formAction} className="mt-4 space-y-4" aria-busy={isPending} noValidate>
       <div className="space-y-1.5">
         <label
           htmlFor="create-title"
@@ -54,6 +57,7 @@ export function BookmarkForm() {
           name="title"
           type="text"
           autoComplete="off"
+          readOnly={isPending}
           defaultValue={state.values.title}
           aria-invalid={state.fieldErrors.title ? true : undefined}
           aria-describedby={
@@ -80,7 +84,7 @@ export function BookmarkForm() {
           name="url"
           type="url"
           autoComplete="off"
-          placeholder="https://example.com"
+          readOnly={isPending}
           defaultValue={state.values.url}
           aria-invalid={state.fieldErrors.url ? true : undefined}
           aria-describedby={
@@ -100,12 +104,13 @@ export function BookmarkForm() {
           htmlFor="create-note"
           className="block text-sm font-medium text-[#1C2B26]"
         >
-          Note <span className="font-normal text-[#6B7F77]">(optional)</span>
+          Note <span className="font-normal text-[#4B5F58]">(optional)</span>
         </label>
         <textarea
           id="create-note"
           name="note"
           rows={3}
+          readOnly={isPending}
           defaultValue={state.values.note}
           aria-invalid={state.fieldErrors.note ? true : undefined}
           aria-describedby={

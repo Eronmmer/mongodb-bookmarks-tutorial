@@ -1,8 +1,8 @@
 # Bookmarks with Next.js and MongoDB
 
-A learning app for saving, listing, editing and deleting bookmarks with Next.js App Router, React, TypeScript and the official MongoDB driver. Each bookmark has a title, an HTTP(S) URL and an optional note.
+An app for saving, listing, editing and deleting bookmarks with Next.js App Router, React, TypeScript and the official MongoDB driver. Each bookmark has a title, an HTTP(S) URL and an optional note.
 
-This is a **shared learning demo**. There are no application accounts or per-user records: everyone with access can see and change the same list. Use sample links, never private information. Restrict any hosted deployment before enabling writes.
+The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
 
 See the [verification report](docs/verification.md) for the executed clean-checkout checks and their limits. The [working tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was prepared after local verification; the source repository is private, and live cloud checks remain pending.
 
@@ -44,8 +44,11 @@ The helper downloads and starts a real MongoDB **8.2.6** process using `mongodb-
 In another terminal:
 
 ```bash
+npm run db:setup
 npm run dev -- --hostname 127.0.0.1
 ```
+
+`db:setup` creates the `{ createdAt: -1, _id: -1 }` index used by bookmark ordering and pagination. Run it once for each database (and again after restarting the disposable helper); repeating it is safe. The database user needs permission to create indexes. For a hosted database, run this command from a trusted environment with the destination `MONGODB_URI` before deploying.
 
 Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Stop the app and database with Ctrl+C. Use your own MongoDB instance or Atlas for persistent data.
 
@@ -94,7 +97,7 @@ These commands describe the checks, not evidence that they passed on your machin
 | `scripts/verify.mjs` | Isolated verification orchestration |
 | `docs/tutorial-outline.md` | Planned tutorial structure |
 
-The list shows the 100 newest bookmarks and discloses when more exist. The MongoDB driver generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership, pagination or application authentication.
+The list shows 100 bookmarks per page. “Older bookmarks” uses a validated timestamp/ID cursor, and “Back to newest” returns to recent links. Reads request at most 101 records to detect another page without counting the entire collection. The MongoDB driver generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership or application authentication. Fields are read-only while a save is pending. A write whose result cannot be confirmed asks the user to refresh and check before retrying.
 
 ## Codespaces
 
@@ -118,4 +121,4 @@ Sources: [deployment protection](https://vercel.com/docs/deployment-protection),
 
 Adapted from [MongoDB's official template at commit `09278fa`](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6). The original licence is retained in `LICENSE`. This adaptation adds bookmarks CRUD and isolated verification; it does not imply official MongoDB authorship or endorsement of the adaptation.
 
-The refreshed lockfile resolves Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Use `npm ci` to reproduce it. Four moderate findings remain in the Tailwind 3 parser dependency chain in the recorded audit snapshot; this is not a zero-advisory claim. Advisory databases change, so review a fresh audit when updating dependencies.
+The refreshed lockfile resolves Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Use `npm ci` to reproduce it. The 28 October 2026 audit reported zero known vulnerabilities. Earlier audit results and remaining execution limits are recorded in `docs/verification.md`; advisory results can change.

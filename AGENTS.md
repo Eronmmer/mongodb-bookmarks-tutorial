@@ -1,6 +1,6 @@
-# Working on the bookmarks learning app
+# Working on Bookmarks
 
-Use Node.js 24.22.1 from `.nvmrc` and `npm ci`. Read `README.md` and `EDD.md` before changing database behavior. This is a shared learning demo, with no application authentication or per-user ownership. Do not describe it as a private bookmark manager or production-ready service. Hosted access restriction is a separate deployment requirement.
+Use Node.js 24.22.1 from `.nvmrc` and `npm ci`. Read `README.md` and `EDD.md` before changing database behavior. The user selected a single-list app with no application sign-in or per-user ownership. Keep tutorial labels and engineering disclaimers out of the product interface. Hosted access restriction is a separate deployment requirement; do not claim production validation before the hosted checks have run.
 
 ## Commands
 
@@ -13,7 +13,7 @@ npm run verify:dev
 
 `verify` covers lint, types, unit tests, a production build without a URI, isolated MongoDB CRUD and missing/unreachable database states. `verify:dev` exercises development CRUD. Use synthetic disposable data and these wrappers; never run destructive tests against a shared or personal database. Inspect `scripts/verify.mjs` and `playwright.config.ts` before invoking lower-level Playwright commands.
 
-For manual development, copy `.env.example` to `.env`, run `npm run db:local` in one terminal, then `npm run dev -- --hostname 127.0.0.1` in another. The database helper downloads real MongoDB 8.2.6 and uses ephemeral storage.
+For manual development, copy `.env.example` to `.env`, run `npm run db:local` in one terminal, then `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1` in another. The database helper downloads real MongoDB 8.2.6 and uses ephemeral storage.
 
 ## Source map
 

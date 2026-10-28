@@ -21,7 +21,7 @@ test.beforeAll(async () => {
 test.afterAll(async () => { await client?.close(); });
 test.beforeEach(async () => { await bookmarks.deleteMany({}); });
 
-function createForm(page: Page) { return page.locator("form").filter({ has: page.getByRole("button", { name: "Add bookmark", exact: true }) }); }
+function createForm(page: Page) { return page.locator("form").filter({ has: page.locator("#create-title") }); }
 async function add(page: Page, title: string, url = "https://example.com", note = "") {
   const form = createForm(page);
   await form.getByLabel("Title", { exact: true }).fill(title);
@@ -44,7 +44,10 @@ test.describe("healthy database", () => {
   test("empty state; two consecutive creates clear fields and persist through reload", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
-    await expect(page.getByText("Database unavailable", { exact: true })).toHaveCount(0);
+    await expect(page).toHaveTitle("Bookmarks");
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Save your useful links in one place.");
+    await expect(page.getByText(/learning demo|Everyone visiting this demo|Built with Next.js/)).toHaveCount(0);
+    await expect(page.getByText("Couldn’t load bookmarks", { exact: true })).toHaveCount(0);
     await createForm(page).evaluate((form) => {
       for (const [name, value] of [["createdAt", "2000-01-01"], ["unexpected", "must not persist"]]) {
         const input = document.createElement("input");
@@ -154,6 +157,9 @@ test.describe("healthy database", () => {
         await card.getByRole("button", { name: operation === "edit" ? "Save changes" : "Confirm delete", exact: true }).click();
         await expect(card.getByRole("button", { name: operation === "edit" ? "Saving…" : "Deleting…", exact: true })).toBeDisabled();
         await expect(card.getByRole("button", { name: "Cancel", exact: true })).toBeDisabled();
+        if (operation === "edit") {
+          for (const field of [card.getByLabel("Title", { exact: true }), card.getByLabel("URL", { exact: true }), card.getByLabel(/Note/)]) await expect(field).not.toBeEditable();
+        }
       } finally { release(); }
       if (operation === "edit") await expect(card.getByRole("button", { name: "Edit", exact: true })).toBeVisible();
       else await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
@@ -208,15 +214,60 @@ test.describe("healthy database", () => {
     }
   });
 
-  test("only the newest 100 of 101 records are rendered and the limit is disclosed", async ({ page }) => {
-    const baseTime = Date.parse("2025-01-01T00:00:00.000Z");
-    await bookmarks.insertMany(Array.from({ length: 101 }, (_, index) => ({ title: `Bookmark ${String(index).padStart(3, "0")}`, url: "https://example.com", note: "", createdAt: new Date(baseTime + index * 1000), updatedAt: new Date(baseTime + index * 1000) })));
+  test("older pages include tied timestamps without skipping records; malformed cursors recover", async ({ page }) => {
+    const createdAt = new Date("2025-01-01T00:00:00.000Z");
+    await bookmarks.insertMany(Array.from({ length: 205 }, (_, index) => ({ title: `Bookmark ${String(index).padStart(3, "0")}`, url: "https://example.com", note: "", createdAt: new Date(createdAt.getTime() + Math.floor(index / 70) * 1000), updatedAt: createdAt })));
+    const expected = (await bookmarks.find().sort({ createdAt: -1, _id: -1 }).toArray()).map((doc) => doc.title);
+    const seen: string[] = [];
     await page.goto("/");
+    for (const size of [100, 100, 5]) {
+      await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText(expected[seen.length]);
+      await expect(page.getByRole("listitem")).toHaveCount(size);
+      seen.push(...await page.getByRole("listitem").getByRole("link").allTextContents());
+      if (seen.length < 205) await page.getByRole("link", { name: "Older bookmarks", exact: true }).click();
+    }
+    expect(seen).toEqual(expected);
+    await expect(page.getByRole("link", { name: "Older bookmarks", exact: true })).toHaveCount(0);
+    await page.getByRole("link", { name: "Back to newest", exact: true }).click();
     await expect(page.getByRole("listitem")).toHaveCount(100);
-    await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText("Bookmark 100");
-    await expect(page.getByRole("listitem").last().getByRole("link")).toHaveText("Bookmark 001");
-    await expect(page.getByRole("link", { name: "Bookmark 000", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("status")).toContainText("Showing the newest 100 of 101 bookmarks");
+    for (const query of ["before=bad", "before=bad&before=bad", "before=2025-99-01_0123456789abcdef01234567"]) {
+      await page.goto(`/?${query}`);
+      await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText(expected[0]);
+    }
+    await page.getByRole("link", { name: "Older bookmarks", exact: true }).click();
+    await add(page, "New link from an older page");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("listitem").first().getByRole("link")).toHaveText("New link from an older page");
+  });
+
+  test("empty older pages offer a way back, and the sort index is installed", async ({ page }) => {
+    const original = await seed();
+    const cursor = `${original.createdAt.toISOString()}_${original._id.toHexString()}`;
+    await page.goto(`/?${new URLSearchParams({ before: cursor })}`);
+    await expect(page.getByRole("heading", { name: "No older bookmarks", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to newest", exact: true })).toBeVisible();
+    const indexes = await bookmarks.listIndexes().toArray();
+    expect(indexes.find((index) => index.name === "bookmarks_newest_first")?.key).toEqual({ createdAt: -1, _id: -1 });
+  });
+
+  test("creating a bookmark locks the fields until the save finishes", async ({ page }) => {
+    await page.goto("/");
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    await page.route("**/*", async (route) => {
+      if (route.request().method() === "POST") await gate;
+      await route.continue();
+    });
+    try {
+      const form = await add(page, "Pending bookmark", "https://example.com", "Keep this note");
+      await expect(form.getByRole("button", { name: "Saving…", exact: true })).toBeDisabled();
+      for (const field of [form.getByLabel("Title", { exact: true }), form.getByLabel("URL", { exact: true }), form.getByLabel(/Note/)]) {
+        await expect(field).not.toBeEditable();
+      }
+    } finally { release(); }
+    await expect(item(page, "Pending bookmark")).toBeVisible();
+    await expect(createForm(page).getByLabel("Title", { exact: true })).toBeEditable();
+    await page.unrouteAll({ behavior: "wait" });
   });
 
   test("long unbroken text fits a narrow mobile viewport", async ({ page }) => {
@@ -235,11 +286,11 @@ test.describe("database unavailable", () => {
   test.skip(healthy, "Run in both missing and unreachable URI scenarios.");
   test("shows an outage rather than empty data, and retains rejected mutation input", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Database unavailable", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Couldn’t load bookmarks", exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText(/MONGODB_URI|MongoServerSelectionError|mongodb:\/\//);
     const form = await add(page, "Preserve my bookmark", "https://example.com/outage", "Retry later");
-    await expect(form.getByRole("alert")).toContainText(/Could not save the bookmark/);
+    await expect(form.getByRole("alert")).toContainText(/Could not confirm that the bookmark was saved/);
     await expect(form.getByLabel("Title", { exact: true })).toHaveValue("Preserve my bookmark");
     await expect(form.getByLabel("URL", { exact: true })).toHaveValue("https://example.com/outage");
     await expect(form.getByLabel(/Note/)).toHaveValue("Retry later");

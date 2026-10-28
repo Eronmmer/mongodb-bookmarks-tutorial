@@ -7,7 +7,7 @@
   ],
   "portsAttributes": {
     "3000": {
-      "label": "Bookmarks demo",
+      "label": "Bookmarks",
       "onAutoForward": "notify"
     }
   }
