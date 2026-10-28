@@ -1,5 +1,7 @@
 # Bookmark app verification
 
+Latest application revision: `07361f2c747a9e05be119c69f2582f59306fbabd`, verified on 28 October 2026. Earlier runs below retain their original dates and scope.
+
 Full-suite verification was performed on 25 October 2026. Application and verification code: `32a6c7ce838489f7f9fb2b8f591f2b185904adfe`. Subsequent evidence/document changes do not change that runtime. A separate build-along reconstruction was verified on 26 October 2026, as recorded below.
 
 ## Environment and provenance
@@ -137,3 +139,11 @@ Verification used `/tmp/bookmarks-polish-Fgk5jc`, a separate clone of `e47f17a` 
 The refreshed article screenshot was captured from the running production build with two public documentation links in an isolated temporary database. The user's local preview database was not seeded, cleared or used by the tests. The preview remains available on port 3000.
 
 Atlas, Codespaces and Vercel execution/protection checks above are still pending. Local verification does not establish hosted production readiness, data durability or deployment access control.
+
+### Article reconstruction and hosted CI follow-up
+
+The updated article pins application and supporting files to `07361f2c747a9e05be119c69f2582f59306fbabd`. A separate fresh reconstruction in `/tmp/mongodb-bookmarks-buildalong-20261028` started at the official template revision and assembled all eight core files from the article's replace/append blocks. They matched the pinned source modulo edge whitespace. Dependency installation, Chromium installation, lint, types, eight unit tests, the production build and the article's three browser checks in each runtime passed. Index setup was confirmed against the disposable database. The starter checkpoint returned HTTP 200 with its original heading and “Database connected” text; this checkpoint did not assess browser hydration. Ports 27029/3021 replaced the article defaults to protect existing previews, and all owned processes were stopped. Evidence is retained locally under `/tmp/mongodb-bookmarks-work/buildalong-oct28-*`.
+
+The saved Google Doc readback exactly matched the updated article text. Its new screenshot is embedded, its source links and supporting-file commands use the new pin, and the rendered first page was visually checked. A text-bounds check found no overflow across the 31-page PDF export. No internal verification report was added to the article body.
+
+[GitHub Actions run 40636914661](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40636914661) passed on the exact application revision above. The dependency/browser installation, production verification and report upload steps all completed successfully. This adds hosted CI evidence, not Atlas, Codespaces or Vercel deployment evidence.
