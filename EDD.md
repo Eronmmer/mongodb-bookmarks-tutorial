@@ -10,11 +10,10 @@ This EDD documents the MongoDB data model for the **Bookmarks** app
 - Application validation source of truth: `lib/bookmark-validation.ts`
 - Application name (connection metadata): `devrel-tutorial-javascript-nextjstemplate`
 
-The app has one bookmark list: every admitted visitor reads and writes the same
-`bookmarks` collection. There are no accounts, no per-user scoping, and
-nothing about the data is private. The deployment platform (e.g. Vercel with
-Authentication enabled) is responsible for restricting access to authorized
-visitors.
+The app uses one shared `bookmarks` collection. It has no application sign-in
+or per-user isolation: visitors authorized by the deployment platform can
+read and change the same records. The deployment platform is responsible for
+restricting access.
 
 Validation is enforced **in application code** (`lib/bookmark-validation.ts`).
 There is **no JSON schema validation** on the collection itself; the server

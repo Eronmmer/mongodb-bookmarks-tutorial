@@ -4,7 +4,7 @@ An app for saving, listing, editing and deleting bookmarks with Next.js App Rout
 
 The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
 
-See the [verification report](docs/verification.md) for the executed clean-checkout checks and their limits. The [working tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) was prepared after local verification; the source repository is private, and live cloud checks remain pending.
+See the [verification report](docs/verification.md) for the executed checks and their limits. The [tutorial draft](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) has been reviewed against the pinned source. The repository is private. Atlas connectivity and index setup, Vercel deployment, live CRUD and unauthenticated GET/POST redirects have been checked. An exact valid Server Action replay without authentication remains unverified.
 
 ## Source repository
 
@@ -57,13 +57,13 @@ Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, e
 1. Create/select an Atlas project and cluster. Create a database user with only the demo database privileges it needs, such as `readWrite` on `bookmarks_demo`. This is separate from your Atlas website account.
 2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
 3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmarks_demo` as the database.
-4. Replace `MONGODB_URI` in `.env` and restart the app. Do not run `db:local` for this path. Keep the URI out of Git, screenshots and logs.
+4. Replace `MONGODB_URI` in `.env`. Run `npm run db:setup` for that database before starting or restarting the app. Do not run `db:local` for this path. Keep the URI out of Git, screenshots and logs.
 
 Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [IP access lists](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [URI encoding](https://www.mongodb.com/docs/v8.3/reference/connection-string-formats/).
 
 ## Verify the app
 
-The verification helper supports macOS, Linux and WSL; it uses POSIX process groups to clean up the app and its workers. Native Windows execution has not been implemented or tested.
+The verification helper uses POSIX process groups and has been tested on macOS and Ubuntu. WSL has not been tested. Native Windows execution is not implemented.
 
 Install Chromium once, including operating-system dependencies where needed:
 
@@ -105,15 +105,15 @@ The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for for
 
 ## Deploy a restricted demo
 
-Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) using a Vercel account with access to the private repository. No deployment URL has been created. The original template's Deploy button targets the original template, not this app.
+Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) using a Vercel account with access to the private repository. The restricted [Vercel deployment](https://mongodb-bookmarks-tutorial.vercel.app) connects to Atlas; create, reload, edit and delete were verified on 28 October 2026. The original template's Deploy button targets the original template, not this app.
 
-Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Security → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
+Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Project → Settings → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
 
 Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Prefer separate demo/preview databases.
 
 Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you deliberately choose Atlas `0.0.0.0/0` for this learning setup, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
 
-Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. Confirm authorized CRUD separately. These hosted checks remain unperformed; local tests cannot prove Vercel protection.
+Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. The production, main-branch and generated deployment URLs redirect unauthenticated GET and multipart POST probes to Vercel SSO. Authorized CRUD passed. The POST probes omitted the browser tool's redacted Server Action bindings, so an exact valid-action replay remains unverified. See the verification report for the exact deployment and results.
 
 Sources: [deployment protection](https://vercel.com/docs/deployment-protection), [environment scopes](https://vercel.com/docs/environment-variables), [outbound IPs](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address), [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
 
@@ -122,3 +122,5 @@ Sources: [deployment protection](https://vercel.com/docs/deployment-protection),
 Adapted from [MongoDB's official template at commit `09278fa`](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6). The original licence is retained in `LICENSE`. This adaptation adds bookmarks CRUD and isolated verification; it does not imply official MongoDB authorship or endorsement of the adaptation.
 
 The refreshed lockfile resolves Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Use `npm ci` to reproduce it. The 28 October 2026 audit reported zero known vulnerabilities. Earlier audit results and remaining execution limits are recorded in `docs/verification.md`; advisory results can change.
+
+Vercel installation also reported an ESLint 9 end-of-life warning and a deprecated `glob` dependency in the Tailwind chain. These are development-tool maintenance follow-ups, separate from vulnerability-audit findings.

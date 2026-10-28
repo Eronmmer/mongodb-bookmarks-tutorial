@@ -99,10 +99,10 @@ These are dated advisory-service snapshots; neither result proves the absence of
 
 ## Limits and publication follow-up
 
-- Atlas provisioning/credentials/network access, Codespaces creation and Vercel deployment/protection were **not executed**. README instructions cite primary documentation, but local results do not prove those hosted flows.
-- A restricted deployment still needs unauthenticated checks of production, preview and generated URLs, a valid Server Action POST replay from the same deployment with authentication/bypass data removed and confirmation that no record changed, plus authorized CRUD, before sharing it. These checks remain unexecuted. A malformed POST failing validation does not establish protection. There is no application-level authentication or per-user ownership.
+- Atlas provisioning, scoped database credentials, the approved network rule, index setup, Vercel deployment and authorized live CRUD were executed on 28 October, as recorded below. Codespaces remains untested.
+- Production, main-branch and generated deployment URLs returned Vercel authentication redirects for unauthenticated GET and multipart POST probes. An exact valid Server Action replay with authentication/bypass data removed remains unverified: the browser tool redacted its hidden action bindings. A malformed POST failing validation would not establish protection. There is no application-level authentication or per-user ownership.
 - The verification wrapper uses POSIX process groups. The local macOS environment and the linked GitHub-hosted Ubuntu CI run were executed. Native Windows support is not implemented. WSL, Firefox, WebKit, a full accessibility review, load behavior and live database failover/recovery were not tested. Retry-cache reset still lacks direct recovery coverage. The 28 October checks below add behavioral coverage for tied-timestamp pagination and create-button disabling.
-- The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access and the hosted demo URL remain pending. No upstream repository was modified.
+- The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access remains pending. The [restricted deployment](https://mongodb-bookmarks-tutorial.vercel.app) is live. No upstream repository was modified.
 - Before publication, obtain a technical review from a MongoDB Developer Advocate and an editorial review from Hugh Murray. Ask Jacob Payne whether the tutorial can be published on mongodb.com; DEV is the brief's alternative. These are pending editorial actions, not completed reviews or authorization to contact anyone.
 
 ## Reproduce
@@ -138,7 +138,7 @@ Verification used `/tmp/bookmarks-polish-Fgk5jc`, a separate clone of `e47f17a` 
 
 The refreshed article screenshot was captured from the running production build with two public documentation links in an isolated temporary database. The user's local preview database was not seeded, cleared or used by the tests. The preview remains available on port 3000.
 
-Atlas, Codespaces and Vercel execution/protection checks above are still pending. Local verification does not establish hosted production readiness, data durability or deployment access control.
+The later cloud checkpoint below adds Atlas and Vercel execution evidence. Codespaces, exact valid-action replay, load testing and database failover remain unverified. Local verification alone does not establish hosted production readiness, data durability or deployment access control.
 
 ### Article reconstruction and hosted CI follow-up
 
@@ -147,3 +147,36 @@ The updated article pins application and supporting files to `07361f2c747a9e05be
 The saved Google Doc readback exactly matched the updated article text. Its new screenshot is embedded, its source links and supporting-file commands use the new pin, and the rendered first page was visually checked. A text-bounds check found no overflow across the 31-page PDF export. No internal verification report was added to the article body.
 
 [GitHub Actions run 40636914661](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40636914661) passed on the exact application revision above. The dependency/browser installation, production verification and report upload steps all completed successfully. This adds hosted CI evidence, not Atlas, Codespaces or Vercel deployment evidence.
+
+## Atlas, Vercel and article verification, 28 October 2026
+
+Created the dedicated **Bookmarks Tutorial** Atlas project in the dashboard. The dashboard's Free-cluster form could not connect to the reCAPTCHA service; the supported Atlas CLI 1.59.3 user-account flow succeeded after authorization. An inventory check confirmed no existing cluster before an explicit `--tier M0` creation. The `bookmarks` cluster is Free M0, AWS Paris (`EU_WEST_3`), MongoDB 8.0.34, and reached `IDLE`. No paid resources or sample dataset were selected.
+
+The `bookmarks_app` database user has only `readWrite` on `bookmarks_demo`, scoped to the `bookmarks` cluster. The user approved the `0.0.0.0/0` network rule needed for this direct connection from Vercel Hobby's dynamic outbound addresses. This allows connection attempts from any IPv4 address; database credentials and TLS remain required. It is a deliberate network trade-off, not private networking.
+
+Saved `MONGODB_URI` as a **Secret**, scoped only to Vercel Production. An initial credential appeared in a tool readback and was rotated in Atlas and Vercel before the Atlas-connected deployment. The replacement was not printed or committed. Local connection material is stored outside the repository with owner-only permissions.
+
+The repository's setup script completed against Atlas with “Bookmark index is ready.” A separate driver read confirmed database `bookmarks_demo`, an initially empty `bookmarks` collection, and index `bookmarks_newest_first` with `{ createdAt: -1, _id: -1 }`.
+
+The Vercel project uses Hobby, Node.js 24.x, Fluid Compute and Paris (`cdg1`). **All Deployments** Vercel Authentication was saved before supplying working database credentials. The inspected settings had no protection exceptions, active share links or automation bypass secret. A normal account reauthentication was completed before redeployment.
+
+The first deployment, `GhrFz28qDn6HrPB7DBebCKTsNSct`, verified building without a URI and loading the outage state after authentication. The Atlas-connected production deployment, [`4TGy2xEymzLimbFPX3BZvCNbnnJE`](https://vercel.com/erons/mongodb-bookmarks-tutorial/4TGy2xEymzLimbFPX3BZvCNbnnJE), reached Ready in 34 seconds. Both used `6aa3ad2f767fb3e900c645fc6662af7ef1c35221`, whose application code is identical to pinned revision `07361f2c747a9e05be119c69f2582f59306fbabd`. Vercel's Node major is verified; its exact minor/patch was not measured.
+
+In authorized Chrome, created one disposable bookmark, reloaded to confirm persistence, changed its title and note, reloaded to confirm the edit, cancelled deletion, then confirmed deletion and reloaded to the empty state. The create form cleared after saving. A direct Atlas count after CRUD and the access probes below confirmed zero remaining records. The existing local preview database was untouched.
+
+Unauthenticated requests used no cookies, authorization headers or deployment bypass credentials:
+
+| URL type | Checked URL | GET | Multipart POST |
+| --- | --- | --- | --- |
+| Production | `https://mongodb-bookmarks-tutorial.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO |
+| Main-branch alias | `https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO |
+| Generated production | `https://mongodb-bookmarks-tutorial-q3k937g04-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO |
+| Generated preview | `https://mongodb-bookmarks-tutorial-g8jfkrdmq-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO |
+
+A separate Preview-environment deployment, `9RGYuPu2PBD422QU2jFkGyqG1fsL`, used the same source and reached Ready in 14 seconds with the existing build cache. Its authorized page displayed the expected missing-URI state: Production credentials were not shared with Preview. No separate Preview database was provisioned or CRUD-tested. Production still displayed its healthy empty state afterward.
+
+The POST probes contained valid bookmark field values but omitted the hidden Server Action bindings, which the browser tool redacted. They establish redirects for those POST requests, **not an exact replay of a valid Server Action**. That stronger mutation check remains unverified.
+
+The article prose was revised using the approved writing references. All 32 native code blocks (15 Shell and 17 TypeScript), 39 links, 35 titles/headings and the existing app screenshot were preserved. Independent readback comparison confirmed all code text exactly. Visual QA covered the exported 41-page PDF, including long TSX examples. Reader access to the private source and the brief's MongoDB technical/editorial reviews remain publication prerequisites.
+
+Vercel's installation output included an ESLint 9 end-of-life warning and deprecated `glob` in the Tailwind/Sucrase development dependency chain. These need a coordinated tooling-maintenance review; they are separate from the dated zero-advisory audit result. This work did not force dependency upgrades or enable all install scripts.
