@@ -273,3 +273,17 @@ Hashes of the locally delivered files matching the two tested patches are record
 References: [Next.js Server Action origin checks](https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions), [GitHub port forwarding](https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace).
 
 The owned Codespace was stopped after the final tests; GitHub confirmed the stopped state. No test bookmark remained. The private repository and existing $0 paid-usage budget were retained. [The captured command summary](evidence/2026-10-29/codespaces-test-summary.txt) records the final checks.
+
+## Tutorial screenshot replacement, 29 October 2026
+
+Replaced `docs/images/bookmarks-desktop.png` with a genuine lossless PNG captured from the running production app. This file is a documentation asset referenced by `docs/tutorial.md`; the application does not import it or require it at runtime. The previous file was a 1280 × 720 JPEG despite its `.png` extension.
+
+The new capture is 3000 × 1692 pixels (232,224 bytes), rendered in an isolated headless Chromium 149.0.7827.55 session at a 1024 × 680 CSS-pixel viewport and device scale factor 3. A 1000 × 564 CSS-pixel crop includes the full header, form and both bookmark cards with 12 pixels of surrounding space. No app code, CSS or rendered content was altered for the capture. The user explicitly approved this capture method because the built-in browser screenshot tool outputs JPEG.
+
+The production preview used two public documentation bookmarks in a disposable loopback MongoDB database, separate from the user's preview and Atlas. Nineteen relevant source, configuration and dependency files matched `dc8431af9794b024b017b1d8a505198de8dc7259`; the reused build's only configuration difference was the Codespaces development-only origin setting, which is inactive in production.
+
+Replaced only the opening screenshot in the Google Doc. Native readback confirmed that the full document body, including all prose, code and paragraph/text styles, was unchanged after normalizing the new image object ID. The exported PDF still has 49 pages and embeds the image at 2048 × 1155 pixels with lossless image encoding, approximately 315 pixels per inch at its 6.5-inch display width. The first page was rendered and visually checked for legibility and layout. The 3000-pixel original remains in the repository for publication.
+
+PNG SHA-256: `d361dcedfddc6d10a84530c6edc3de75be5d84023f182a0849cabdfb94d15d95`. Capture script and measurements are retained locally under `/tmp/mongodb-bookmarks-work/capture-publication-screenshot.mjs` and `/tmp/mongodb-bookmarks-work/screenshot-retake-evidence.json`.
+
+The isolated preview and temporary database stopped successfully afterward; ports 3033 and 52090 were closed. Independent visual review of the updated first page found no clipping, distortion or overlap.
