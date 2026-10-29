@@ -77,7 +77,7 @@ Replace .env.example with this local connection setting. It contains no password
 `.env.example`
 
 ```bash
-MONGODB_URI=mongodb://127.0.0.1:27028/bookmarks_demo
+MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
 ```
 
 In .gitignore, replace the existing .env entry with the following two lines. They keep local environment files out of commits while allowing the credential-free example file to be tracked:
@@ -97,20 +97,20 @@ cp .env.example .env
 
 ### Use MongoDB Atlas
 
-Create or select an Atlas project and cluster, then add a [database user](https://www.mongodb.com/docs/atlas/security-add-mongodb-users/) with readWrite access to bookmarks_demo. This is the user the app will connect as, separate from the account you use to sign in to Atlas.
+Create or select an Atlas project and cluster, then add a [database user](https://www.mongodb.com/docs/atlas/security-add-mongodb-users/) with readWrite access to bookmark_app. This is the user the app will connect as, separate from the account you use to sign in to Atlas.
 
 Atlas also needs to allow connections from the machine running Node.js. In [Network Access](https://www.mongodb.com/docs/atlas/security/ip-access-list/), add that machine’s public outbound IP address. For local development, this is usually your computer’s current public IP. For Codespaces or another host, use that host’s outbound address.
 
-Choose [Connect → Drivers → Node.js](https://www.mongodb.com/docs/atlas/driver-connection/) and copy the mongodb+srv:// connection string into MONGODB_URI in .env. Fill in your database username and password, then add bookmarks_demo between the final slash and the query string. Keep the options Atlas supplies.
+Choose [Connect → Drivers → Node.js](https://www.mongodb.com/docs/atlas/driver-connection/) and copy the mongodb+srv:// connection string into MONGODB_URI in .env. Fill in your database username and password, then add bookmark_app between the final slash and the query string. Keep the options Atlas supplies.
 
-The database portion of the URI should read /bookmarks_demo? followed by the existing query options. [Percent-encode reserved characters](https://www.mongodb.com/docs/manual/reference/connection-string-formats/) in the credentials, and keep .env out of source control. Leave the variable named MONGODB_URI: adding a [NEXT_PUBLIC_](https://nextjs.org/docs/app/guides/environment-variables) prefix would expose referenced values to browser code.
+The database portion of the URI should read /bookmark_app? followed by the existing query options. [Percent-encode reserved characters](https://www.mongodb.com/docs/manual/reference/connection-string-formats/) in the credentials, and keep .env out of source control. Leave the variable named MONGODB_URI: adding a [NEXT_PUBLIC_](https://nextjs.org/docs/app/guides/environment-variables) prefix would expose referenced values to browser code.
 
 ### Or start a temporary local database
 
 If you choose the local database, keep MONGODB_URI set to the value from .env.example:
 
 ```bash
-MONGODB_URI=mongodb://127.0.0.1:27028/bookmarks_demo
+MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
 ```
 
 Create scripts/local-db.mjs with the helper below. It starts a real MongoDB process on loopback and stops it when you press Ctrl+C. A fixed port keeps the connection string predictable; if that port is already in use, startup fails with a message.
@@ -125,14 +125,14 @@ try {
   mongo = await MongoMemoryServer.create({
     binary: { version: "8.2.6" },
     // .env.example uses this exact port. Never silently start elsewhere.
-    instance: { ip: "127.0.0.1", port: 27028, portGeneration: false, dbName: "bookmarks_demo" },
+    instance: { ip: "127.0.0.1", port: 27028, portGeneration: false, dbName: "bookmark_app" },
   });
 } catch {
   console.error("Could not start local MongoDB on 127.0.0.1:27028. Check that the port is free and the MongoDB binary can be downloaded.");
   process.exit(1);
 }
 console.log("Temporary local MongoDB; all data is lost when this process stops.");
-console.log(`MONGODB_URI=${mongo.getUri("bookmarks_demo")}`);
+console.log(`MONGODB_URI=${mongo.getUri("bookmark_app")}`);
 let stopping = false;
 async function stop() {
   if (stopping) return;

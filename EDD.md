@@ -9,6 +9,7 @@ This EDD documents the MongoDB data model for the **Bookmarks** app
 - Data access source of truth: `db/bookmarks.ts`
 - Application validation source of truth: `lib/bookmark-validation.ts`
 - Application name (connection metadata): `devrel-tutorial-javascript-nextjstemplate`
+- Database: `bookmark_app`, selected by the database path in `MONGODB_URI`; the client uses `client.db()` rather than hardcoding the name.
 
 The app uses one shared `bookmarks` collection. It has no application sign-in
 or per-user isolation: visitors authorized by the deployment platform can

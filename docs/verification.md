@@ -154,11 +154,11 @@ The saved Google Doc readback exactly matched the updated article text. Its new 
 
 Created the dedicated **Bookmarks Tutorial** Atlas project in the dashboard. The dashboard's Free-cluster form could not connect to the reCAPTCHA service; the supported Atlas CLI 1.59.3 user-account flow succeeded after authorization. An inventory check confirmed no existing cluster before an explicit `--tier M0` creation. The `bookmarks` cluster is Free M0, AWS Paris (`EU_WEST_3`), MongoDB 8.0.34, and reached `IDLE`. No paid resources or sample dataset were selected.
 
-The `bookmarks_app` database user has only `readWrite` on `bookmarks_demo`, scoped to the `bookmarks` cluster. The user approved the `0.0.0.0/0` network rule needed for this direct connection from Vercel Hobby's dynamic outbound addresses. This allows connection attempts from any IPv4 address; database credentials and TLS remain required. It is a deliberate network trade-off, not private networking.
+At this checkpoint, the `bookmarks_app` database user had only `readWrite` on `bookmarks_demo` (the former database name), scoped to the `bookmarks` cluster. The user approved the `0.0.0.0/0` network rule needed for this direct connection from Vercel Hobby's dynamic outbound addresses. This allows connection attempts from any IPv4 address; database credentials and TLS remain required. It is a deliberate network trade-off, not private networking.
 
 Saved `MONGODB_URI` as a **Secret**, scoped only to Vercel Production. An initial credential appeared in a tool readback and was rotated in Atlas and Vercel before the Atlas-connected deployment. The replacement was not printed or committed. Local connection material is stored outside the repository with owner-only permissions.
 
-The repository's setup script completed against Atlas with “Bookmark index is ready.” A separate driver read confirmed database `bookmarks_demo`, an initially empty `bookmarks` collection, and index `bookmarks_newest_first` with `{ createdAt: -1, _id: -1 }`.
+The repository's setup script completed against Atlas with “Bookmark index is ready.” A separate driver read confirmed database `bookmarks_demo` (the name used for this historical check), an initially empty `bookmarks` collection, and index `bookmarks_newest_first` with `{ createdAt: -1, _id: -1 }`.
 
 The Vercel project uses Hobby, Node.js 24.x, Fluid Compute and Paris (`cdg1`). **All Deployments** Vercel Authentication was saved before supplying working database credentials. The inspected settings had no protection exceptions, active share links or automation bypass secret. A normal account reauthentication was completed before redeployment.
 

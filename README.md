@@ -30,7 +30,7 @@ cp .env.example .env
 The example selects:
 
 ```dotenv
-MONGODB_URI=mongodb://127.0.0.1:27028/bookmarks_demo
+MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
 ```
 
 Start the database in one terminal and leave it running:
@@ -54,9 +54,9 @@ Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, e
 
 ## Use Atlas instead
 
-1. Create/select an Atlas project and cluster. Create a database user with only the demo database privileges it needs, such as `readWrite` on `bookmarks_demo`. This is separate from your Atlas website account.
+1. Create/select an Atlas project and cluster. Create a database user with only the demo database privileges it needs, such as `readWrite` on `bookmark_app`. This is separate from your Atlas website account.
 2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
-3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmarks_demo` as the database.
+3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmark_app` as the database.
 4. Replace `MONGODB_URI` in `.env`. Run `npm run db:setup` for that database before starting or restarting the app. Do not run `db:local` for this path. Keep the URI out of Git, screenshots and logs.
 
 Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [IP access lists](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [URI encoding](https://www.mongodb.com/docs/v8.3/reference/connection-string-formats/).
