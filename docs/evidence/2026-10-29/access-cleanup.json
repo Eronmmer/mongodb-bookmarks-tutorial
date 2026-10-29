@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-29T02:55:02.722Z",
+  "deploymentId": "dpl_5YTxL3ht72rwD6Cf3kbqnz6VxGpk",
+  "sourceCommit": "61c34b911e5efc5fcf5a0cb28ca98553d736533a",
+  "generatedUrl": "mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app",
+  "aliases": [
+    "mongodb-bookmarks-tutorial.vercel.app",
+    "mongodb-bookmarks-tutorial-erons.vercel.app",
+    "mongodb-bookmarks-tutorial-git-main-erons.vercel.app"
+  ],
+  "protection": {
+    "deploymentType": "all"
+  },
+  "tokenCountBefore": 0,
+  "createdTestTokens": 1,
+  "tokenCountAfter": 0,
+  "revokedTokenStatus": 302,
+  "revokedTokenLocationOrigin": "https://vercel.com",
+  "revokedTokenLocationPath": "/sso-api"
+}

@@ -1,8 +1,8 @@
 # Bookmark app verification
 
-Latest application revision: `07361f2c747a9e05be119c69f2582f59306fbabd`, verified on 28 October 2026. Earlier runs below retain their original dates and scope.
+Latest checks: 29 October 2026, covering Codespaces setup and valid Server Action access. The dated checkpoints below identify the tested revisions and configuration fixes. Earlier runs retain their original dates and scope.
 
-The latest tutorial setup is self-contained. The reconstruction at the end of this report supersedes the earlier instructions that fetched supporting files from the companion repository; those earlier runs remain historical evidence.
+The latest tutorial setup is self-contained. The 28 October reconstruction checkpoint supersedes the earlier instructions that fetched supporting files from the companion repository; those earlier runs remain historical evidence.
 
 Full-suite verification was performed on 25 October 2026. Application and verification code: `32a6c7ce838489f7f9fb2b8f591f2b185904adfe`. Subsequent evidence/document changes do not change that runtime. A separate build-along reconstruction was verified on 26 October 2026, as recorded below.
 
@@ -101,8 +101,8 @@ These are dated advisory-service snapshots; neither result proves the absence of
 
 ## Limits and publication follow-up
 
-- Atlas provisioning, scoped database credentials, the approved network rule, index setup, Vercel deployment and authorized live CRUD were executed on 28 October, as recorded below. Codespaces remains untested.
-- Production, main-branch and generated deployment URLs returned Vercel authentication redirects for unauthenticated GET and multipart POST probes. An exact valid Server Action replay with authentication/bypass data removed remains unverified: the browser tool redacted its hidden action bindings. A malformed POST failing validation would not establish protection. There is no application-level authentication or per-user ownership.
+- Atlas provisioning, scoped database credentials, the approved network rule, index setup, Vercel deployment and authorized live CRUD were executed on 28 October, as recorded below. Codespaces setup and CRUD were exercised on 29 October after the two configuration fixes recorded below.
+- Valid create, update and delete Server Action payloads were tested without credentials on 29 October across the four URLs of the recorded production deployment. All twelve requests hit the Vercel SSO gate without database changes; identical request bodies succeeded with an automation access credential. See the dated checkpoint below. There is no application-level authentication or per-user ownership.
 - The verification wrapper uses POSIX process groups. The local macOS environment and the linked GitHub-hosted Ubuntu CI run were executed. Native Windows support is not implemented. WSL, Firefox, WebKit, a full accessibility review, load behavior and live database failover/recovery were not tested. Retry-cache reset still lacks direct recovery coverage. The 28 October checks below add behavioral coverage for tied-timestamp pagination and create-button disabling.
 - The completed app is hosted in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository created at the user's request. Public reader access remains pending. The [restricted deployment](https://mongodb-bookmarks-tutorial.vercel.app) is live. No upstream repository was modified.
 - Before publication, obtain a technical review from a MongoDB Developer Advocate and an editorial review from Hugh Murray. Ask Jacob Payne whether the tutorial can be published on mongodb.com; DEV is the brief's alternative. These are pending editorial actions, not completed reviews or authorization to contact anyone.
@@ -140,7 +140,7 @@ Verification used `/tmp/bookmarks-polish-Fgk5jc`, a separate clone of `e47f17a` 
 
 The refreshed article screenshot was captured from the running production build with two public documentation links in an isolated temporary database. The user's local preview database was not seeded, cleared or used by the tests. The preview remains available on port 3000.
 
-The later cloud checkpoint below adds Atlas and Vercel execution evidence. Codespaces, exact valid-action replay, load testing and database failover remain unverified. Local verification alone does not establish hosted production readiness, data durability or deployment access control.
+The later cloud checkpoint below adds Atlas and Vercel execution evidence. Codespaces, exact valid-action replay, load testing and database failover were still unverified at this checkpoint; see the 29 October additions for subsequent coverage. Local verification alone does not establish hosted production readiness, data durability or deployment access control.
 
 ### Article reconstruction and hosted CI follow-up
 
@@ -177,7 +177,7 @@ Unauthenticated requests used no cookies, authorization headers or deployment by
 
 A separate Preview-environment deployment, `9RGYuPu2PBD422QU2jFkGyqG1fsL`, used the same source and reached Ready in 14 seconds with the existing build cache. Its authorized page displayed the expected missing-URI state: Production credentials were not shared with Preview. No separate Preview database was provisioned or CRUD-tested. Production still displayed its healthy empty state afterward.
 
-The POST probes contained valid bookmark field values but omitted the hidden Server Action bindings, which the browser tool redacted. They establish redirects for those POST requests, **not an exact replay of a valid Server Action**. That stronger mutation check remains unverified.
+The POST probes contained valid bookmark field values but omitted the hidden Server Action bindings, which the browser tool redacted. They establish redirects for those POST requests, **not an exact replay of a valid Server Action**. That stronger mutation check was still unverified at this checkpoint; the 29 October results below close it for the later recorded deployment.
 
 The article prose was revised using the approved writing references. All 32 native code blocks (15 Shell and 17 TypeScript), 39 links, 35 titles/headings and the existing app screenshot were preserved. Independent readback comparison confirmed all code text exactly. Visual QA covered the exported 41-page PDF, including long TSX examples. Reader access to the private source and the brief's MongoDB technical/editorial reviews remain publication prerequisites.
 
@@ -216,3 +216,60 @@ After local acceptance, the reconstructed source was committed as `4606d3ca29481
 The Google Doc was updated only after local and hosted acceptance passed. Independent readback comparison confirmed all 206 logical blocks, all 43 code samples including whitespace, all 38 hyperlinks, the 35 heading styles and the original screenshot. The 43 native code containers use Roboto Mono 9 pt and syntax colors; filenames and code identifiers have separate inline styling. Google Docs has no YAML language option, so the workflow uses its neutral `None` option with an explicit YAML caption and manual syntax colors. Visual review covered the title, setup, JavaScript helpers, CSS, SVG, verification runner and workflow in the refreshed 49-page PDF, plus the live editor. An all-page text-bounds check found no text outside the PDF pages. Thirty accidental inline-code styles on ordinary prose words were corrected without changing content. The final Markdown code fences match the same 43-code-block digest.
 
 The self-contained path targets macOS/Linux. Codespaces, WSL and native Windows were not exercised by this reconstruction. Atlas/Vercel execution evidence remains the earlier hosted checkpoint above; the new local checks do not establish additional cloud coverage, exact valid-action replay, load behavior or database failover.
+
+
+## Valid Server Action access checks, 29 October 2026
+
+Tested production deployment `dpl_5YTxL3ht72rwD6Cf3kbqnz6VxGpk`, built from `61c34b911e5efc5fcf5a0cb28ca98553d736533a`. Vercel's deployment inspection mapped all four tested URLs to that same build before and after the requests. No deployment or application code changed during the test.
+
+The test obtained the actual create/update/delete action references from this deployment's client bundle through Vercel's authenticated CLI. The matching Next.js 16.4.3 `encodeReply` serializer produced each multipart body once. These were constructed, working action requests, not HAR captures or guessed bindings. Each body was sent first without credentials, then with a temporary Vercel automation bypass credential as the positive control. The positives ran on the canonical production domain and had to return the action's success message **and** produce the expected MongoDB change before the corresponding negatives counted as valid.
+
+| URL | Create without credentials | Update without credentials | Delete without credentials |
+| --- | --- | --- | --- |
+| `https://mongodb-bookmarks-tutorial.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO | 302 to Vercel SSO |
+| `https://mongodb-bookmarks-tutorial-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO | 302 to Vercel SSO |
+| `https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO | 302 to Vercel SSO |
+| `https://mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app/` | 302 to Vercel SSO | 302 to Vercel SSO | 302 to Vercel SSO |
+
+All negatives used ordinary Node HTTP requests with an explicit header allowlist: `Accept`, `Content-Type`, `Next-Action` and the destination's matching `Origin`. They contained no cookie, authorization header, bypass header or query credential; redirects were not followed. `vercel curl` was never used for a negative control. Request-body SHA-256 and byte length matched each action's successful positive control. The positive differed by the automation bypass header; this verifies authorized automation access, not a new browser SSO session.
+
+Before, immediately after and two seconds after each negative, the test read the entire bookmark collection, ordered it by `_id`, preserved BSON types with canonical Extended JSON, sorted object keys and compared SHA-256 digests and document counts. All twelve negatives left both unchanged. The positive sequence created one uniquely tagged synthetic bookmark, changed its title/note while preserving `createdAt`, then deleted that same record. Both update and delete negatives targeted a record that existed at request time. The final collection digest and count matched the initial empty baseline. No personal bookmark or other database was modified.
+
+Vercel Authentication stayed on **All Deployments**. The project had no automation bypass secret before testing. The CLI created one for this check; it was revoked afterward, and a request using that revoked secret returned the SSO redirect. The final secret count was again zero. Repository visibility remained **PRIVATE**.
+
+Versioned sanitized evidence: [action requests and database digests](evidence/2026-10-29/live-action-requests.json), [deployment mapping and credential cleanup](evidence/2026-10-29/access-cleanup.json), and [reviewed helper hashes](evidence/2026-10-29/reviewed-harness-hashes.json). The exact executed helpers are retained locally under `/tmp/mongodb-bookmarks-work/action-proof/`; credentials and downloaded application resources are excluded from Git. Independent read-only review found no remaining issue in the revised helper or recorded results.
+
+This closes the valid-action access check for these actions, URLs and deployment at the recorded time. It does not add application authentication or per-user ownership, test a credentialed Preview database, or establish protection for future deployments. The tutorial's application code and Google Doc examples did not need changes for this test.
+
+
+## Codespaces setup and private preview, 29 October 2026
+
+Created one 2-core Codespace in Europe West from the private companion repository at `61c34b911e5efc5fcf5a0cb28ca98553d736533a`. This exercised the completed reference app; it was not a second reconstruction of every article step from the public template. The existing $0 paid-usage budget remained unchanged. No Atlas credentials or personal/local database were used.
+
+The first creation failed with error 1302 because the configured image `mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm` has no published manifest. Changing only the image tag to `24-bookworm` allowed the real container rebuild to finish. Its lifecycle log confirmed `postCreateCommand: npm ci` completed successfully, adding 470 packages and auditing 471 with zero reported vulnerabilities at that time. The runtime was Debian 12, Node 24.22.1, npm 11.19.1 and nvm 0.40.8. Explicit `nvm install` and `nvm use` selected the version in `.nvmrc`.
+
+| Executed check | Result |
+| --- | --- |
+| Corrected image pull, container rebuild and automatic `npm ci` | Passed |
+| Fresh explicit `npm ci` and Chromium/Linux dependency installation | Passed |
+| ESLint, TypeScript and 8 unit tests | Passed |
+| Production build with no database URI | Passed |
+| Production browser checks with disposable MongoDB | 12 healthy, 1 missing URI, 1 unreachable database passed |
+| Development browser checks with disposable MongoDB | The same 14 checks passed |
+| Manual `.env.example`, local MongoDB helper and `db:setup` | Passed; compound index prepared |
+| Actual private forwarded-port browser flow, after the origin fix below | Create, reload persistence, edit, reload persistence, confirm delete and final empty reload passed |
+| Credential-free GET to the forwarded preview | 302 to GitHub's forwarded-port sign-in |
+| Bounded proxy-origin regression | Two rejected origins and one successful identical-body control passed |
+| Final config matrix, lint, TypeScript and development suite after the origin fix | Passed; all 14 browser checks passed again |
+
+The manual preview exposed a second issue that localhost tests had not covered. GitHub forwarded `x-forwarded-host` as `weary-corpse-pg9qw4vr5qvh7757-3000.app.github.dev`, but rewrote Origin to `localhost:3000`; Next rejected the action with “Invalid Server Actions request.” The fix in `next.config.ts` adds exactly `localhost:3000` to `experimental.serverActions.allowedOrigins` only when both `NODE_ENV === "development"` and `CODESPACES === "true"`. There is no wildcard. The config matrix confirmed no extra allowed origins in ordinary development or production, including production with `CODESPACES=true`.
+
+The origin regression obtained valid hidden create-action fields from the running dev server and serialized one multipart body. Every request retained the actual forwarded hostname. Origins `https://untrusted.example` and `http://localhost:3001` each returned HTTP 500 with the explicit invalid-action error and left the complete sorted JSON collection snapshot unchanged. Changing only Origin to `http://localhost:3000` returned 200 and created exactly one synthetic bookmark; cleanup deleted that owned record. This is a proxy-origin check, not application authentication. GitHub's private-port gate supplies preview access control.
+
+The editor's rebuild/forwarding commands sometimes had no visible effect, and both its port list and the CLI port list stayed empty. Their cause was not established. The official CLI rebuilt the existing Codespace successfully; the preview address obtained from Codespace environment variables worked through GitHub sign-in despite the empty list. Port 3000 was explicitly set to private, and a separate credential-free request confirmed the login redirect. No public port was enabled.
+
+Hashes of the locally delivered files matching the two tested patches are recorded in [the source hash manifest](evidence/2026-10-29/codespaces-source-hashes.json). The hashes were computed from the delivered files, not measured again on the stopped remote container. Local command logs, the origin-check helper and screenshots are retained under `/tmp/mongodb-bookmarks-work/codespaces-*`. Independent review found no remaining issue in the scoped fix or origin-check method. The article continues to document its tested macOS/Linux build path; these companion-repository changes do not alter its application code samples or Google Doc formatting.
+
+References: [Next.js Server Action origin checks](https://nextjs.org/docs/app/api-reference/config/next-config-js/serverActions), [GitHub port forwarding](https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace).
+
+The owned Codespace was stopped after the final tests; GitHub confirmed the stopped state. No test bookmark remained. The private repository and existing $0 paid-usage budget were retained. [The captured command summary](evidence/2026-10-29/codespaces-test-summary.txt) records the final checks.

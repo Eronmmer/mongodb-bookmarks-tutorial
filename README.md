@@ -4,7 +4,7 @@ An app for saving, listing, editing and deleting bookmarks with Next.js App Rout
 
 The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
 
-See the [verification report](docs/verification.md) for the executed checks and their limits. The [self-contained tutorial](docs/tutorial.md) starts from MongoDB's public template and includes all the code and commands needed to build the app. This repository is an optional reference. Atlas connectivity and index setup, Vercel deployment, live CRUD and unauthenticated GET/POST redirects have been checked. An exact valid Server Action replay without authentication remains unverified.
+See the [verification report](docs/verification.md) for the executed checks and their limits. The [self-contained tutorial](docs/tutorial.md) starts from MongoDB's public template and includes all the code and commands needed to build the app. This repository is an optional reference. Atlas connectivity and index setup, Vercel deployment and live CRUD have been checked. On 29 October 2026, valid create, update and delete Server Action requests were blocked without credentials across all four URLs of the tested production deployment; database contents stayed unchanged.
 
 ## Source repository
 
@@ -101,7 +101,9 @@ The list shows 100 bookmarks per page. “Older bookmarks” uses a validated ti
 
 ## Codespaces
 
-The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for forwarding. It does not create Atlas resources, supply credentials, start the database/app or install Playwright browsers. Follow setup above and keep the forwarded port private. The configuration has not been validated by creating a Codespace. See [GitHub's access rules](https://docs.github.com/en/codespaces/reference/security-in-github-codespaces).
+The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for forwarding. It does not create Atlas resources, supply credentials, start the database/app or install Playwright browsers. Follow setup above and keep the forwarded port private. The corrected configuration was exercised in a GitHub Codespace on 29 October 2026; see the dated verification report. See [GitHub's access rules](https://docs.github.com/en/codespaces/reference/security-in-github-codespaces).
+
+GitHub's port proxy can rewrite a browser request's Origin to `localhost:3000` while retaining the public forwarded hostname. `next.config.ts` permits that exact origin only when running `next dev` inside Codespaces (`CODESPACES=true`). It does not add an origin exception to ordinary local development or production. Use port 3000 for this setup and keep its visibility **Private**. This setting handles the proxy header mismatch; it does not authenticate visitors.
 
 ## Deploy a restricted demo
 
@@ -113,7 +115,7 @@ Set server-only `MONGODB_URI` at project level for Production and, if used, Prev
 
 Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you deliberately choose Atlas `0.0.0.0/0` for this learning setup, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
 
-Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. The production, main-branch and generated deployment URLs redirect unauthenticated GET and multipart POST probes to Vercel SSO. Authorized CRUD passed. The POST probes omitted the browser tool's redacted Server Action bindings, so an exact valid-action replay remains unverified. See the verification report for the exact deployment and results.
+Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. On 29 October 2026, create, update and delete payloads succeeded with a temporary automation access credential. The same serialized request bodies, sent without credentials to the production domains, main-branch alias and generated deployment URL, all redirected to Vercel SSO and left the database unchanged. The test credential was revoked afterward. These results apply to the recorded deployment, not future deployments; see the verification report for its identity and evidence.
 
 Sources: [deployment protection](https://vercel.com/docs/deployment-protection), [environment scopes](https://vercel.com/docs/environment-variables), [outbound IPs](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address), [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
 

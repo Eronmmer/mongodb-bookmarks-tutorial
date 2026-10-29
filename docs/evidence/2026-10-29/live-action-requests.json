@@ -1,0 +1,532 @@
+{
+  "startedAt": "2026-10-29T02:54:09.305Z",
+  "deploymentId": "dpl_5YTxL3ht72rwD6Cf3kbqnz6VxGpk",
+  "sourceCommit": "61c34b911e5efc5fcf5a0cb28ca98553d736533a",
+  "urls": [
+    "https://mongodb-bookmarks-tutorial.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app/"
+  ],
+  "nextVersion": "16.4.3",
+  "method": "same raw Next encodeReply request bytes; credential-free negatives followed by automation-bypass positive control",
+  "assetSha256": "6b300f5181f2ff4c160cb021a471dc08b5a6b30d9eb6c698bfe7c013f8ad0aa1",
+  "actions": [
+    {
+      "action": "create",
+      "actionIdSha256": "ccf2d3af2dde7fca4a6295a0a81779193554e06a3050e7d730485e208815fa22",
+      "bodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+      "bodyBytes": 639,
+      "negatives": [
+        {
+          "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+          "before": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+            "requestBodyBytes": 639,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "delayed": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+          "before": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+            "requestBodyBytes": 639,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "delayed": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+          "before": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+            "requestBodyBytes": 639,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "delayed": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app/",
+          "before": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+            "requestBodyBytes": 639,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "delayed": {
+            "count": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      ],
+      "positive": {
+        "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+        "before": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "response": {
+          "status": 200,
+          "contentType": "text/x-component",
+          "locationOrigin": null,
+          "locationPath": null,
+          "authenticationRedirect": false,
+          "responseSha256": "27f4f723b1e4b2f970b1e00ba3e78944b543e5aaac85ec3a2e1dbd0aadc7aaf9",
+          "successMessage": true,
+          "requestBodySha256": "e653275b44262b2330f578ada1b1587fb46d14f8877d26e895f0a9d22dad3992",
+          "requestBodyBytes": 639,
+          "requestHeaderNames": [
+            "Accept",
+            "Content-Type",
+            "Next-Action",
+            "Origin",
+            "x-vercel-protection-bypass"
+          ]
+        },
+        "after": {
+          "count": 1,
+          "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+        }
+      },
+      "validated": true
+    },
+    {
+      "action": "update",
+      "actionIdSha256": "115f4fc54fa16259aaea8a7499eff723f4efdc36b7371008d504681eda6f597a",
+      "bodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+      "bodyBytes": 753,
+      "negatives": [
+        {
+          "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+            "requestBodyBytes": 753,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+            "requestBodyBytes": 753,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+            "requestBodyBytes": 753,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+            "requestBodyBytes": 753,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+          }
+        }
+      ],
+      "positive": {
+        "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+        "before": {
+          "count": 1,
+          "sha256": "8c369fa4fe9ef5a8113fc9bcd38fc6822e95e2c51e726ace66c1368ef36fd8f5"
+        },
+        "response": {
+          "status": 200,
+          "contentType": "text/x-component",
+          "locationOrigin": null,
+          "locationPath": null,
+          "authenticationRedirect": false,
+          "responseSha256": "87d5c57696d42480fec7fe0f9c698ece2f65567cc4a0dbdbda711526c024dea7",
+          "successMessage": true,
+          "requestBodySha256": "6f0bd5413803facf90302d8736e9a4af632f5df7dab1b330fdc967aaa186cefd",
+          "requestBodyBytes": 753,
+          "requestHeaderNames": [
+            "Accept",
+            "Content-Type",
+            "Next-Action",
+            "Origin",
+            "x-vercel-protection-bypass"
+          ]
+        },
+        "after": {
+          "count": 1,
+          "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+        }
+      },
+      "validated": true
+    },
+    {
+      "action": "delete",
+      "actionIdSha256": "b5d1b8f741853e15a2969ce0466098eebe7ef5fa05a4999215cf8ca4d453438a",
+      "bodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+      "bodyBytes": 334,
+      "negatives": [
+        {
+          "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+            "requestBodyBytes": 334,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+            "requestBodyBytes": 334,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+            "requestBodyBytes": 334,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          }
+        },
+        {
+          "url": "https://mongodb-bookmarks-tutorial-32mc03upi-erons.vercel.app/",
+          "before": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "response": {
+            "status": 302,
+            "contentType": "text/plain",
+            "locationOrigin": "https://vercel.com",
+            "locationPath": "/sso-api",
+            "authenticationRedirect": true,
+            "responseSha256": "078d44efe538819a52deef2d03cc221b5b81ea1ae1f577dc80710db061c3766f",
+            "successMessage": false,
+            "requestBodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+            "requestBodyBytes": 334,
+            "requestHeaderNames": [
+              "Accept",
+              "Content-Type",
+              "Next-Action",
+              "Origin"
+            ]
+          },
+          "immediate": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          },
+          "delayed": {
+            "count": 1,
+            "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+          }
+        }
+      ],
+      "positive": {
+        "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+        "before": {
+          "count": 1,
+          "sha256": "2c7aea5db21d14a1faf9edd9f83accfd59dae6f59f0c9c3c6492a5401b05886e"
+        },
+        "response": {
+          "status": 200,
+          "contentType": "text/x-component",
+          "locationOrigin": null,
+          "locationPath": null,
+          "authenticationRedirect": false,
+          "responseSha256": "8f8cc6526fd8bf009bdcedf79a0a36d27fc280b4b5bb91ac20e0bd10bda4697b",
+          "successMessage": true,
+          "requestBodySha256": "1cb966032aa5ca67206342b46b6fc069670173926296f87bc75b77842bcf4c08",
+          "requestBodyBytes": 334,
+          "requestHeaderNames": [
+            "Accept",
+            "Content-Type",
+            "Next-Action",
+            "Origin",
+            "x-vercel-protection-bypass"
+          ]
+        },
+        "after": {
+          "count": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "validated": true
+    }
+  ],
+  "complete": true,
+  "initial": {
+    "count": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "final": {
+    "count": 0,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "cleanup": {
+    "removedOwnedFixtures": 0,
+    "state": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "matchesBaseline": true
+  },
+  "finishedAt": "2026-10-29T02:54:35.394Z"
+}
