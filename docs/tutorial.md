@@ -36,7 +36,7 @@ cd bookmarks-build
 git switch -c bookmarks 09278fa9369ce03c3e988156351655f87317ecf6
 ```
 
-The template includes Next.js, TypeScript, Tailwind CSS and the MongoDB driver. We’ll install the versions used here and add two small dependencies: server-only protects the database module from client-side imports, and mongodb-memory-server-core starts a temporary MongoDB process for local development and tests.
+The template takes care of most of the setup for us. It already includes Next.js, React, TypeScript, Tailwind CSS, the MongoDB driver and Playwright. We’ll install its locked dependencies first, then make a few changes for our bookmark app.
 
 Create .nvmrc and select Node 24.22.1, then install the template’s locked dependencies. If you installed Node without nvm, skip all nvm commands in this tutorial and check that node --version prints v24.22.1.
 
@@ -48,7 +48,9 @@ node --version
 npm ci
 ```
 
-Install the versions below, then run [npm update](https://docs.npmjs.com/cli/v11/commands/npm-update/) to refresh the remaining dependencies within their declared version ranges. These commands update package.json and package-lock.json; keep both files in Git. After this initial setup, use npm ci to install the versions recorded in your lockfile.
+Before we start building, we’ll update the dependencies to the versions tested for this tutorial. The template snapshot includes older packages, so this step brings in a [patched Next.js release](https://github.com/vercel/next.js/security/advisories/GHSA-2464-fhr4-w9xw) and keeps its ESLint configuration in sync.
+
+Most packages in the commands below are already in the template. We’re adding two helpers: `server-only`, which we’ll import in our database modules to catch accidental use in client code, and `mongodb-memory-server-core`, which starts a temporary MongoDB database for local development and tests.
 
 ```bash
 npm install --save-exact next@16.4.3 react@19.2.7 react-dom@19.2.7 \
@@ -58,6 +60,8 @@ npm install --save-dev --save-exact @playwright/test@1.61.1 \
 npm update
 npm pkg set 'engines.node=24.x'
 ```
+
+The version numbers identify the releases we tested together. `--save-exact` records those versions in `package.json`, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes the other dependencies within their allowed version ranges. Keep both `package.json` and `package-lock.json` in Git. Once setup is complete, use `npm ci` to reinstall the versions recorded in your lockfile.
 
 The template already has dev, build and start commands. Add two commands for the database helpers we’ll create next, and make their directory:
 
