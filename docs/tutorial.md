@@ -72,7 +72,7 @@ npm pkg set \
   'scripts.db:setup=node --env-file-if-exists=.env scripts/setup-db.mjs'
 ```
 
-Replace .env.example with this local connection setting. It contains no password; Atlas users will replace the value in their own .env file in the next section.
+Replace .env.example with this local connection setting. It contains no password. Atlas users will replace the value in their own .env file in the next section.
 
 `.env.example`
 
@@ -113,7 +113,7 @@ If you choose the local database, keep MONGODB_URI set to the value from .env.ex
 MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
 ```
 
-Create scripts/local-db.mjs with the helper below. It starts a real MongoDB process on loopback and stops it when you press Ctrl+C. A fixed port keeps the connection string predictable; if that port is already in use, startup fails with a message.
+Create scripts/local-db.mjs with the helper below. It starts a real MongoDB process on loopback and stops it when you press Ctrl+C. A fixed port keeps the connection string predictable. If that port is already in use, startup fails with a message.
 
 `scripts/local-db.mjs`
 
@@ -251,7 +251,7 @@ nvm use
 npm run dev -- --hostname 127.0.0.1
 ```
 
-Open http://127.0.0.1:3000 and look for “Database connected” on the starter page. If it isn’t there, check the URI and database user. For Atlas, also check the IP access list; for the local database, make sure the helper is still running. Restart Next.js whenever you change .env.
+Open http://127.0.0.1:3000 and look for “Database connected” on the starter page. If it isn’t there, check the URI and database user. For Atlas, also check the IP access list. If you’re using the local database, make sure the helper is still running. Restart Next.js whenever you change .env.
 
 Once the connection works, stop Next.js with Ctrl+C, leaving the local database running if you’re using it. The next sections replace the starter’s database helper and page and add the forms. Keep Next.js stopped until those pieces are in place, then we’ll restart it and try the finished flow.
 
@@ -433,9 +433,9 @@ function validateUrl(url: string): string | null {
 }
 ```
 
-The validator trims the text, rejects missing or non-string values, and checks the field lengths. For a URL, it requires an explicit http:// or https:// prefix, checks the parsed result, and rejects embedded usernames or passwords. These checks tell us whether the link has an acceptable format; they don’t visit its destination.
+The validator trims the text, rejects missing or non-string values, and checks the field lengths. For a URL, it requires an explicit http:// or https:// prefix, checks the parsed result, and rejects embedded usernames or passwords. These checks tell us whether the link has an acceptable format. They don’t visit its destination.
 
-Updates and deletes also need a valid identifier. The ID check requires exactly 24 hexadecimal characters before we construct an ObjectId. All of this validation happens in the application; this example does not add a JSON schema validator to the MongoDB collection.
+Updates and deletes also need a valid identifier. The ID check requires exactly 24 hexadecimal characters before we construct an ObjectId. All of this validation happens in the application. We don’t add a JSON schema validator to the MongoDB collection.
 
 ## Reuse the database connection
 
@@ -522,7 +522,7 @@ export async function getDatabase(): Promise<Db> {
 }
 ```
 
-Opening a new client for every bookmark operation would mean setting up connections repeatedly. Instead, this helper reuses one client promise within a running server instance. During development, it stores the promise on globalThis so hot reloads can reuse it; in production, it stores it in the module. If the initial connection fails, the helper clears that promise so a later request can try again.
+Opening a new client for every bookmark operation would mean setting up connections repeatedly. Instead, this helper reuses one client promise within a running server instance. During development, it stores the promise on globalThis so hot reloads can reuse it. In production, it stores it in the module. If the initial connection fails, the helper clears that promise so a later request can try again.
 
 The serverSelectionTimeoutMS option limits how long the driver waits to select a server when MongoDB is unavailable. We’ve set it to five seconds. This timeout doesn’t limit the whole HTTP request. The server-only import also prevents a Client Component from importing this module.
 
@@ -867,7 +867,7 @@ export async function updateBookmarkAction(
 }
 ```
 
-An edit requires a valid bookmark ID as well as valid field values. If the record disappeared after the page loaded, the action asks the user to refresh. Validation errors and unconfirmed writes keep the entered values available; an unconfirmed write also asks the user to check the current record before trying again.
+An edit requires a valid bookmark ID as well as valid field values. If the record disappeared after the page loaded, the action asks the user to refresh. Validation errors and unconfirmed writes keep the entered values available. An unconfirmed write also asks the user to check the current record before trying again.
 
 ### Confirm a deletion
 
@@ -1169,7 +1169,7 @@ export function BookmarkForm() {
 
 useActionState gives the component the latest action result, the function used by the form’s action prop, and an isPending flag. During submission, the fields become read-only so their contents stay aligned with the values being saved. SubmitButton sits inside the form, where useFormStatus can read its pending state. The button is disabled and displays “Saving…” until the request finishes.
 
-On a successful save, the effect clears the form and uses router.replace("/") to return to the newest page. You’ll therefore see the new bookmark even if you added it while browsing older entries. A rejected or unconfirmed submission keeps your values in the form. noValidate disables the browser’s built-in validation UI so the server’s field messages appear consistently; validation still runs on the server either way.
+On a successful save, the effect clears the form and uses router.replace("/") to return to the newest page. You’ll therefore see the new bookmark even if you added it while browsing older entries. A rejected or unconfirmed submission keeps your values in the form. noValidate disables the browser’s built-in validation UI so the server’s field messages appear consistently. Validation still runs on the server either way.
 
 ### Add editing and delete confirmation
 
@@ -1454,7 +1454,7 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
 }
 ```
 
-The edit form includes the bookmark ID in a hidden field and starts with its current title, URL and note. Saving successfully closes the editor; Cancel closes it without submitting. While a write is pending, the fields stay read-only and Cancel is disabled.
+The edit form includes the bookmark ID in a hidden field and starts with its current title, URL and note. Saving successfully closes the editor. Use Cancel to close it without submitting. While a write is pending, the fields stay read-only and Cancel is disabled.
 
 Delete opens the confirmation state first. Confirm delete submits the action, while Cancel returns to the normal card. The card renders notes as React text, so text that looks like HTML is still displayed as text. Links open in a new tab with noopener and noreferrer.
 
@@ -1587,7 +1587,7 @@ export default async function Home({
 }
 ```
 
-await [connection()](https://nextjs.org/docs/app/api-reference/functions/connection) waits for an incoming request before reading MongoDB, so the query won’t run during the build. The before query parameter tells listBookmarks() where to start, and its returned cursor becomes the “Older bookmarks” link. “Back to newest” removes that cursor. The page also distinguishes three outcomes: a failed read shows “Couldn’t load bookmarks”; an empty first page shows “No bookmarks yet”; and an older page with no remaining records shows “No older bookmarks” with a way back.
+await [connection()](https://nextjs.org/docs/app/api-reference/functions/connection) waits for an incoming request before reading MongoDB, so the query won’t run during the build. The before query parameter tells listBookmarks() where to start, and its returned cursor becomes the “Older bookmarks” link. “Back to newest” removes that cursor. The page shows “Couldn’t load bookmarks” if the read fails and “No bookmarks yet” if the first page is empty. An older page with no remaining records shows “No older bookmarks” with a way back.
 
 We’ve replaced the starter page, so its connection-status helper and original branding assets are no longer used. Remove them with the command below. Next.js will use the app/icon.svg file we created above:
 
@@ -1913,11 +1913,11 @@ npm run verify:dev
 
 verify runs ESLint and TypeScript, builds the app without a database connection string, then runs the browser checks against its temporary database. It also checks the missing-connection-string and unreachable-database states. verify:dev repeats the browser checks with Next.js running in development mode. Each command uses its own database, keeping the fixtures separate from your Atlas collection and local bookmark list. Use these runners rather than executing the test file directly.
 
-The runner uses POSIX process groups and is intended for macOS or Linux. The first run downloads MongoDB and Chromium; installing browser dependencies on Linux may require administrator access. If you want to extend this small suite, the optional finished repository includes [additional tests](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/07361f2c747a9e05be119c69f2582f59306fbabd/tests/e2e/bookmarks.spec.ts) for repeated creates, edits, invalid IDs, pending forms and pagination across tied timestamps.
+The runner uses POSIX process groups and is intended for macOS or Linux. The first run downloads MongoDB and Chromium. Installing browser dependencies on Linux may require administrator access. If you want to extend this small suite, the optional finished repository includes [additional tests](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/07361f2c747a9e05be119c69f2582f59306fbabd/tests/e2e/bookmarks.spec.ts) for repeated creates, edits, invalid IDs, pending forms and pagination across tied timestamps.
 
 ### Run the checks on GitHub
 
-The template includes a GitHub Actions workflow for its original app. Replace .github/workflows/ci.yml with this version before pushing your bookmark project. It uses the Node version in .nvmrc and runs the same isolated verification command on pushes to bookmarks or main and on pull requests. It needs no Atlas connection string or database credentials; the runner creates disposable data for each run.
+The template includes a GitHub Actions workflow for its original app. Replace .github/workflows/ci.yml with this version before pushing your bookmark project. It uses the Node version in .nvmrc and runs the same isolated verification command on pushes to bookmarks or main and on pull requests. It needs no Atlas connection string or database credentials. The runner creates disposable data for each run.
 
 `.github/workflows/ci.yml (YAML)`
 
@@ -1984,7 +1984,7 @@ git commit -m "Build the bookmarks app"
 git push -u origin bookmarks
 ```
 
-Import your new repository into Vercel and select the bookmarks branch. Importing the completed repository gives Vercel the bookmark app you’ve built; the starter template’s deploy button would create the starter application.
+Import your new repository into Vercel and select the bookmarks branch. Importing the completed repository gives Vercel the bookmark app you’ve built. The starter template’s deploy button would create the starter application.
 
 ### Restrict access before connecting the database
 
@@ -1994,9 +1994,9 @@ The deployed app will share one bookmark list, so configure Vercel Authenticatio
 
 In the Vercel project, open Environment Variables and choose Add Environment Variable. Select Secret, use MONGODB_URI as the key, paste the Atlas connection string as the value, and select Production. Add a separate Preview value only if you use preview deployments. The temporary localhost database runs only on your development machine, so it cannot serve this deployment. Prefer separate databases for Production and Preview so preview changes won’t alter the production list. Complete the network and index setup below before deploying. [Environment-variable changes](https://vercel.com/docs/environment-variables) take effect in new deployments, so redeploy whenever you edit them.
 
-The connection also needs to be allowed from Vercel’s outbound network. Vercel uses dynamic outbound IPs by default; follow its [allowlisting guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) for the networking option you choose. Your app’s public domain IP is different from the outbound address used to reach Atlas.
+The connection also needs to be allowed from Vercel’s outbound network. Vercel uses dynamic outbound IPs by default. Follow its [allowlisting guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) for the networking option you choose. Your app’s public domain IP is different from the outbound address used to reach Atlas.
 
-If you deliberately use Atlas’s 0.0.0.0/0 entry for this exercise, it allows connection attempts from anywhere. Use strong credentials with access limited to the bookmark database. Vercel’s login gate protects the web app; it does not restrict direct connections to the database port.
+If you deliberately use Atlas’s 0.0.0.0/0 entry for this exercise, it allows connection attempts from anywhere. Use strong credentials with access limited to the bookmark database. Vercel’s login gate protects the web app. It does not restrict direct connections to the database port.
 
 ### Prepare the hosted database
 
@@ -2017,4 +2017,4 @@ Open the production, preview and generated deployment URLs in a signed-out brows
 
 You’ve turned the template into a bookmark app that reads and writes MongoDB documents, validates form submissions and lets you browse older entries. The Server Component reads the list, Server Actions handle the writes, and Playwright checks what happens in the browser.
 
-A useful next addition would be tags for grouping related links, or a search field for finding a bookmark by its title or note. The [companion repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) is an optional reference for the finished app and additional tests; none of its files are needed to complete this build.
+A useful next addition would be tags for grouping related links, or a search field for finding a bookmark by its title or note. The [companion repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) is an optional reference for the finished app and additional tests. None of its files are needed to complete this build.
