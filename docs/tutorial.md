@@ -10,7 +10,7 @@ One page, a few fields, and somewhere to put those links. Each bookmark has a ti
 
 ![The finished bookmark app](images/bookmarks-desktop.png)
 
-We’ll start with [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). All the code you need is included here, so you can build the app from that public template without downloading files from a companion repository.
+We’ll start with [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). The [finished project](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/tree/8a655d6f2b3dba43d429c9cbe2164bc464457a7c) contains the complete source. We’ll write the core database operations here and link to longer supporting files when we need them.
 
 This version has one bookmark list and no application sign-in. Anyone with access to the app can read and change that list. We’ll keep the hosted app behind Vercel’s access controls and use public example links while building.
 
@@ -18,15 +18,15 @@ This version has one bookmark list and no application sign-in. Anyone with acces
 
 You’ll be comfortable with this tutorial if you’ve used React components, props and forms, and can read basic TypeScript. We’ll explain the Next.js server conventions and MongoDB operations as we use them. The terminal commands assume a macOS or Linux shell.
 
-First choose where to run the code: your computer or GitHub Codespaces. Then choose where to store the data: MongoDB Atlas or a temporary MongoDB process alongside the app. These choices are independent. Codespaces can use either database, just as your computer can.
+The main walkthrough uses your computer and MongoDB Atlas. If you prefer a browser editor, follow the Codespaces option below, then rejoin the same build. A temporary local database is also available if you want to try the app before setting up Atlas.
 
-Atlas keeps your bookmarks after you stop the app. The temporary database is handy for following along, but stopping its process deletes its data. For deployment, we’ll use Atlas.
+Atlas keeps your bookmarks after you stop the app, and we’ll use it for deployment.
 
 ## Open the MongoDB template
 
 ### On your computer
 
-Install [Git](https://git-scm.com/downloads) and [Node.js](https://nodejs.org/en/download) 24.22.1, then clone the template:
+Make sure you have [Git](https://git-scm.com/downloads) and [Node.js 24 LTS](https://nodejs.org/en/download) installed, then clone the template. This tutorial was tested with Node.js 24.22.1:
 
 ```bash
 git clone https://github.com/mongodb-developer/nextjs-template-mongodb.git bookmarks-build
@@ -34,7 +34,7 @@ cd bookmarks-build
 git switch -c bookmarks 09278fa9369ce03c3e988156351655f87317ecf6
 ```
 
-The long commit ID selects the template revision used to test this tutorial. That gives us the same starting files even if the template changes later. `bookmarks` is simply the name of your working branch.
+The long commit ID selects the template revision used to test this tutorial. That gives us the same starting files even if the template changes later. `bookmarks` is simply the name of your working branch. The companion-file links also select tested revisions. When a step asks you to copy a file, open its link, choose **Raw**, and save the complete contents at the stated path. Create the parent directory if it does not exist.
 
 ### Or use GitHub Codespaces
 
@@ -47,26 +47,7 @@ git fetch origin
 git switch -c bookmarks 09278fa9369ce03c3e988156351655f87317ecf6
 ```
 
-Replace `.devcontainer/devcontainer.json` with the configuration below. It gives us a Debian Bookworm environment with Node 24 and forwards port 3000. Then open the Command Palette and choose **Codespaces: Rebuild Container**. Wait for the rebuild before continuing.
-
-`.devcontainer/devcontainer.json`
-
-```json
-{
-  "name": "mongodb-bookmarks-tutorial",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-bookworm",
-  "postCreateCommand": "npm ci",
-  "forwardPorts": [
-    3000
-  ],
-  "portsAttributes": {
-    "3000": {
-      "label": "Bookmarks",
-      "onAutoForward": "notify"
-    }
-  }
-}
-```
+Replace `.devcontainer/devcontainer.json` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.devcontainer/devcontainer.json). It selects Debian Bookworm with Node 24 and forwards port 3000. Choose **Codespaces: Rebuild Container** from the Command Palette, then wait for the rebuild before continuing.
 
 From here, both routes use the same commands in the project terminal. In Codespaces, open the running app through port 3000 in the **Ports** panel and leave its visibility set to **Private**. On your computer, use `http://127.0.0.1:3000`.
 
@@ -97,7 +78,7 @@ npm pkg set 'engines.node=24.x'
 
 The numbers record the releases tested together. `--save-exact` saves those versions in `package.json`, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other packages within their allowed ranges. Keep `package.json` and `package-lock.json` in Git. After this setup, use `npm ci` to reinstall what your lockfile records.
 
-Add the commands for our database helpers and create their directory. We’ll write the local helper now and the index helper when we add pagination:
+Add commands for the database helpers and create their directory. We’ll add the helper files when we use them:
 
 ```bash
 mkdir -p scripts
@@ -141,39 +122,7 @@ Choose [Connect → Drivers → Node.js](https://www.mongodb.com/docs/atlas/driv
 
 ### Or run a temporary database
 
-For the temporary option, leave `.env` set to `mongodb://127.0.0.1:27028/bookmark_app`. Create `scripts/local-db.mjs` with this helper:
-
-`scripts/local-db.mjs`
-
-```javascript
-import { MongoMemoryServer } from "mongodb-memory-server-core";
-
-let mongo;
-try {
-  mongo = await MongoMemoryServer.create({
-    binary: { version: "8.2.6" },
-    // .env.example uses this exact port. Never silently start elsewhere.
-    instance: { ip: "127.0.0.1", port: 27028, portGeneration: false, dbName: "bookmark_app" },
-  });
-} catch {
-  console.error("Could not start local MongoDB on 127.0.0.1:27028. Check that the port is free and the MongoDB binary can be downloaded.");
-  process.exit(1);
-}
-console.log("Temporary local MongoDB; all data is lost when this process stops.");
-console.log(`MONGODB_URI=${mongo.getUri("bookmark_app")}`);
-let stopping = false;
-async function stop() {
-  if (stopping) return;
-  stopping = true;
-  await mongo.stop();
-  process.exit(0);
-}
-process.on("SIGINT", stop);
-process.on("SIGTERM", stop);
-await new Promise(() => {});
-```
-
-This starts a real MongoDB 8.2.6 process, downloading the binary on its first run. It listens on loopback at port 27028. If that port is occupied, the helper fails rather than choosing a different port and leaving the app pointed at the wrong database.
+For this option, leave `.env` set to `mongodb://127.0.0.1:27028/bookmark_app` and copy [scripts/local-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/local-db.mjs) into your project. It downloads and starts a real MongoDB 8.2.6 process on loopback port 27028. If that port is occupied, the helper stops instead of choosing another port.
 
 ```bash
 nvm use
@@ -184,7 +133,7 @@ Leave this terminal running. Open another terminal at the project root for the a
 
 ### Check the connection before building the form
 
-In `lib/mongodb.ts`, replace the existing `appName` option with this value. It identifies the tutorial app in MongoDB connection metadata:
+In `lib/mongodb.ts`, replace the existing `appName` option with this value:
 
 `lib/mongodb.ts`
 
@@ -192,32 +141,9 @@ In `lib/mongodb.ts`, replace the existing `appName` option with this value. It i
 appName: "devrel-tutorial-javascript-nextjstemplate",
 ```
 
-Use the following layout for the app’s title and system font. Replacing `app/layout.tsx` also removes the starter’s web-font download:
+`appName` labels this client in MongoDB connection metadata and logs. This value identifies the tutorial. It does not name the database or change the website’s title. The database is still `bookmark_app`, selected by the URI.
 
-`app/layout.tsx`
-
-```typescript
-import type { Metadata } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Bookmarks",
-  description:
-    "Save your useful links in one place.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
-```
+Replace `app/layout.tsx` with the [bookmark layout](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/layout.tsx). It sets the page title and uses system fonts, removing the starter’s web-font download.
 
 In `tailwind.config.ts`, replace the `sans` array inside `theme.extend.fontFamily` with the following line. Keep the `defaultTheme` import and the rest of the configuration:
 
@@ -227,29 +153,7 @@ In `tailwind.config.ts`, replace the `sans` array inside `theme.extend.fontFamil
 sans: [...defaultTheme.fontFamily.sans],
 ```
 
-Replace `next.config.ts` with the following configuration. Codespaces forwards development requests with a `localhost:3000` origin, so we allow that exact origin only when both development mode and Codespaces are active. This lets the forms submit through its forwarded port without widening the production allowance. The Turbopack setting keeps this directory as the build root.
-
-`next.config.ts`
-
-```typescript
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  // Codespaces forwards port 3000 with a localhost Origin header.
-  // Keep this allowance limited to its development container.
-  ...(process.env.NODE_ENV === "development" &&
-  process.env.CODESPACES === "true"
-    ? { experimental: { serverActions: { allowedOrigins: ["localhost:3000"] } } }
-    : {}),
-  // Pin the Turbopack workspace root to this project to avoid incorrect root
-  // inference when other lockfiles exist higher up the filesystem.
-  turbopack: {
-    root: import.meta.dirname,
-  },
-};
-
-export default nextConfig;
-```
+Replace `next.config.ts` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/next.config.ts). It keeps this directory as the Turbopack root and handles the `localhost:3000` origin used by the Codespaces development proxy. That exception applies only in Codespaces development, leaving production unchanged.
 
 Start Next.js:
 
@@ -283,22 +187,17 @@ MongoDB stores that bookmark as a document in the `bookmarks` collection. Here�
 
 ### Describe the values shared by the page and forms
 
-Create `lib/bookmark-types.ts`. `BookmarkInput` describes the editable fields. `BookmarkView` is the shape our components receive, with the identifier and dates converted to strings. `ActionState` carries the result of a submission, including any field errors and the values the user entered.
+Copy [lib/bookmark-types.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/lib/bookmark-types.ts) into your project. The two shapes below describe what we save and what the components receive. This is an excerpt from the complete file:
 
-`lib/bookmark-types.ts`
+`lib/bookmark-types.ts` — excerpt
 
 ```typescript
-// Pure shared types for the bookmarks app. Safe to import from both server
-// and client code — this file must not import server-only modules.
-
 export interface BookmarkInput {
   title: string;
   url: string;
   note: string;
 }
 
-// Client-facing view model: `id` is the hex string form of `_id` and dates
-// are ISO strings, so this shape can cross the server/client boundary.
 export interface BookmarkView {
   id: string;
   title: string;
@@ -307,134 +206,19 @@ export interface BookmarkView {
   createdAt: string;
   updatedAt: string;
 }
-
-export type BookmarkFieldErrors = {
-  title?: string;
-  url?: string;
-  note?: string;
-};
-
-export interface BookmarkValues {
-  id: string;
-  title: string;
-  url: string;
-  note: string;
-}
-
-// Shape returned by the server actions used with `useActionState`.
-export interface ActionState {
-  status: "idle" | "success" | "error";
-  message: string;
-  fieldErrors: BookmarkFieldErrors;
-  values: BookmarkValues;
-}
-
-export const emptyActionState: ActionState = {
-  status: "idle",
-  message: "",
-  fieldErrors: {},
-  values: { id: "", title: "", url: "", note: "" },
-};
 ```
 
-An unused note becomes an empty string. Keeping that field present lets new bookmarks, saved bookmarks and rejected submissions use the same shape.
+`BookmarkView` uses strings for the ID and dates so those values can cross the server/client boundary. The same file defines `ActionState`, which carries submission feedback, field errors and the values someone entered. An unused note becomes an empty string.
 
 ### Check the actual submitted values
 
-TypeScript helps us while writing the app, but a request can contain values that never passed through our form. Before saving anything, we’ll check that the fields are text, trim whitespace, and enforce lengths. A URL must be an absolute HTTP or HTTPS address without embedded credentials.
+TypeScript helps us while writing the app, but a request can contain values that never passed through our form. We need to validate those values on the server before saving them.
 
-Put the validator in `lib/bookmark-validation.ts`:
+Copy the complete [lib/bookmark-validation.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/lib/bookmark-validation.ts) into your project. It checks the submitted types, trims text, and limits titles to 120 characters, URLs to 2,048 and notes to 1,000. Here is its URL check, shown as an excerpt:
 
-`lib/bookmark-validation.ts`
+`lib/bookmark-validation.ts` — excerpt
 
 ```typescript
-// Application-level validation for bookmark documents. There is no JSON
-// schema validation on the MongoDB collection itself — this module is the
-// single source of truth for what a bookmark may contain.
-
-export type BookmarkValidationErrors = {
-  title?: string;
-  url?: string;
-  note?: string;
-};
-
-export type BookmarkValidationResult =
-  | { success: true; data: { title: string; url: string; note: string } }
-  | { success: false; errors: BookmarkValidationErrors };
-
-const MAX_TITLE_LENGTH = 120;
-const MAX_URL_LENGTH = 2048;
-const MAX_NOTE_LENGTH = 1000;
-
-const BOOKMARK_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
-
-/**
- * Validates raw, untrusted form input. Values that are not strings (missing
- * fields, files, numbers, …) are rejected, never coerced.
- */
-export function validateBookmark(input: {
-  title: unknown;
-  url: unknown;
-  note: unknown;
-}): BookmarkValidationResult {
-  const errors: BookmarkValidationErrors = {};
-
-  const title = readTrimmedString(input.title);
-  if (title === null || title.length === 0) {
-    errors.title = "Title is required.";
-  } else if (title.length > MAX_TITLE_LENGTH) {
-    errors.title = `Title must be ${MAX_TITLE_LENGTH} characters or fewer.`;
-  }
-
-  const url = readTrimmedString(input.url);
-  if (url === null || url.length === 0) {
-    errors.url = "URL is required.";
-  } else if (url.length > MAX_URL_LENGTH) {
-    errors.url = `URL must be ${MAX_URL_LENGTH} characters or fewer.`;
-  } else {
-    const urlError = validateUrl(url);
-    if (urlError) {
-      errors.url = urlError;
-    }
-  }
-
-  const note = readTrimmedString(input.note);
-  if (note === null) {
-    errors.note = "Note must be text.";
-  } else if (note.length > MAX_NOTE_LENGTH) {
-    errors.note = `Note must be ${MAX_NOTE_LENGTH} characters or fewer.`;
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return { success: false, errors };
-  }
-
-  return {
-    success: true,
-    data: {
-      // A note may be empty; the empty string is persisted.
-      title: title as string,
-      url: url as string,
-      note: note as string,
-    },
-  };
-}
-
-/**
- * Returns true only for an exact 24-character hex string, i.e. the string
- * form of a MongoDB ObjectId. Always validate before calling `new ObjectId()`.
- */
-export function isBookmarkId(value: unknown): value is string {
-  return typeof value === "string" && BOOKMARK_ID_PATTERN.test(value);
-}
-
-function readTrimmedString(value: unknown): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-  return value.trim();
-}
-
 function validateUrl(url: string): string | null {
   if (!/^https?:\/\//i.test(url)) {
     return "Enter an absolute http or https URL, for example https://example.com.";
@@ -474,12 +258,8 @@ import { MongoClient, type Db, type MongoClientOptions } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 
-// Connection metadata so MongoDB can identify this app in monitoring and
-// logs.
 const appName = "devrel-tutorial-javascript-nextjstemplate";
 
-// Wait up to five seconds to select a MongoDB server.
-// This timeout does not limit the full HTTP request.
 const serverSelectionTimeoutMS = 5000;
 
 const options: MongoClientOptions = {
@@ -493,18 +273,8 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-/**
- * Lazily connects to MongoDB and returns a shared client promise. The client
- * is created only on first use (nothing connects at import time, so a static
- * build never opens a connection) and the promise is cached:
- * - development: on `globalThis`, so the client survives HMR reloads
- * - production: on this module
- * A failed connection attempt clears the cached promise so a later call can
- * retry. Connection details and raw driver errors are never logged here.
- */
 export function getClient(): Promise<MongoClient> {
   if (!uri) {
-    // Generic message only — never echo connection strings or secrets.
     throw new Error(
       "MongoDB is not configured. Set the MONGODB_URI environment variable.",
     );
@@ -536,10 +306,6 @@ export function getClient(): Promise<MongoClient> {
   return clientPromise;
 }
 
-/**
- * Returns the default database from MONGODB_URI. The database is never
- * selected from untrusted input.
- */
 export async function getDatabase(): Promise<Db> {
   const client = await getClient();
   return client.db();
@@ -548,7 +314,7 @@ export async function getDatabase(): Promise<Db> {
 
 `getClient()` connects on first use. In development, the promise lives on `globalThis` so hot reloads can reuse it. In production, it lives in the module and can be reused within that running server instance. Each `MongoClient` manages its own [connection pools](https://www.mongodb.com/docs/drivers/node/current/connect/connection-options/connection-pools/), so we leave the client open for later operations. A failed initial connection clears the cached promise, allowing another call to try again.
 
-The five-second `serverSelectionTimeoutMS` bounds how long this app waits to select a database server. It does not time out the whole HTTP request. We leave pool sizes at the driver defaults here. A busier deployment needs measurements of its traffic and connections before tuning those limits.
+`serverSelectionTimeoutMS` gives the driver five seconds to select a database server. It does not time out the whole HTTP request. We leave connection-pool sizes at the driver defaults.
 
 `getDatabase()` selects `bookmark_app` from the URI. The `server-only` import catches accidental use of this module from a Client Component. It protects the code boundary, but it does not authenticate a visitor.
 
@@ -578,7 +344,6 @@ import { getDatabase } from "@/lib/mongodb";
 
 const COLLECTION_NAME = "bookmarks";
 
-// Show at most 100 bookmarks in the list.
 export const BOOKMARK_LIST_LIMIT = 100;
 
 interface BookmarkDocument {
@@ -623,11 +388,6 @@ Now append `createBookmark()` to the same file:
 `db/bookmarks.ts`
 
 ```typescript
-/**
- * Inserts a bookmark. Only the validated fields (title, url, note) plus
- * server-generated timestamps are written; callers pass typed, already
- * validated input (app/actions.ts validates before calling).
- */
 export async function createBookmark(input: BookmarkInput): Promise<BookmarkView> {
   const now = new Date();
   const collection = await getCollection();
@@ -675,8 +435,6 @@ const UNCONFIRMED_WRITE_SUFFIX =
 
 function readFormValue(formData: FormData, field: string): string {
   const value = formData.get(field);
-  // Anything that is not a string (e.g. a file upload) is treated as missing
-  // and rejected by validateBookmark.
   return typeof value === "string" ? value : "";
 }
 
@@ -752,165 +510,29 @@ The `_prevState` parameter is there because [`useActionState`](https://react.dev
 
 ### Build the add form
 
-Now for the part we can use. Create `components/bookmark-form.tsx` with the imports, shared styles and submit button below:
+Copy the complete [components/bookmark-form.tsx](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/components/bookmark-form.tsx) into your project. It contains the labels, inputs, field errors and submit button. The part connecting that UI to our action is worth a closer look:
 
-`components/bookmark-form.tsx`
-
-```typescript
-"use client";
-
-import { useActionState, useEffect, useRef } from "react";
-import { useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
-
-import { createBookmarkAction } from "@/app/actions";
-import { emptyActionState } from "@/lib/bookmark-types";
-
-const inputClasses =
-  "w-full rounded-lg border border-[#1C2B26]/15 bg-white px-3 py-2 text-sm text-[#1C2B26] shadow-sm placeholder:text-[#1C2B26]/40 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] " +
-  "aria-[invalid=true]:border-[#B3261E] disabled:opacity-60";
-
-const buttonClasses =
-  "inline-flex h-10 items-center justify-center rounded-lg bg-[#00684A] px-4 text-sm font-semibold text-white shadow-sm " +
-  "transition-colors hover:bg-[#005238] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] " +
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] disabled:cursor-not-allowed disabled:opacity-60";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending} className={buttonClasses}>
-      {pending ? "Saving…" : "Add bookmark"}
-    </button>
-  );
-}
-```
-
-`SubmitButton` sits inside the form, where `useFormStatus()` can read its pending state. It switches to “Saving…” and disables itself while the request is in progress. Append the form component:
-
-`components/bookmark-form.tsx`
+`components/bookmark-form.tsx` — excerpt
 
 ```typescript
-export function BookmarkForm() {
-  const router = useRouter();
-  const [state, formAction, isPending] = useActionState(
-    createBookmarkAction,
-    emptyActionState,
-  );
-  const formRef = useRef<HTMLFormElement>(null);
+const router = useRouter();
+const [state, formAction, isPending] = useActionState(
+  createBookmarkAction,
+  emptyActionState,
+);
+const formRef = useRef<HTMLFormElement>(null);
 
-  // A successful create returns empty values; clear the fields so the form
-  // is ready for the next bookmark. Rejected submissions keep the values.
-  useEffect(() => {
-    if (state.status === "success") {
-      formRef.current?.reset();
-      router.replace("/", { scroll: false });
-    }
-  }, [state, router]);
-
-  return (
-    <form ref={formRef} action={formAction} className="mt-4 space-y-4" aria-busy={isPending} noValidate>
-      <div className="space-y-1.5">
-        <label
-          htmlFor="create-title"
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          Title
-        </label>
-        <input
-          id="create-title"
-          name="title"
-          type="text"
-          autoComplete="off"
-          readOnly={isPending}
-          defaultValue={state.values.title}
-          aria-invalid={state.fieldErrors.title ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.title ? "create-title-error" : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.title ? (
-          <p id="create-title-error" className="text-sm text-[#B3261E]">
-            {state.fieldErrors.title}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <label
-          htmlFor="create-url"
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          URL
-        </label>
-        <input
-          id="create-url"
-          name="url"
-          type="url"
-          autoComplete="off"
-          readOnly={isPending}
-          defaultValue={state.values.url}
-          aria-invalid={state.fieldErrors.url ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.url ? "create-url-error" : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.url ? (
-          <p id="create-url-error" className="text-sm text-[#B3261E]">
-            {state.fieldErrors.url}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <label
-          htmlFor="create-note"
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          Note <span className="font-normal text-[#4B5F58]">(optional)</span>
-        </label>
-        <textarea
-          id="create-note"
-          name="note"
-          rows={3}
-          readOnly={isPending}
-          defaultValue={state.values.note}
-          aria-invalid={state.fieldErrors.note ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.note ? "create-note-error" : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.note ? (
-          <p id="create-note-error" className="text-sm text-[#B3261E]">
-            {state.fieldErrors.note}
-          </p>
-        ) : null}
-      </div>
-
-      <SubmitButton />
-
-      {state.status !== "idle" && state.message ? (
-        <p
-          aria-live="polite"
-          role={state.status === "error" ? "alert" : "status"}
-          className={
-            state.status === "error"
-              ? "text-sm font-medium text-[#B3261E]"
-              : "text-sm font-medium text-[#00684A]"
-          }
-        >
-          {state.message}
-        </p>
-      ) : null}
-    </form>
-  );
-}
+useEffect(() => {
+  if (state.status === "success") {
+    formRef.current?.reset();
+    router.replace("/", { scroll: false });
+  }
+}, [state, router]);
 ```
 
-`useActionState()` connects the action result to the form. On success, the effect clears the fields and returns to the newest page. Rejected submissions keep their values. The labels identify each input, and `aria-describedby` connects a field to its error message. We use `noValidate` so the app’s server validation provides consistent feedback.
+The form uses `action={formAction}` to submit to the function returned by `useActionState()`. That hook calls `createBookmarkAction` and gives the component its result. On success, the effect clears the fields and returns to the newest page. Rejected submissions keep their values. The submit button uses `useFormStatus()` to show “Saving…” while the action is pending.
+
+The complete form also connects each label and error message to its input. Its `noValidate` attribute lets our server validation provide consistent feedback. Those details matter to the app, but they do not change the form-to-action flow above.
 
 ### Show the saved bookmark
 
@@ -935,202 +557,29 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
 }
 ```
 
-The note is optional, so we render it only when there is something to show. Next, give the app its background, typography and focus styles:
+The note appears only when it has a value. For the finished app’s background, typography and focus styles, replace `app/globals.css` with the [stylesheet](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/globals.css).
 
-`app/globals.css`
+Copy [app/icon.svg](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/icon.svg) to give the browser tab its bookmark icon.
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+Now replace `app/page.tsx` with the [first-bookmark page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx). Use this checkpoint version here. The final page expects the pagination code we’ll add later.
 
-body {
-  @apply relative min-w-[320px] min-h-screen antialiased;
-  /* Warm white background, dark ink text, native system fonts. */
-  @apply bg-[#FAF7F0] text-[#1C2B26];
-  -webkit-tap-highlight-color: transparent;
-}
-
-
-
-@layer base {
-  :root {
-    --background: 40 43% 96%;
-    --foreground: 163 20% 14%;
-    --card: 0 0% 100%;
-    --card-foreground: 163 20% 14%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 163 20% 14%;
-    --primary: 163 100% 20%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 40 33% 92%;
-    --secondary-foreground: 163 20% 14%;
-    --muted: 40 33% 92%;
-    --muted-foreground: 163 10% 40%;
-    --accent: 40 33% 92%;
-    --accent-foreground: 163 20% 14%;
-    --destructive: 0 72% 41%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 40 15% 85%;
-    --input: 40 15% 85%;
-    --ring: 163 100% 20%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-```
-
-Add a small bookmark icon for the browser tab:
-
-`app/icon.svg`
-
-```xml
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#00684A"/>
-  <path d="M21 16h22v34L32 42 21 50Z" fill="#FAF7F0"/>
-</svg>
-```
-
-Replace `app/page.tsx` with the page below. It is a [Server Component](https://nextjs.org/docs/app/getting-started/server-and-client-components), so it can read MongoDB before rendering the list:
-
-`app/page.tsx`
+`app/page.tsx` — excerpt
 
 ```typescript
-import { connection } from "next/server";
+await connection();
 
-import { BookmarkForm } from "@/components/bookmark-form";
-import { BookmarkItem } from "@/components/bookmark-item";
-import { listBookmarks } from "@/db/bookmarks";
-import type { BookmarkView } from "@/lib/bookmark-types";
+let bookmarks: BookmarkView[] = [];
+let isDatabaseUnavailable = false;
 
-// MongoDB is reached from Node.js server code only.
-export const runtime = "nodejs";
-
-// The page reads the database on every request; never connect during a
-// static build.
-
-export default async function Home() {
-  // Marks the page dynamic and waits for a request connection, so the
-  // database is only queried for real visitors, never at build time.
-  await connection();
-
-  let bookmarks: BookmarkView[] = [];
-  let isDatabaseUnavailable = false;
-
-  try {
-    bookmarks = await listBookmarks();
-  } catch {
-    // Distinguish "database down" from "empty database" for the visitor.
-    // Do not log raw driver errors or connection details here.
-    console.error("Failed to read bookmarks from the database.");
-    isDatabaseUnavailable = true;
-  }
-
-  return (
-    <div className="min-h-screen bg-[#FAF7F0] text-[#1C2B26]">
-      <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Bookmarks
-            </h1>
-            <p className="mt-2 text-base text-[#4B5F58]">
-              A small place for links worth keeping.
-            </p>
-          </div>
-        </header>
-
-        <main className="mt-8 grid items-start gap-8 lg:grid-cols-[21rem_minmax(0,1fr)]">
-          <aside className="rounded-2xl border border-[#1C2B26]/10 bg-white p-5 shadow-sm lg:sticky lg:top-8">
-            <h2 className="text-lg font-semibold">Add a bookmark</h2>
-            <p className="mt-1 text-sm text-[#4B5F58]">
-              Save a link with a title and an optional note.
-            </p>
-            <BookmarkForm />
-          </aside>
-
-          <section aria-label="Saved bookmarks" className="min-w-0">
-            {isDatabaseUnavailable ? (
-              <div
-                role="alert"
-                className="rounded-2xl border border-[#B3261E]/30 bg-[#B3261E]/5 p-6"
-              >
-                <h2 className="text-lg font-semibold text-[#8C1D18]">
-                  Couldn’t load bookmarks
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#8C1D18]">
-                  Please try again in a moment.
-                </p>
-              </div>
-            ) : bookmarks.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-[#1C2B26]/20 bg-white/60 p-8 text-center">
-                <h2 className="text-lg font-semibold">
-                  No bookmarks yet
-                </h2>
-                <p className="mt-2 text-sm text-[#4B5F58]">
-                  Add your first link with the form on this page.
-                </p>
-              </div>
-            ) : (
-              <>
-                <ul className="space-y-3">
-                  {bookmarks.map((bookmark) => (
-                    <BookmarkItem key={bookmark.id} bookmark={bookmark} />
-                  ))}
-                </ul>
-              </>
-            )}
-          </section>
-        </main>
-
-      </div>
-    </div>
-  );
+try {
+  bookmarks = await listBookmarks();
+} catch {
+  console.error("Failed to read bookmarks from the database.");
+  isDatabaseUnavailable = true;
 }
 ```
 
-`await connection()` makes the database read happen for a request, rather than during the build. The page also distinguishes an empty collection from a failed read. “No bookmarks yet” is helpful when the list is empty, but misleading if the database could not be reached.
+That excerpt runs inside `Home`, a [Server Component](https://nextjs.org/docs/app/getting-started/server-and-client-components). `await connection()` makes the database read happen for a request. The rest of the page renders the form and cards, or an empty state. A failed read gets its own message, because “No bookmarks yet” would be misleading if the database could not be reached.
 
 ### Try the first save
 
@@ -1169,7 +618,6 @@ Append these two functions to the file:
 `db/bookmarks.ts`
 
 ```typescript
-/** Updates title, url, note and updatedAt only; createdAt is preserved. */
 export async function updateBookmark(
   id: string,
   input: BookmarkInput,
@@ -1210,34 +658,9 @@ export async function deleteBookmark(id: string): Promise<boolean> {
 
 ### Add the edit and delete actions
 
-In `app/actions.ts`, replace the two database and validation imports with these:
+Replace `app/actions.ts` with the [complete action file](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/actions.ts), which keeps the create action and adds `updateBookmarkAction()` and `deleteBookmarkAction()`. Here is the update action from that file:
 
-`app/actions.ts`
-
-```typescript
-import { createBookmark, deleteBookmark, updateBookmark } from "@/db/bookmarks";
-import { isBookmarkId, validateBookmark } from "@/lib/bookmark-validation";
-```
-
-Add this value import alongside the existing type import. The delete action uses it as the starting state for its response:
-
-`app/actions.ts`
-
-```typescript
-import { emptyActionState } from "@/lib/bookmark-types";
-```
-
-Add this message beside `UNCONFIRMED_WRITE_SUFFIX`:
-
-`app/actions.ts`
-
-```typescript
-const RECORD_GONE_SUFFIX = "Refresh the page to see the current list.";
-```
-
-Append `updateBookmarkAction()`. It checks both the ID and the editable fields before calling the database:
-
-`app/actions.ts`
+`app/actions.ts` — excerpt
 
 ```typescript
 export async function updateBookmarkAction(
@@ -1285,347 +708,17 @@ export async function updateBookmarkAction(
 }
 ```
 
-A rejected edit keeps the editor open with the submitted values. A successful edit refreshes the list. Finish the file with the delete action:
+The update action validates the hidden ID and editable fields before writing. If the record has gone, it asks for a refresh. Invalid fields or an unconfirmed write keep the editor open with the submitted values. A confirmed update refreshes the list.
 
-`app/actions.ts`
-
-```typescript
-export async function deleteBookmarkAction(
-  _prevState: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const id = readFormValue(formData, "id");
-
-  if (!isBookmarkId(id)) {
-    return {
-      ...emptyActionState,
-      status: "error",
-      message: `This bookmark no longer exists — it may have already been deleted. ${RECORD_GONE_SUFFIX}`,
-    };
-  }
-
-  try {
-    const deleted = await deleteBookmark(id);
-    if (!deleted) {
-      return {
-        ...emptyActionState,
-        status: "error",
-        message: `This bookmark no longer exists — it may have already been deleted. ${RECORD_GONE_SUFFIX}`,
-      };
-    }
-  } catch {
-    return {
-      ...emptyActionState,
-      status: "error",
-      message: `Could not confirm the deletion. ${UNCONFIRMED_WRITE_SUFFIX}`,
-    };
-  }
-
-  revalidatePath("/");
-  return { ...emptyActionState, status: "success", message: "Bookmark deleted." };
-}
-```
-
-The confirmation button will help prevent accidental clicks, but it cannot validate a request. That is why the delete action checks the ID again. Running on the server does not make an action private, either. Our hosted access restriction must cover action requests as well as page loads.
+`deleteBookmarkAction()` follows the same pattern, with only the ID to validate. Its confirmation button helps prevent accidental clicks, while the server still checks the request before calling `deleteBookmark()`.
 
 ### Turn the card into an editor
 
-We’ll replace `components/bookmark-item.tsx` in three pieces. Paste them in order into the same file. The first piece adds client state, shared styles, date formatting and the two pending-state buttons:
+Replace `components/bookmark-item.tsx` with the [editable bookmark card](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/components/bookmark-item.tsx). It adds an edit form and a delete-confirmation state to the card we already have.
 
-`components/bookmark-item.tsx`
+The edit form starts with the saved title, URL and note. It includes the bookmark ID in a hidden field, and gives each input a unique ID so labels target the right card. A successful save closes the editor. **Cancel** closes it without submitting. Validation errors leave the entered values in place.
 
-```typescript
-"use client";
-
-import { useActionState, useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
-
-import { deleteBookmarkAction, updateBookmarkAction } from "@/app/actions";
-import type { BookmarkView } from "@/lib/bookmark-types";
-import { emptyActionState } from "@/lib/bookmark-types";
-
-const inputClasses =
-  "w-full rounded-lg border border-[#1C2B26]/15 bg-white px-3 py-2 text-sm text-[#1C2B26] shadow-sm placeholder:text-[#1C2B26]/40 " +
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] " +
-  "aria-[invalid=true]:border-[#B3261E] disabled:opacity-60";
-
-const secondaryButtonClasses =
-  "inline-flex h-8 items-center rounded-lg border border-[#1C2B26]/15 bg-white px-3 text-xs font-semibold text-[#1C2B26] " +
-  "transition-colors hover:bg-[#1C2B26]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] " +
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] disabled:cursor-not-allowed disabled:opacity-60";
-
-const deleteButtonClasses =
-  "inline-flex h-8 items-center rounded-lg border border-[#B3261E]/30 bg-white px-3 text-xs font-semibold text-[#B3261E] " +
-  "transition-colors hover:bg-[#B3261E]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] " +
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] disabled:cursor-not-allowed disabled:opacity-60";
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
-  timeZone: "UTC",
-});
-
-function formatDate(isoDate: string): string {
-  return dateFormatter.format(new Date(isoDate));
-}
-
-function SaveEditButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="inline-flex h-9 items-center justify-center rounded-lg bg-[#00684A] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#005238] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0] disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {pending ? "Saving…" : "Save changes"}
-    </button>
-  );
-}
-
-function ConfirmDeleteButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending} className={deleteButtonClasses}>
-      {pending ? "Deleting…" : "Confirm delete"}
-    </button>
-  );
-}
-```
-
-Next comes `EditBookmarkForm`. It starts with the saved values and includes the bookmark ID in a hidden field. Each input ID includes that bookmark ID too, so labels and errors remain associated with the right card when several bookmarks are on screen. Append this component:
-
-`components/bookmark-item.tsx`
-
-```typescript
-function EditBookmarkForm({
-  bookmark,
-  onDone,
-}: {
-  bookmark: BookmarkView;
-  onDone: () => void;
-}) {
-  const [state, formAction, isPending] = useActionState(
-    updateBookmarkAction,
-    emptyActionState,
-  );
-  const previousStatus = useRef(state.status);
-
-  // A successful edit exits edit mode; rejected submissions stay open.
-  useEffect(() => {
-    if (state.status === "success" && previousStatus.current !== "success") {
-      onDone();
-    }
-    previousStatus.current = state.status;
-  }, [state, onDone]);
-
-  return (
-    <form action={formAction} className="mt-3 space-y-3" aria-busy={isPending} noValidate>
-      <input type="hidden" name="id" value={bookmark.id} />
-      <div className="space-y-1.5">
-        <label
-          htmlFor={`edit-title-${bookmark.id}`}
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          Title
-        </label>
-        <input
-          id={`edit-title-${bookmark.id}`}
-          name="title"
-          type="text"
-          autoComplete="off"
-          readOnly={isPending}
-          defaultValue={state.status === "idle" ? bookmark.title : state.values.title}
-          aria-invalid={state.fieldErrors.title ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.title ? `edit-title-error-${bookmark.id}` : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.title ? (
-          <p id={`edit-title-error-${bookmark.id}`} className="text-sm text-[#B3261E]">
-            {state.fieldErrors.title}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <label
-          htmlFor={`edit-url-${bookmark.id}`}
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          URL
-        </label>
-        <input
-          id={`edit-url-${bookmark.id}`}
-          name="url"
-          type="url"
-          autoComplete="off"
-          readOnly={isPending}
-          defaultValue={state.status === "idle" ? bookmark.url : state.values.url}
-          aria-invalid={state.fieldErrors.url ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.url ? `edit-url-error-${bookmark.id}` : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.url ? (
-          <p id={`edit-url-error-${bookmark.id}`} className="text-sm text-[#B3261E]">
-            {state.fieldErrors.url}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="space-y-1.5">
-        <label
-          htmlFor={`edit-note-${bookmark.id}`}
-          className="block text-sm font-medium text-[#1C2B26]"
-        >
-          Note <span className="font-normal text-[#4B5F58]">(optional)</span>
-        </label>
-        <textarea
-          id={`edit-note-${bookmark.id}`}
-          name="note"
-          rows={3}
-          readOnly={isPending}
-          defaultValue={state.status === "idle" ? bookmark.note : state.values.note}
-          aria-invalid={state.fieldErrors.note ? true : undefined}
-          aria-describedby={
-            state.fieldErrors.note ? `edit-note-error-${bookmark.id}` : undefined
-          }
-          className={inputClasses}
-        />
-        {state.fieldErrors.note ? (
-          <p id={`edit-note-error-${bookmark.id}`} className="text-sm text-[#B3261E]">
-            {state.fieldErrors.note}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <SaveEditButton />
-        <button type="button" disabled={isPending} onClick={onDone} className={secondaryButtonClasses}>
-          Cancel
-        </button>
-      </div>
-
-      {state.status !== "idle" && state.message ? (
-        <p
-          aria-live="polite"
-          role={state.status === "error" ? "alert" : "status"}
-          className={
-            state.status === "error"
-              ? "text-sm font-medium text-[#B3261E]"
-              : "text-sm font-medium text-[#00684A]"
-          }
-        >
-          {state.message}
-        </p>
-      ) : null}
-    </form>
-  );
-}
-```
-
-The effect closes the editor after a successful save. **Cancel** exits without submitting. Neither a validation error nor an unconfirmed write closes the form and discards the user’s work.
-
-Finally, append `BookmarkItem`. Its local state decides whether the card shows its content, the editor, or the delete confirmation:
-
-`components/bookmark-item.tsx`
-
-```typescript
-export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [deleteState, deleteFormAction, isDeleting] = useActionState(
-    deleteBookmarkAction,
-    emptyActionState,
-  );
-
-  const wasUpdated = bookmark.updatedAt !== bookmark.createdAt;
-
-  return (
-    <li className="rounded-2xl border border-[#1C2B26]/10 bg-white p-4 shadow-sm">
-      {isEditing ? (
-        <EditBookmarkForm bookmark={bookmark} onDone={() => setIsEditing(false)} />
-      ) : (
-        <>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <a
-                href={bookmark.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="break-words font-semibold text-[#00684A] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF7F0]"
-              >
-                {bookmark.title}
-              </a>
-              <p className="mt-0.5 truncate text-sm text-[#4B5F58]">
-                {bookmark.url}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => { setIsConfirmingDelete(false); setIsEditing(true); }}
-                disabled={isDeleting}
-                className={secondaryButtonClasses}
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsConfirmingDelete(true)}
-                disabled={isDeleting}
-                className={deleteButtonClasses}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-
-          {bookmark.note ? (
-            <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-[#1C2B26]">
-              {bookmark.note}
-            </p>
-          ) : null}
-
-          <p className="mt-2 text-xs text-[#4B5F58]">
-            Added {formatDate(bookmark.createdAt)}
-            {wasUpdated ? ` · Updated ${formatDate(bookmark.updatedAt)}` : ""}
-          </p>
-
-          {isConfirmingDelete ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#1C2B26]/10 pt-3">
-              <form action={deleteFormAction} className="flex flex-wrap items-center gap-2" noValidate>
-                <input type="hidden" name="id" value={bookmark.id} />
-                <span className="text-xs font-medium text-[#1C2B26]">
-                  Delete this bookmark?
-                </span>
-                <ConfirmDeleteButton />
-                <button
-                  type="button"
-                  onClick={() => setIsConfirmingDelete(false)}
-                  disabled={isDeleting}
-                  className={secondaryButtonClasses}
-                >
-                  Cancel
-                </button>
-              </form>
-            </div>
-          ) : null}
-
-          {deleteState.status === "error" && deleteState.message ? (
-            <p aria-live="polite" role="alert" className="mt-2 text-sm font-medium text-[#B3261E]">
-              {deleteState.message}
-            </p>
-          ) : null}
-        </>
-      )}
-    </li>
-  );
-}
-```
-
-The first Delete click only reveals the confirmation controls. The database action runs when **Confirm delete** is submitted. While deletion is pending, we disable the controls that could conflict with it.
+The first **Delete** click only reveals the confirmation controls. The action runs when **Confirm delete** is submitted. A pending request disables the controls, and a stale or unconfirmed result leaves the message visible instead of pretending the card was removed.
 
 ### Try an edit, then change your mind about deleting
 
@@ -1645,11 +738,11 @@ The list currently stops at the newest 100 records. That keeps a request bounded
 
 We sort by `createdAt` descending, then `_id` descending. Imagine three bookmarks with these values. The shortened IDs are labels for this example, not values to paste into MongoDB:
 
-- **Driver docs** — 10:00, ID ending in `003`
+- **Driver docs**: 10:00, ID ending in `003`
 
-- **Insert guide** — 10:00, ID ending in `002`
+- **Insert guide**: 10:00, ID ending in `002`
 
-- **React forms** — 09:55, ID ending in `001`
+- **React forms**: 09:55, ID ending in `001`
 
 If a page ends at Driver docs, the next page needs records created before 10:00, plus any records at 10:00 with a smaller ID. A timestamp-only filter would skip Insert guide even though we have not displayed it yet. The second field gives us a stable order through the tie.
 
@@ -1702,40 +795,15 @@ The query reads up to 101 records. The first 100 become cards, and the extra rec
 
 ### Create an index for that query
 
-The query sorts and filters on `createdAt` and `_id`, so we’ll create a compound index with those fields in that order. Put the setup script in `scripts/setup-db.mjs`:
+Copy [scripts/setup-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/setup-db.mjs) into your project. It creates the compound index matching our sort and pagination filter. This is the key operation from the script:
 
-`scripts/setup-db.mjs`
+`scripts/setup-db.mjs` — excerpt
 
 ```javascript
-import { MongoClient } from "mongodb";
-
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  console.error("Set MONGODB_URI before preparing the database.");
-  process.exit(1);
-}
-
-let client;
-try {
-  client = new MongoClient(uri, {
-    appName: "devrel-tutorial-javascript-nextjstemplate",
-    serverSelectionTimeoutMS: 5000,
-  });
-  await client.connect();
-  await client.db().collection("bookmarks").createIndex(
-    { createdAt: -1, _id: -1 },
-    { name: "bookmarks_newest_first" },
-  );
-  console.log("Bookmark index is ready.");
-} catch {
-  console.error("Could not prepare the bookmark index. Check the connection and database permissions.");
-  process.exitCode = 1;
-} finally {
-  await client?.close().catch(() => {
-    console.error("Could not close the database connection.");
-    process.exitCode = 1;
-  });
-}
+await client.db().collection("bookmarks").createIndex(
+  { createdAt: -1, _id: -1 },
+  { name: "bookmarks_newest_first" },
+);
 ```
 
 Run it against the database you’re using for the app:
@@ -1749,132 +817,7 @@ You should see **Bookmark index is ready.** The script closes its own client whe
 
 ### Connect the page links
 
-`listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with this version to read the `before` query parameter and render the navigation links:
-
-`app/page.tsx`
-
-```typescript
-import { connection } from "next/server";
-
-import { BookmarkForm } from "@/components/bookmark-form";
-import { BookmarkItem } from "@/components/bookmark-item";
-import {
-  listBookmarks,
-} from "@/db/bookmarks";
-import type { BookmarkView } from "@/lib/bookmark-types";
-import Link from "next/link";
-
-// MongoDB is reached from Node.js server code only.
-export const runtime = "nodejs";
-
-// The page reads the database on every request; never connect during a
-// static build.
-
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ before?: string | string[] }>;
-}) {
-  // Marks the page dynamic and waits for a request connection, so the
-  // database is only queried for real visitors, never at build time.
-  await connection();
-
-  let bookmarks: BookmarkView[] = [];
-  const { before } = await searchParams;
-  let nextCursor: string | null = null;
-  let isOlderPage = false;
-  let isDatabaseUnavailable = false;
-
-  try {
-    const result = await listBookmarks(before);
-    bookmarks = result.bookmarks;
-    nextCursor = result.nextCursor;
-    isOlderPage = result.isOlderPage;
-  } catch {
-    // Distinguish "database down" from "empty database" for the visitor.
-    // Do not log raw driver errors or connection details here.
-    console.error("Failed to read bookmarks from the database.");
-    isDatabaseUnavailable = true;
-  }
-
-  return (
-    <div className="min-h-screen bg-[#FAF7F0] text-[#1C2B26]">
-      <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Bookmarks
-            </h1>
-            <p className="mt-2 text-base text-[#4B5F58]">
-              A small place for links worth keeping.
-            </p>
-          </div>
-        </header>
-
-        <main className="mt-8 grid items-start gap-8 lg:grid-cols-[21rem_minmax(0,1fr)]">
-          <aside className="rounded-2xl border border-[#1C2B26]/10 bg-white p-5 shadow-sm lg:sticky lg:top-8">
-            <h2 className="text-lg font-semibold">Add a bookmark</h2>
-            <p className="mt-1 text-sm text-[#4B5F58]">
-              Save a link with a title and an optional note.
-            </p>
-            <BookmarkForm />
-          </aside>
-
-          <section aria-label="Saved bookmarks" className="min-w-0">
-            {isDatabaseUnavailable ? (
-              <div
-                role="alert"
-                className="rounded-2xl border border-[#B3261E]/30 bg-[#B3261E]/5 p-6"
-              >
-                <h2 className="text-lg font-semibold text-[#8C1D18]">
-                  Couldn’t load bookmarks
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#8C1D18]">
-                  Please try again in a moment.
-                </p>
-              </div>
-            ) : bookmarks.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-[#1C2B26]/20 bg-white/60 p-8 text-center">
-                <h2 className="text-lg font-semibold">
-                  {isOlderPage ? "No older bookmarks" : "No bookmarks yet"}
-                </h2>
-                <p className="mt-2 text-sm text-[#4B5F58]">
-                  {isOlderPage
-                    ? "You’ve reached the end of the list."
-                    : "Add your first link with the form on this page."}
-                </p>
-              </div>
-            ) : (
-              <>
-                <ul className="space-y-3">
-                  {bookmarks.map((bookmark) => (
-                    <BookmarkItem key={bookmark.id} bookmark={bookmark} />
-                  ))}
-                </ul>
-              </>
-            )}
-            {!isDatabaseUnavailable && (isOlderPage || nextCursor) ? (
-              <nav aria-label="Bookmark pages" className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
-                {isOlderPage ? (
-                  <Link href="/" className="rounded-lg px-3 py-2 font-medium text-[#00684A] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
-                    Back to newest
-                  </Link>
-                ) : <span />}
-                {nextCursor ? (
-                  <Link href={`/?${new URLSearchParams({ before: nextCursor })}`} className="rounded-lg border border-[#1C2B26]/15 bg-white px-3 py-2 font-medium text-[#00684A] hover:bg-[#1C2B26]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
-                    Older bookmarks
-                  </Link>
-                ) : null}
-              </nav>
-            ) : null}
-          </section>
-        </main>
-
-      </div>
-    </div>
-  );
-}
-```
+`listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
 
 **Older bookmarks** carries the token forward. **Back to newest** drops it. After a new bookmark is saved, the add form’s existing `router.replace("/")` also returns to the newest page, where that record belongs. Editing keeps the original creation time, so an edit does not jump to the top.
 
@@ -1884,7 +827,7 @@ With fewer than 101 records, there is no older page to show. The normal list sho
 
 A successful build cannot tell us whether clicking Save really persists an edit. We’ll use Playwright to add a bookmark through the form, reload, edit it, reload again, cancel a deletion, then confirm it. We’ll also check that an unavailable database preserves the text someone was trying to save.
 
-The tests must not clear the database you have been using. The runner below starts a separate temporary MongoDB process on a random port, supplies its URI to the app and tests, and stops it afterwards. It also checks a production build with no database URI, which catches accidental database access during the build.
+The test runner starts a separate temporary MongoDB process on a random port, supplies its URI to the app and tests, then stops it afterwards. It also builds with no database URI to catch accidental connections during the build. These checks use disposable data, leaving your app’s database alone.
 
 ```bash
 npm pkg set scripts.typecheck="tsc --noEmit" \
@@ -1894,282 +837,60 @@ npm pkg set scripts.typecheck="tsc --noEmit" \
 rm tests/e2e/home.spec.ts
 ```
 
-`scripts/verify.mjs`
+Copy the [isolated test runner](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/verify.mjs) to `scripts/verify.mjs`. It owns the temporary database and app processes, and refuses to rely on a server you already have running.
 
-```javascript
-import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
-import { createServer } from "node:net";
-import { setTimeout as delay } from "node:timers/promises";
-import { MongoMemoryServer } from "mongodb-memory-server-core";
+Replace `playwright.config.ts` with the [test configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/playwright.config.ts).
 
-const dev = process.argv.includes("--dev");
-const children = new Set();
-let mongo;
-// Empty values override Next's .env files; no database credentials are read.
-const cleanEnv = { ...process.env, MONGODB_URI: "", BOOKMARKS_TEST_RUN: "1", NEXT_TELEMETRY_DISABLED: "1" };
-function child(command, args, env) {
-  const proc = spawn(command, args, { env, stdio: "inherit", detached: true });
-  children.add(proc);
-  return proc;
-}
-async function run(command, args, env = cleanEnv) {
-  const proc = child(command, args, env);
-  try {
-    await new Promise((resolve, reject) => {
-      proc.once("error", reject);
-      proc.once("exit", (code, signal) => code === 0 ? resolve() : reject(new Error(`${command} ${args.join(" ")} failed (${code ?? signal})`)));
-    });
-  } finally { await stop(proc); }
-}
-async function freePort() {
-  const server = createServer();
-  await new Promise((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
-  const port = server.address().port;
-  await new Promise((resolve) => server.close(resolve));
-  return port;
-}
-async function stop(proc) {
-  children.delete(proc);
-  // Completed commands no longer own a live process group. In particular,
-  // do not signal a departed child's numeric PID after the OS can reuse it.
-  if (!proc.pid || proc.exitCode !== null || proc.signalCode !== null) return;
-  // Includes Next's workers, rather than only npm's wrapper process.
-  try { process.kill(-proc.pid, "SIGTERM"); } catch (error) { if (error.code !== "ESRCH") throw error; }
-  const deadline = Date.now() + 5000;
-  while (proc.exitCode === null && proc.signalCode === null && Date.now() < deadline) await delay(50);
-  if (proc.exitCode === null && proc.signalCode === null) {
-    try { process.kill(-proc.pid, "SIGKILL"); } catch (error) { if (error.code !== "ESRCH") throw error; }
-  }
-}
-async function ready(server, baseURL) {
-  const deadline = Date.now() + 120_000;
-  while (Date.now() < deadline) {
-    if (server.exitCode !== null) throw new Error("Owned Next server exited before readiness.");
-    try {
-      const response = await fetch(baseURL, { signal: AbortSignal.timeout(12_000) });
-      if (response.ok) return;
-    } catch { /* Startup/dev compilation may require several attempts. */ }
-    await delay(250);
-  }
-  throw new Error("Owned Next server did not become ready.");
-}
-let cleaning;
-function cleanup() {
-  return cleaning ??= (async () => {
-    for (const proc of [...children]) await stop(proc);
-    if (mongo) await mongo.stop();
-  })();
-}
-for (const signal of ["SIGINT", "SIGTERM"]) {
-  process.on(signal, async () => { await cleanup(); process.exit(signal === "SIGINT" ? 130 : 143); });
-}
-try {
-  if (!dev) for (const script of ["lint", "typecheck", "build"]) await run("npm", ["run", script]);
-  const dbName = `bookmarks_test_${randomUUID().replaceAll("-", "")}`;
-  mongo = await MongoMemoryServer.create({ binary: { version: "8.2.6" }, instance: { ip: "127.0.0.1", dbName } });
-  const uri = mongo.getUri(dbName);
-  await run("npm", ["run", "db:setup"], { ...cleanEnv, MONGODB_URI: uri });
-  const unavailablePort = await freePort();
-  for (const [scenario, databaseURI] of [
-    ["healthy", uri],
-    ["missing", ""],
-    ["unreachable", `mongodb://127.0.0.1:${unavailablePort}/${dbName}`],
-  ]) {
-    const port = await freePort();
-    const baseURL = `http://127.0.0.1:${port}`;
-    const env = { ...cleanEnv, MONGODB_URI: databaseURI, BOOKMARKS_TEST_URI: uri, BOOKMARKS_TEST_SCENARIO: scenario, BOOKMARKS_TEST_BASE_URL: baseURL };
-    console.log(`Verifying ${dev ? "development" : "production"} runtime: ${scenario}`);
-    const server = child("node", ["node_modules/next/dist/bin/next", dev ? "dev" : "start", "--hostname", "127.0.0.1", "--port", String(port)], env);
-    try {
-      await ready(server, baseURL);
-      await run("node", ["node_modules/@playwright/test/cli.js", "test"], env);
-    } finally { await stop(server); }
-  }
-} finally { await cleanup(); }
-```
+Copy [tests/e2e/bookmarks.spec.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/tests/e2e/bookmarks.spec.ts) into your project. The full file includes the disposable-database checks, form helpers and outage scenarios. Here is its main CRUD test, already included in that file:
 
-`verify` uses a production build and server. `verify:dev` uses the development server. Both select their own temporary database and localhost port. Add this Playwright configuration:
-
-`playwright.config.ts`
+`tests/e2e/bookmarks.spec.ts` — excerpt
 
 ```typescript
-import { defineConfig, devices } from "@playwright/test";
+test("a bookmark survives reloads, edits, and a cancelled delete", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+  await add(page, "The tab from Tuesday", "https://example.com/tuesday", "Read before Friday");
+  await expect(item(page, "The tab from Tuesday")).toBeVisible();
+  await page.reload();
+  const original = item(page, "The tab from Tuesday");
+  await expect(original).toContainText("Read before Friday");
+  const saved = await bookmarks.findOne({ title: "The tab from Tuesday" });
+  expect(saved?.url).toBe("https://example.com/tuesday");
+  expect(saved?.createdAt).toBeInstanceOf(Date);
+  expect(saved?.updatedAt).toEqual(saved?.createdAt);
 
-if (process.env.BOOKMARKS_TEST_RUN !== "1") throw new Error("Use the isolated verification harness.");
-const baseURL = process.env.BOOKMARKS_TEST_BASE_URL;
-if (!baseURL || !/^http:\/\/127\.0\.0\.1:\d+$/.test(baseURL)) throw new Error("An owned loopback server is required.");
-export default defineConfig({
-  testDir: "./tests/e2e",
-  fullyParallel: false,
-  workers: 1,
-  retries: 0,
-  forbidOnly: true,
-  outputDir: `test-results/${process.env.BOOKMARKS_TEST_SCENARIO}`,
-  timeout: 45_000,
-  expect: { timeout: 10_000 },
-  reporter: [["list"], ["html", { open: "never", outputFolder: `playwright-report/${process.env.BOOKMARKS_TEST_SCENARIO}` }]],
-  use: { baseURL, trace: "retain-on-failure", screenshot: "only-on-failure" },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  // The harness owns startup/shutdown. Never reuse a developer's server.
+  await original.getByRole("button", { name: "Edit", exact: true }).click();
+  const edit = page.locator('form').filter({ has: page.locator('input[name="id"]') });
+  await edit.getByLabel("Title", { exact: true }).fill("Read it on Friday");
+  await edit.getByLabel("URL", { exact: true }).fill("https://example.com/friday");
+  await edit.getByLabel(/Note/).fill("Keep this for next time");
+  await edit.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(item(page, "Read it on Friday")).toBeVisible();
+  await page.reload();
+  const updated = item(page, "Read it on Friday");
+  await expect(updated).toContainText("Keep this for next time");
+  await expect(updated.getByRole("link", { name: "Read it on Friday" })).toHaveAttribute("href", "https://example.com/friday");
+  const edited = await bookmarks.findOne({ _id: saved!._id });
+  expect(edited?.createdAt).toEqual(saved?.createdAt);
+  expect(edited?.updatedAt.getTime()).toBeGreaterThan(saved!.updatedAt.getTime());
+
+  await updated.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(updated.getByText("Delete this bookmark?", { exact: true })).toBeVisible();
+  await updated.getByRole("button", { name: "Cancel", exact: true }).click();
+  expect(await bookmarks.countDocuments()).toBe(1);
+  await expect(updated.getByText("Delete this bookmark?", { exact: true })).toHaveCount(0);
+  await updated.getByRole("button", { name: "Delete", exact: true }).click();
+  await updated.getByRole("button", { name: "Confirm delete", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+  expect(await bookmarks.countDocuments()).toBe(0);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
 });
 ```
 
-Replace the template tests with `tests/e2e/bookmarks.spec.ts`. The first part defines the disposable-database helpers and selects the healthy or unavailable-database scenario:
+The reloads check that changes reached MongoDB, rather than only updating the screen. The database assertions also check that an edit preserves `createdAt`, changes `updatedAt`, and that cancelling a deletion leaves the record intact. The other scenarios check missing and unreachable database connections, including keeping the text from a rejected submission.
 
-`tests/e2e/bookmarks.spec.ts`
-
-```typescript
-import { test, expect, type Page } from "@playwright/test";
-import { MongoClient, type Collection, type Document } from "mongodb";
-
-if (process.env.BOOKMARKS_TEST_RUN !== "1")
-  throw new Error("Disposable test run required.");
-const rawURI = process.env.BOOKMARKS_TEST_URI;
-if (!rawURI) throw new Error("Missing disposable database URI.");
-const parsedURI = new URL(rawURI);
-if (
-  parsedURI.protocol !== "mongodb:" ||
-  parsedURI.hostname !== "127.0.0.1" ||
-  !/^\/bookmarks_test_[a-zA-Z0-9_]+$/.test(parsedURI.pathname) ||
-  parsedURI.username ||
-  parsedURI.password
-) {
-  throw new Error("Tests may only mutate a loopback bookmarks_test_ database.");
-}
-const scenario = process.env.BOOKMARKS_TEST_SCENARIO;
-if (!["healthy", "missing", "unreachable"].includes(scenario ?? ""))
-  throw new Error("Unknown verification scenario.");
-const healthy = scenario === "healthy";
-if (healthy && process.env.MONGODB_URI !== rawURI)
-  throw new Error("Application and tests must share the disposable database.");
-let client: MongoClient;
-let bookmarks: Collection<Document>;
-test.beforeAll(async () => {
-  client = await new MongoClient(rawURI, {
-    serverSelectionTimeoutMS: 5000,
-  }).connect();
-  bookmarks = client.db().collection("bookmarks");
-});
-test.afterAll(async () => {
-  await client?.close();
-});
-test.beforeEach(async () => {
-  await bookmarks.deleteMany({});
-});
-
-function createForm(page: Page) {
-  return page
-    .locator("form")
-    .filter({
-      has: page.locator("#create-title"),
-    });
-}
-async function add(
-  page: Page,
-  title: string,
-  url = "https://example.com",
-  note = "",
-) {
-  const form = createForm(page);
-  await form.getByLabel("Title", { exact: true }).fill(title);
-  await form.getByLabel("URL", { exact: true }).fill(url);
-  await form.getByLabel(/Note/).fill(note);
-  await form.getByRole("button", { name: "Add bookmark", exact: true }).click();
-  return form;
-}
-function item(page: Page, title: string) {
-  return page
-    .getByRole("listitem")
-    .filter({ has: page.getByRole("link", { name: title, exact: true }) });
-}
-```
-
-Append the browser scenarios. The successful flow checks the visible card and the stored record, including the timestamps. Reloads make persistence part of the test rather than an assumption:
-
-`tests/e2e/bookmarks.spec.ts`
-
-```typescript
-test.describe("healthy database", () => {
-  test.skip(!healthy, "Only run against the healthy disposable database.");
-
-  test("a bookmark survives reloads, edits, and a cancelled delete", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
-    await add(page, "The tab from Tuesday", "https://example.com/tuesday", "Read before Friday");
-    await expect(item(page, "The tab from Tuesday")).toBeVisible();
-    await page.reload();
-    const original = item(page, "The tab from Tuesday");
-    await expect(original).toContainText("Read before Friday");
-    const saved = await bookmarks.findOne({ title: "The tab from Tuesday" });
-    expect(saved?.url).toBe("https://example.com/tuesday");
-    expect(saved?.createdAt).toBeInstanceOf(Date);
-    expect(saved?.updatedAt).toEqual(saved?.createdAt);
-
-    await original.getByRole("button", { name: "Edit", exact: true }).click();
-    const edit = page.locator('form').filter({ has: page.locator('input[name="id"]') });
-    await edit.getByLabel("Title", { exact: true }).fill("Read it on Friday");
-    await edit.getByLabel("URL", { exact: true }).fill("https://example.com/friday");
-    await edit.getByLabel(/Note/).fill("Keep this for next time");
-    await edit.getByRole("button", { name: "Save changes", exact: true }).click();
-    await expect(item(page, "Read it on Friday")).toBeVisible();
-    await page.reload();
-    const updated = item(page, "Read it on Friday");
-    await expect(updated).toContainText("Keep this for next time");
-    await expect(updated.getByRole("link", { name: "Read it on Friday" })).toHaveAttribute("href", "https://example.com/friday");
-    const edited = await bookmarks.findOne({ _id: saved!._id });
-    expect(edited?.createdAt).toEqual(saved?.createdAt);
-    expect(edited?.updatedAt.getTime()).toBeGreaterThan(saved!.updatedAt.getTime());
-
-    await updated.getByRole("button", { name: "Delete", exact: true }).click();
-    await expect(updated.getByText("Delete this bookmark?", { exact: true })).toBeVisible();
-    await updated.getByRole("button", { name: "Cancel", exact: true }).click();
-    expect(await bookmarks.countDocuments()).toBe(1);
-    await expect(updated.getByText("Delete this bookmark?", { exact: true })).toHaveCount(0);
-    await updated.getByRole("button", { name: "Delete", exact: true }).click();
-    await updated.getByRole("button", { name: "Confirm delete", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
-    expect(await bookmarks.countDocuments()).toBe(0);
-    await page.reload();
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
-  });
-});
-
-test.describe("database unavailable", () => {
-  test.skip(healthy, "Run in both missing and unreachable URI scenarios.");
-  test("shows an outage rather than empty data, and retains rejected mutation input", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await expect(
-      page.getByRole("heading", { name: "Couldn’t load bookmarks", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "No bookmarks yet" }),
-    ).toHaveCount(0);
-    await expect(page.locator("body")).not.toContainText(
-      /MONGODB_URI|MongoServerSelectionError|mongodb:\/\//,
-    );
-    const form = await add(
-      page,
-      "Preserve my bookmark",
-      "https://example.com/outage",
-      "Retry later",
-    );
-    await expect(form.getByRole("alert")).toContainText(
-      /Could not confirm that the bookmark was saved/,
-    );
-    await expect(form.getByLabel("Title", { exact: true })).toHaveValue(
-      "Preserve my bookmark",
-    );
-    await expect(form.getByLabel("URL", { exact: true })).toHaveValue(
-      "https://example.com/outage",
-    );
-    await expect(form.getByLabel(/Note/)).toHaveValue("Retry later");
-    expect(await bookmarks.countDocuments()).toBe(0);
-  });
-});
-```
+`verify` runs lint, TypeScript checks, a production build and browser tests. `verify:dev` runs the same browser scenarios against the development server. Both commands choose their own temporary database and localhost port.
 
 Install Playwright’s Chromium browser and its operating-system dependencies, then run both checks from the project root. You only need to repeat the browser installation when Playwright changes or you move to a new environment:
 
@@ -2186,55 +907,7 @@ If a test fails, read the named assertion and open the Playwright report before 
 
 [Create an empty repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) in your GitHub account. Leave its README, licence and `.gitignore` options unchecked because the project already has those files. Copy the repository’s HTTPS URL.
 
-Before pushing, replace `.github/workflows/ci.yml` with this workflow. It runs the same isolated production verification on pushes to `bookmarks` or `main`, and on pull requests. It needs no Atlas secret:
-
-`.github/workflows/ci.yml` (YAML)
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches: ["bookmarks", "main"]
-  pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-jobs:
-  build-and-e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-
-      - name: Verify production build and browser flows
-        run: npm run verify
-
-      - name: Upload Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-          if-no-files-found: ignore
-```
-
-A release tag can later point to a different commit. To keep the action code fixed, [pin it to a full commit SHA](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions) instead.
+Before pushing, replace `.github/workflows/ci.yml` with the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.github/workflows/ci.yml). It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. It needs no Atlas secret.
 
 Remove the template’s `CODEOWNERS` file, which names its upstream maintainers. Rename the template remote to `upstream`, then add your own repository as `origin`. Replace the example URL below with the URL you copied. Check `git status` before committing to confirm that `.env` is excluded:
 

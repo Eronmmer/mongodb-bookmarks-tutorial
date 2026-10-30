@@ -1,0 +1,80 @@
+{
+  "completedAt": "2026-10-30T09:40:20.483454+00:00",
+  "candidateSha256": "3dfb7c24cfba6413138b046c72d05e0fbee53edd1cb0eed17c63b0baaf7fd2d2",
+  "candidateBlocksSha256": "c4f95742170cae94358fe1c6bcc25a5325240c5c4303cff2dacb71eeb8f56dad",
+  "checkout": "/tmp/mongodb-bookmarks-shortening/verification/public-template",
+  "publicTemplate": "https://github.com/mongodb-developer/nextjs-template-mongodb.git",
+  "publicTemplateCommit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "linkedSources": {
+    "final": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "firstBookmark": "88d9af5ac809d4d5cf778435d07a9af63077f793"
+  },
+  "sourceAudit": {
+    "linkedFiles": 18,
+    "excerpts": 7,
+    "allResolvedAndMatched": true
+  },
+  "checkpoints": [
+    {
+      "stage": "a",
+      "runtime": "development",
+      "exitCode": 0,
+      "log": "/tmp/mongodb-bookmarks-shortening/verification/evidence/checkpoint-a.log"
+    },
+    {
+      "stage": "b",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/mongodb-bookmarks-shortening/verification/evidence/checkpoint-b.log"
+    },
+    {
+      "stage": "c",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/mongodb-bookmarks-shortening/verification/evidence/checkpoint-c.log"
+    },
+    {
+      "stage": "d",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/mongodb-bookmarks-shortening/verification/evidence/checkpoint-d.log"
+    }
+  ],
+  "exactReaderCommands": {
+    "npx playwright install --with-deps chromium": "passed",
+    "npm run verify": "passed: lint/types/build/healthyCRUD/missingURI/unreachableURI",
+    "npm run verify:dev": "passed: healthyCRUD/missingURI/unreachableURI"
+  },
+  "executableEquivalence": {
+    "appAndConfigAndPackageDefinitionFiles": 24,
+    "allMatchReference": true,
+    "method": "TypeScript syntax-tree and parser-derived token comparison for JS/TS/TSX; parsed JSON or exact bytes for other files. Comments/formatting ignored, literal contents and punctuation retained. Parser-derived tokens correctly preserve template literal boundaries."
+  },
+  "freshNpmUpdateLockfileDifference": [
+    {
+      "package": "node_modules/electron-to-chromium",
+      "before": "1.5.467",
+      "after": "1.5.468",
+      "changedKeys": [
+        "integrity",
+        "resolved",
+        "version"
+      ]
+    }
+  ],
+  "lockfileSha256": "5724c54eaccdd7130e0e742b0cee2d0a0f108f2331e24b2a51fde260c4e5d37e",
+  "publicationPrerequisite": "Companion repository must be publicly accessible before publishing the new article links. It remained private during authenticated source resolution.",
+  "limits": [
+    "No new Codespaces, Atlas, Vercel or hosted Server Action authorization run. Runtime and configuration sources match previously verified source.",
+    "No publishing/deployment/remote mutation examples executed by this verifier.",
+    "Fixed-port manual local DB was not started; checkpoint harnesses use owned disposable MongoDB on temporary loopback ports.",
+    "New transitive dependency patch passed local verification; previous hosted CI evidence used its earlier lockfile."
+  ],
+  "files": [
+    "source-audit.json",
+    "checks.json",
+    "assembly-ledger.json",
+    "executable-comparison.json",
+    "exact-reader-checks.log"
+  ]
+}

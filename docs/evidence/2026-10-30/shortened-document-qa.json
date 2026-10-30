@@ -1,0 +1,123 @@
+{
+  "status": "passed-final-visual-spotcheck",
+  "readOnly": true,
+  "pages": 28,
+  "visuallyReviewedPages": [
+    6,
+    7,
+    8,
+    9,
+    14,
+    15,
+    16,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27
+  ],
+  "languageLabels": {
+    "Shell": 17,
+    "TypeScript": 17,
+    "JSON": 1,
+    "JavaScript": 1
+  },
+  "nativeLabelsMatchExpected": true,
+  "codeFont": "Roboto Mono 9 pt",
+  "inlineCodeFont": "Roboto Mono 10 pt",
+  "imagesBefore": [
+    {
+      "page": 1,
+      "digest": "8d77453c1edf201e1c35d75fd5b92c9d",
+      "width": 2048,
+      "height": 1155
+    },
+    {
+      "page": 39,
+      "digest": "f4d25726677f1641dfb0e3bc670e4cb6",
+      "width": 1872,
+      "height": 1116
+    }
+  ],
+  "imagesAfter": [
+    {
+      "page": 1,
+      "width": 2048,
+      "height": 1155,
+      "digest": "8d77453c1edf201e1c35d75fd5b92c9d"
+    },
+    {
+      "page": 21,
+      "width": 1872,
+      "height": 1116,
+      "digest": "f4d25726677f1641dfb0e3bc670e4cb6"
+    }
+  ],
+  "imagePixelsUnchanged": true,
+  "blankPages": [],
+  "outOfPageTextSpans": [],
+  "expectedLinkTargets": 41,
+  "renderedLinkTargets": 41,
+  "missingLinkTargets": [],
+  "unexpectedLinkTargets": [],
+  "findings": [],
+  "positiveChecks": [
+    "All four native language labels and syntax colors present.",
+    "Filename/excerpt labels and blue companion links distinct and legible.",
+    "Edit screenshot sharp and caption visible.",
+    "Pagination, test excerpt, workflow links, deployment and closing pages have no overlap or clipping."
+  ],
+  "file": "/tmp/mongodb-bookmarks-shortening/after-layout.pdf",
+  "readbackFile": "/tmp/mongodb-bookmarks-shortening/live-doc-layout-final.json",
+  "sourceRevisionId": "AHj4eMQdjQovtnUJZOTsrPFstnK4cfcmjQd0BL5OkiR-BFTYo2O3ECu_NqqdIbBUj8D1D10ekKkc5_cWfr2WfZI91xTguMfYIhbpeExc9mIL",
+  "resolvedFindings": [
+    {
+      "priority": "minor",
+      "page": 7,
+      "issue": "Validation excerpt begins with only its function signature before page break.",
+      "suggestion": "Keep first three code paragraphs with their successor.",
+      "range": {
+        "startIndex": 11024,
+        "endIndex": 11195
+      },
+      "resolved": true
+    },
+    {
+      "priority": "minor",
+      "pages": [
+        14,
+        15
+      ],
+      "issue": "Compact 13-line form excerpt splits after five lines.",
+      "suggestion": "Keep its first 12 paragraphs with the next; last paragraph remains false.",
+      "range": {
+        "startIndex": 20706,
+        "endIndex": 21016
+      },
+      "resolved": true
+    }
+  ],
+  "finalVisuallyReviewedPages": [
+    7,
+    8,
+    14,
+    15,
+    16,
+    21,
+    28
+  ],
+  "finalSpotChecks": [
+    "Validation caption, TypeScript label and function are together on page8.",
+    "Full13-line form excerpt, caption and TypeScript label are together on page15; no stranded label on page14.",
+    "Edit image and caption look sharp with breathing room on page21.",
+    "Final hosted-check and closing sections are legible on page28."
+  ],
+  "exactContent": true,
+  "logicalBlocks": 219,
+  "nativeCodeBlocks": 36,
+  "nativeBoundaries": 72
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "file": ".devcontainer/devcontainer.json",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "e9ec59d8e720b45421b97cc17486b27b2f57a288",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "scripts/local-db.mjs",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "0bd584204bc34a652071941238500718cb69a5ac",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/layout.tsx",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "786b4320d31ca204aab877290993e21fe6a56d3e",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "next.config.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "7a1e4aabe5d0a6d453bd3e06e89dd8162c907311",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "lib/bookmark-types.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "2b59b914441c1f981bcccb42e9ac1e0e2d702334",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "lib/bookmark-validation.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "9ccc557156bbbfc8b4e7c714ad4c70a3de471260",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "components/bookmark-form.tsx",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "98df1d57be14f37be2396a4b10b5a3ce51d42532",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/globals.css",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "cfe19cb0d5c360a33a6ddaf8709730d87632facd",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/icon.svg",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "03bfcbc81dadb4d0415afc8d376734ce743d4531",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/page.tsx",
+    "sourceCommit": "88d9af5ac809d4d5cf778435d07a9af63077f793",
+    "blob": "16a279643efcbfbc29fc257406340f2e2c3e6eae",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/actions.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "d796e4d90c9613291f8f5f7d9b1f387c6a07bf85",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "components/bookmark-item.tsx",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "7a4b9aa68d34b031a69da97252cfdeb4d0951fd6",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "scripts/setup-db.mjs",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "ccf3afc25aff1b21b55aefb351ad2ead7c2f3a9f",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "app/page.tsx",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "fdfe8f69c26b329e051ec60d2c379acb08636d10",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "scripts/verify.mjs",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "09d28545f8f1fc6e23eeaa783544001eecd07feb",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "playwright.config.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "0c90f4258fa212842f6bcd7484da6841603e13cb",
+    "authenticatedAccess": true
+  },
+  {
+    "file": "tests/e2e/bookmarks.spec.ts",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "6ecf78489c84145b1c9597e95893e58b47b455d4",
+    "authenticatedAccess": true
+  },
+  {
+    "file": ".github/workflows/ci.yml",
+    "sourceCommit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "blob": "edc05d02cd87d1838141ce5b4c2f98d2ee434d47",
+    "authenticatedAccess": true
+  }
+]

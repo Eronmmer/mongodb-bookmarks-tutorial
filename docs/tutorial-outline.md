@@ -1,6 +1,6 @@
 # Tutorial editorial outline — 30 October 2026
 
-The current [tutorial](tutorial.md) is a self-contained build from MongoDB’s public Next.js template. The companion repository remains private. Its source is an optional reference and is not linked from the reader-facing article.
+The current [tutorial](tutorial.md) starts from MongoDB’s public Next.js template. Following the user's 30 October decision, it teaches the core build and links to complete supporting files in the companion repository. The repository remains private during review and must become public before publication. The article and linked files together provide the build.
 
 ## Opening and audience
 
@@ -22,8 +22,8 @@ Use warm, direct language, varied transitions and concrete outcomes. Follow the 
 
 One list, no application sign-in or per-user ownership. Hosted access restrictions must cover pages and writes. Do not imply live synchronization or merged concurrent edits. URLs are validated for format without visiting their destinations.
 
-Keep all required files and commands in assembly order. Split long files into clear append sections, avoid duplicate “excerpt plus full file” presentations, and state precisely what is replaced. Preserve native Google Docs code blocks, language labels, syntax colors, filename/inline-code styles, the high-resolution hero and a relevant UI close-up.
+Keep required files and commands in assembly order. Explain MongoDB CRUD, connection reuse, server validation, Server Actions and the form-to-database flow in the article. Link long UI, styling, configuration and test-support files at immutable tested commits, naming their local destination and whether they replace an existing file. Clearly label excerpts. The first-save page uses its own tested checkpoint commit so it does not import pagination prematurely. Preserve native Google Docs code blocks, language labels, syntax colors, filename/inline-code styles, the high-resolution hero and the edit close-up.
 
 ## Verification and publication
 
-See [verification.md](verification.md) for executed checkpoints, the exact article reconstruction, Codespaces, hosted CI and Doc readback/render checks. Dated Atlas/Vercel evidence is separate from new local and Codespaces tests. Publication still needs the publisher’s technical/editorial review and the owner’s final review. Do not make the companion public or contact reviewers without instruction.
+See [verification.md](verification.md) for executed checkpoints, article reconstruction, Codespaces, hosted CI and Doc readback/render checks. Reconstruct the shortened route using both its inline operations and exact linked files. Dated cloud evidence is separate from new local tests. Publication still needs public companion access, the publisher’s technical/editorial review and the owner’s final review. The owner's plan to publish the repository later is not an instruction to change visibility during this edit. Do not contact reviewers without instruction.
