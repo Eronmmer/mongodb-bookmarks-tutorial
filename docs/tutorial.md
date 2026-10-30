@@ -2,7 +2,7 @@
 
 Closing a browser tab should be easy. Then you get to that tutorial with the code example you spent ages looking for. You don’t need it right now, but you’re not quite ready to lose it either. So it stays open. You could bookmark it, of course. But when you come back a few weeks later, will you remember which part you wanted to use?
 
-In this tutorial, we’ll build a bookmark app with Next.js and MongoDB that keeps a little context alongside each link. You’ll save a title and URL, with room for a note like “Try this connection example in my next project.” We’ll start by getting one bookmark onto the page and into the database, then add editing and deletion as we go.
+Let’s build a Next.js app for those links, with MongoDB storing the bookmarks. You can leave yourself a note, like “Try this connection example in my next project.” We’ll also add ways to edit a bookmark’s details or delete it when you no longer need it.
 
 ## What we’re building
 
