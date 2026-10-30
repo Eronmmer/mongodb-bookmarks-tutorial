@@ -1,0 +1,32 @@
+{
+  "path": "/tmp/mongodb-bookmarks-rewrite/images/bookmarks-edit-card.png",
+  "capturedAt": "2026-10-30T02:28:32.258Z",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "deviceScaleFactor": 3,
+  "pixelSize": {
+    "width": 1872,
+    "height": 1116
+  },
+  "paddingCssPixels": 8,
+  "renderedCardBounds": {
+    "x": 600,
+    "y": 160,
+    "width": 608,
+    "height": 356
+  },
+  "screenshotClip": {
+    "x": 592,
+    "y": 152,
+    "width": 624,
+    "height": 372
+  },
+  "scenario": "Real production app, synthetic disposable data, edit form open with unsaved note text",
+  "sourceCheckout": "/tmp/mongodb-bookmarks-rewrite/article-exact-build",
+  "captureScript": "/tmp/mongodb-bookmarks-rewrite/capture-edit-card.mjs",
+  "method": "Direct Chromium page screenshot of rendered edit card bounds with 8 CSS px padding",
+  "retouched": false,
+  "sha256": "9de9f85672fdd7ac7b4f654c75a31a37868a878beb70d78711d55d7a6da33c3c"
+}

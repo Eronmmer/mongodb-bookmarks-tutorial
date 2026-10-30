@@ -1,0 +1,34 @@
+{
+  "completedAtUtc": "2026-10-30T02:24:06.174002+00:00",
+  "checkout": "/tmp/mongodb-bookmarks-rewrite/article-exact-build",
+  "upstream": "https://github.com/mongodb-developer/nextjs-template-mongodb.git",
+  "commit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "assembly": "File contents assembled from candidate-blocks.json write/append/replace operations, with unique search matches; setup commands executed from actual article blocks in fresh clone.",
+  "freshDependencies": true,
+  "results": {
+    "setup": "passed; final dependency audit 0 vulnerabilities",
+    "chromiumInstall": "exit 0",
+    "npm run verify": "exit 0; lint/types/build/healthy CRUD/both outage scenarios",
+    "npm run verify:dev": "exit 0; healthy CRUD/both outage scenarios"
+  },
+  "afterProductionVerification": "Only db/bookmarks.ts comment and metadata-preserved blank lines plus .gitignore blank line changed. Development tested those final files.",
+  "currentArticleCodeBlocksMatchTested": true,
+  "generatorRepairs": [
+    "Added missing emptyActionState value import for delete action.",
+    "Added required next.config.ts before first app run.",
+    "Added explicit Chromium/browser dependencies installation.",
+    "Removed nonexistent date-formatting claim at display-only card stage.",
+    "Preserved replacement newlines in metadata.",
+    "Reworded intermediate list-limit comment so it remains accurate after pagination."
+  ],
+  "notAnIssue": [
+    "Tailwind replacement is valid: pinned upstream array has no trailing comma.",
+    "No missing tests/e2e directory: present in pinned upstream. scripts directory is explicitly created."
+  ],
+  "limits": [
+    "Not a fresh hosted Atlas/Vercel, signed-out action gate or GitHub Actions run. No pushes or deployments.",
+    "Standalone manual MongoDB processes and Atlas setup steps were not executed by the automated block assembler. Harness uses isolated ephemeral databases.",
+    "Codespaces execution separately handled by Codespaces agent."
+  ],
+  "productionSourceUnchanged": true
+}

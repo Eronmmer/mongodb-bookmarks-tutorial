@@ -8,7 +8,7 @@ See the [verification report](docs/verification.md) for the executed checks and 
 
 ## Source repository
 
-The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository. Cloning this reference implementation requires access; following the tutorial does not. Its optional reference links need public access or a public destination before publication. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the build instructions.
+The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial), a private repository. Cloning this reference implementation requires access; following the tutorial does not. The article has no links that require access to this repository. A public companion link can be added if the owner later chooses to publish one. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the build instructions.
 
 ```bash
 git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git

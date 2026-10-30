@@ -1,0 +1,102 @@
+{
+  "completedAtUtc": "2026-10-30T02:12:59.222992+00:00",
+  "checkout": "/tmp/mongodb-bookmarks-rewrite/checkpoint-build",
+  "upstream": "https://github.com/mongodb-developer/nextjs-template-mongodb.git",
+  "upstreamCommit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "node": "24.22.1",
+  "npm": "11.19.1",
+  "mongodbTestBinary": "8.2.6",
+  "dependencyAudit": "npm update completed; 0 vulnerabilities in final install output",
+  "checks": [
+    {
+      "stage": "A",
+      "command": "BOOKMARKS_CHECKPOINT=a node scripts/verify-stage.mjs --dev",
+      "result": "passed",
+      "checks": [
+        "Public template heading and Database connected visible in Chromium against an owned disposable MongoDB instance."
+      ],
+      "log": "a-dev.log"
+    },
+    {
+      "stage": "B",
+      "command": "BOOKMARKS_CHECKPOINT=b node scripts/verify-stage.mjs",
+      "result": "passed",
+      "checks": [
+        "Lint, TypeScript, production build with empty MONGODB_URI",
+        "Invalid title/javascript URL rejected without a write; entered note retained",
+        "Valid UI create visible after reload and persisted in MongoDB",
+        "101 seeded records produce only the newest 100 at the interim stage",
+        "Missing and unreachable database states differ from empty and retain rejected mutation input"
+      ],
+      "log": "b-production.log"
+    },
+    {
+      "stage": "C",
+      "command": "BOOKMARKS_CHECKPOINT=c node scripts/verify-stage.mjs",
+      "result": "passed",
+      "checks": [
+        "Lint, TypeScript, production build with empty MONGODB_URI",
+        "UI create, reload, edit title/URL/note, reload, cancel deletion, confirm deletion, reload",
+        "Created timestamp retained; updated timestamp advances",
+        "Both missing and unreachable database scenarios"
+      ],
+      "log": "c-production.log"
+    },
+    {
+      "stage": "D",
+      "command": "BOOKMARKS_CHECKPOINT=d node scripts/verify-stage.mjs",
+      "result": "passed",
+      "checks": [
+        "Lint, TypeScript, production build with empty MONGODB_URI",
+        "Full CRUD/outages as C",
+        "101 records with identical timestamps paginate 100+1 using ID tiebreaker",
+        "Back to newest and malformed cursor reset",
+        "Compound createdAt/_id descending index exists"
+      ],
+      "log": "d-production-with-pagination-recheck.log"
+    },
+    {
+      "stage": "Final article harness",
+      "command": "npm run verify",
+      "result": "passed",
+      "checks": [
+        "Exact tutorial runner, config and compact browser spec",
+        "Lint, TypeScript, production build, healthy CRUD, missing and unreachable database states"
+      ],
+      "log": "final-verify.log"
+    },
+    {
+      "stage": "Final article harness",
+      "command": "npm run verify:dev",
+      "result": "passed",
+      "checks": [
+        "Exact tutorial runner, config and compact browser spec",
+        "Development runtime healthy CRUD, missing and unreachable database states"
+      ],
+      "log": "final-verify-dev.log"
+    }
+  ],
+  "limits": [
+    "These are local isolated Chromium and real ephemeral MongoDB checks, not fresh Atlas/Vercel checks.",
+    "Stage A browser-connection test was development only.",
+    "Fixed-port npm run db:local was not started on this Mac because existing user-owned process listens on 27028. Codespaces agent is checking the manual setup route.",
+    "Codespaces container execution is separately owned by the Codespaces agent.",
+    "The compact tutorial suite complements rather than reproduces the companion full regression suite."
+  ],
+  "qaCorrections": [
+    "Initial pagination-only QA used the wrong expected link label (Newest bookmarks). Corrected test selector to actual Back to newest; recheck passed. No application repair was needed.",
+    "Removed an unused helper from pagination-only QA before the successful recheck."
+  ],
+  "mainRepoProductionFilesDifferentFromFrozen": [],
+  "changes": [
+    "No main companion repository edits, pushes or deployments by this agent.",
+    "B uses display-only card and bounded newest-100 read without pagination.",
+    "C introduces frozen final edit/delete operations and card while retaining bounded list.",
+    "D restores frozen final pagination reader/page and setup-db index script.",
+    "Final connection helper removes only the private EDD comment reference.",
+    "next.config.ts omits companion-only agentRules:false; retains Codespaces origin and workspace root.",
+    "Added exact companion Node24-bookworm devcontainer as required by the independent Codespaces reconstruction.",
+    "New compact healthy tutorial test exercises successful UI create/edit/persist/cancel/delete instead of seeded-delete-only test."
+  ],
+  "lockSha256": "4b02bf7e55430bcf90ecc69cec341d34a4354dc0b04a1f8356f40e187453ead0"
+}

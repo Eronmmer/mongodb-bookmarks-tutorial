@@ -1,0 +1,21 @@
+{
+  "upstreamCommit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "companionReferenceCommit": "d90498b7adf1d3c137eedaa6b16dc35fcb371a4d",
+  "articleCodeBlocks": 55,
+  "articleCodeSha256": "ce79e987779e0391b9d40f20c17a8f7a99766aff3afe146633ee2a0dfd0066da",
+  "articleMarkdownSha256": "78afe9937d45d3f4ec4f6043f2caa9504b326ed88f780779c9715bb91f7f3c27",
+  "exactReconstruction": "fresh public template clone, fresh dependency install, snippets applied in article order",
+  "verify": "passed",
+  "verifyDev": "passed",
+  "runtimeBehaviorChanged": false,
+  "limits": [
+    "Existing npm/browser/MongoDB download caches were reused.",
+    "These local checks do not constitute new Atlas/Vercel deployment verification.",
+    "Stage A connection checkpoint was tested in development."
+  ],
+  "hostedCI": {
+    "result": "passed",
+    "commit": "8a655d6f2b3dba43d429c9cbe2164bc464457a7c",
+    "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40991750697"
+  }
+}

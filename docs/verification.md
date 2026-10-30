@@ -1,8 +1,8 @@
 # Bookmark app verification
 
-Latest checks: 29 October 2026, covering Codespaces setup and valid Server Action access. The dated checkpoints below identify the tested revisions and configuration fixes. Earlier runs retain their original dates and scope.
+Latest checks: 30 October 2026, covering the revised tutorial's runnable stages, exact snippet reconstruction, and the public-template Codespaces path. The dated checkpoints below identify tested revisions and configuration. Earlier runs retain their original dates and scope.
 
-The latest tutorial setup is self-contained. The 28 October reconstruction checkpoint supersedes the earlier instructions that fetched supporting files from the companion repository; those earlier runs remain historical evidence.
+The latest tutorial setup is self-contained. The 30 October rewrite adds a connected starter, create/read, full CRUD, and pagination in runnable stages. It includes the Codespaces container and proxy-origin configuration. Earlier instructions that fetched files from the companion repository remain historical evidence only.
 
 Full-suite verification was performed on 25 October 2026. Application and verification code: `32a6c7ce838489f7f9fb2b8f591f2b185904adfe`. Subsequent evidence/document changes do not change that runtime. A separate build-along reconstruction was verified on 26 October 2026, as recorded below.
 
@@ -287,3 +287,51 @@ Replaced only the opening screenshot in the Google Doc. Native readback confirme
 PNG SHA-256: `d361dcedfddc6d10a84530c6edc3de75be5d84023f182a0849cabdfb94d15d95`. Capture script and measurements are retained locally under `/tmp/mongodb-bookmarks-work/capture-publication-screenshot.mjs` and `/tmp/mongodb-bookmarks-work/screenshot-retake-evidence.json`.
 
 The isolated preview and temporary database stopped successfully afterward; ports 3033 and 52090 were closed. Independent visual review of the updated first page found no clipping, distortion or overlap.
+
+## Staged tutorial rewrite and exact reconstruction, 30 October 2026
+
+The revised article starts from public template commit `09278fa9369ce03c3e988156351655f87317ecf6`. It introduces a connected starter, a working create/read page, full CRUD, and finally pagination with its index. The companion reference was frozen at `d90498b7adf1d3c137eedaa6b16dc35fcb371a4d`. No application behavior or production configuration changed in this editorial rewrite.
+
+Two independent local reconstructions served different purposes. The first tested each intermediate stage with owned disposable MongoDB data. The second cloned the public template again, installed dependencies afresh, and assembled files from the article's actual write/append/replace instructions. It did not copy the finished app from the private repository. Existing npm, Chromium and MongoDB binary download caches were reused.
+
+| Executed check | Result |
+| --- | --- |
+| Connected starter in development | “Database connected” visible |
+| Create/read stage | Lint, types, production build, invalid-input rejection, UI create/reload, newest-100 cap and outages passed |
+| Full CRUD stage | UI create, reload, edit all fields, reload, cancel deletion and confirm deletion passed |
+| Timestamp behavior | Created time preserved and updated time advanced |
+| Pagination stage | 101 equal-timestamp records returned as 100 + 1, newest-page navigation and malformed-token fallback passed |
+| Compound index | Descending `createdAt` / `_id` index present |
+| Exact article dependency and Chromium installation | Passed |
+| Exact article `npm run verify` | Lint, types, URI-free production build and all three browser scenarios passed |
+| Exact article `npm run verify:dev` | Healthy CRUD, missing URI and unreachable database scenarios passed |
+
+The compact article test now creates and edits through the actual form before checking persistence, cancellation and deletion. It no longer relies on a seeded record for its only healthy scenario. There are three executed browser scenarios per runtime. Scenario-specific skips are not additional passes. The companion's larger regression suite remains separate evidence.
+
+Independent assembly review repaired a missing delete-action import, added the required Codespaces-only request-origin configuration, restored the Chromium installation step, and checked replacement boundaries. Source comparisons found no behavioral differences from the frozen application. Publication snippets omit private guidance comments and the companion-only agent setting. The article no longer contains links to files in the private companion repository.
+
+Evidence: [checkpoint results](evidence/2026-10-30/tutorial-checkpoints.json), [exact reconstruction report](evidence/2026-10-30/article-exact-report.json), [source hashes](evidence/2026-10-30/tutorial-source-hashes.json), and [article digest](evidence/2026-10-30/tutorial-reconstruction.json). Raw local logs remain under `/tmp/mongodb-bookmarks-rewrite/`. The existing user-owned preview and database were left running untouched.
+
+The exact reader reconstruction was committed on the separate private branch `codex/tutorial-rewrite-verification` at `8a655d6f2b3dba43d429c9cbe2164bc464457a7c`. [GitHub Actions run 40991750697](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40991750697) passed the article's workflow on Ubuntu 24.04: locked installation, Chromium installation, lint, types, production build, healthy CRUD persistence, both unavailable-database scenarios and report upload. The workflow was dispatched explicitly because the verification branch is outside its `bookmarks`/`main` push filter. `.env` was ignored and absent from the commit. No push targeted MongoDB's upstream repository. See [the hosted result](evidence/2026-10-30/hosted-reader-ci.json).
+
+### Public-template Codespaces route
+
+Created a new 2-core Codespace from the public MongoDB template. The prebuild initially contained an older checkout and Ubuntu 20.04 with Node 22. The documented fetch and pinned branch switch, followed by the Node 24 Bookworm devcontainer rebuild, produced Debian 12, Node 24.22.1 and npm 11.19.1. The container UI appeared delayed, so the official CLI rebuild command was also issued inside the remote terminal. The successful rebuild cannot be attributed exclusively to either trigger.
+
+All 22 cumulative final app/support/test files matched the stage payload checksums remotely. The article's dependency installation, Chromium/Linux dependencies, production verification and development verification passed. The actual `db:local` helper ran MongoDB 8.2.6 on port 27028, and `db:setup` prepared the index. The final dependency audit output reported zero known vulnerabilities at that time, which is a dated result rather than a security guarantee.
+
+The Ports panel showed port 3000 as **Private**. Browser create, reload, edit, reload, delete and empty reload passed through the actual forwarded URL using the documented `--hostname 127.0.0.1` command. The container JSON forwards the port but does not itself set its visibility, so the article explicitly tells readers to check Private. No extra `allowedDevOrigins` setting was necessary.
+
+An anonymous GET returned 302. An anonymous POST containing a valid serialized create-action body returned 401 and left the complete bookmark snapshot unchanged. The same body sent directly to the owned app with the expected proxy origin returned 200 and created one fixture, establishing payload validity. Origins `untrusted.example` and `localhost:3001` were rejected with no data change. The `localhost:3000` allowance was present only in Codespaces development, never in production or ordinary local development.
+
+The database was empty after cleanup. The owned Codespace was stopped, its dedicated browser tabs closed, the existing $0 paid-usage budget retained, and the companion repository confirmed private. [The Codespaces report](evidence/2026-10-30/codespaces-report.md) records the exact route, outcomes and limits. This was a public-template reconstruction of the final cumulative source, while intermediate stages were tested locally. It does not replace the separate, dated Atlas/Vercel evidence above.
+
+### Google Doc and visual review
+
+The existing Google Doc was updated in place after the local reconstruction passed. All 261 logical blocks and all 55 code samples match the reviewed source exactly, including whitespace. Native readback confirms 55 code containers, both images, all 23 unique intended link destinations, no private-repository links, and no prose semicolons. The original high-resolution hero image was preserved. Filenames and inline code retain separate styling, and native code uses Roboto Mono 9 pt with syntax colors and language labels. YAML retains the neutral native option with an explicit YAML caption because Google Docs does not offer YAML in its language menu.
+
+Added a direct screenshot of the real edit card, captured from the isolated production app with synthetic data. The lossless PNG is 1872 × 1116 pixels at device scale factor 3, with 8 CSS pixels of surrounding space and no retouching. It is a documentation asset and is not required at runtime. Its source and SHA-256 are recorded in [the capture metadata](evidence/2026-10-30/edit-card-capture.json).
+
+The final PDF has 55 pages. Independent visual inspection covered long component continuations, the edit image, pagination/index, tests, workflow and deployment pages. The opening and setup were also inspected. An initial font reset was corrected, and the short repository-push command block was kept together. The final export has no empty pages or text outside the page bounds. These checks are a layout review, not a publisher's editorial approval. See [document QA](evidence/2026-10-30/document-qa.json) and [independent visual review](evidence/2026-10-30/independent-document-review.json).
+
+The source repository remains private. Atlas/Vercel deployment behavior, cross-browser coverage beyond Chromium, native Windows, load and failover were not newly tested by this rewrite. Prior live evidence remains dated and scoped to its recorded deployments. Publication still needs the author's review and MongoDB's technical/editorial review.
