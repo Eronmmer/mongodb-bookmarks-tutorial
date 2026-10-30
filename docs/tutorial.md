@@ -1,12 +1,12 @@
 # Build a Bookmark App With Next.js and MongoDB
 
-That documentation tab has been open since Tuesday. You’re done with it for now, but closing it feels like losing something you’ll need again. Let’s give that link a home, along with a note about why it’s worth keeping.
+Closing a browser tab should be easy. Then you get to that tutorial with the code example you spent ages looking for. You don’t need it right now, but you’re not quite ready to lose it either. So it stays open. You could bookmark it, of course. But when you come back a few weeks later, will you remember which part you wanted to use?
 
-We’ll build a bookmark app with Next.js and MongoDB. You’ll save a link, reload the page to check it stuck, then add editing and deletion. Along the way, we’ll follow that bookmark from the form to MongoDB and back to the screen. By the end, you’ll also have browser tests and a deployed app.
+In this tutorial, we’ll build a bookmark app with Next.js and MongoDB that keeps a little context alongside each link. You’ll save a title and URL, with room for a note like “Try this connection example in my next project.” We’ll start by getting one bookmark onto the page and into the database, then add editing and deletion as we go.
 
 ## What we’re building
 
-One page, a few fields, and somewhere to put those links. Each bookmark has a title, URL and optional note. You can edit it in place, cancel a deletion, or confirm that you’re done with it. The finished list also lets you browse older bookmarks, 100 at a time.
+One page, a few fields, and somewhere to put those links. Each bookmark has a title, URL and optional note. You can edit it in place, cancel a deletion, or confirm that you’re done with it. The finished list also lets you browse older bookmarks, 100 at a time. We’ll also add browser tests and deploy the app to Vercel.
 
 ![The finished bookmark app](images/bookmarks-desktop.png)
 
