@@ -8,8 +8,8 @@ const uri = process.env.MONGODB_URI;
 // logs. Keep this in sync with EDD.md.
 const appName = "devrel-tutorial-javascript-nextjstemplate";
 
-// Bounded feedback for this small interactive demo when the database is
-// unavailable — a UX bound, not a performance claim.
+// Wait up to five seconds to select a MongoDB server.
+// This timeout does not limit the full HTTP request.
 const serverSelectionTimeoutMS = 5000;
 
 const options: MongoClientOptions = {

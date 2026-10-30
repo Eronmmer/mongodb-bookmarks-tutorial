@@ -4,7 +4,7 @@ This outline guided the implementation and verification. The current [self-conta
 
 ## 1. Show the finished app and define its scope
 
-Introduce create, read, update and delete using a bookmark's title, URL and note. Show an empty list, a saved bookmark and an edit. Explain the accepted single-list model before setup: everyone admitted to the demo can change the same records. There are no application accounts or private bookmarks. Use public sample links.
+Introduce create, read, update and delete using a bookmark's title, URL and note. Show an empty list, a saved bookmark and an edit. Explain the accepted single-list model before setup: everyone with access to the app can change the same records. There are no application accounts or private bookmarks. Use public sample links.
 
 ## 2. Start from the official template
 
@@ -14,7 +14,7 @@ Pin the environment to `.nvmrc` (Node 24.22.1) and `package-lock.json`; show `np
 
 ## 3. Connect to Atlas, with a local alternative
 
-Make Atlas the main teaching path: create/select a project and cluster, create a database user scoped to the demo database, configure the app host's outbound IP access, then obtain the Node.js driver URI and store it as `MONGODB_URI` in `.env`. Distinguish the Atlas login from the database user; explain URI credential encoding. Never expose the URI through `NEXT_PUBLIC_`, screenshots or committed files.
+Make Atlas the main teaching path: create/select a project and cluster, create a database user scoped to `bookmark_app`, configure the app host's outbound IP access, then obtain the Node.js driver URI and store it as `MONGODB_URI` in `.env`. Distinguish the Atlas login from the database user; explain URI credential encoding. Never expose the URI through `NEXT_PUBLIC_`, screenshots or committed files.
 
 Explain changing outbound addresses for the app server. The self-contained article path uses macOS/Linux. The companion app was separately exercised in Codespaces on 29 October; its devcontainer image and development-only proxy-origin setting are documented in the README and verification report. Offer the local alternative from the README: `.env.example` selects `mongodb://127.0.0.1:27028/bookmark_app`; run `npm run db:local` and, in another terminal, `npm run db:setup` followed by `npm run dev -- --hostname 127.0.0.1`. Include the helper scripts in the article, explain the real downloaded MongoDB 8.2.6 process and loss of data when it stops, and prepare the index again after restarting the helper.
 
@@ -44,7 +44,7 @@ Include only outcomes supported by the separate verification report. CI and Code
 
 Push the app built from the tutorial to the reader's own GitHub repository and import that repository into Vercel. Configure Vercel Authentication → All Deployments before enabling working CRUD credentials, preferably through a team default before project creation. Verify every production, preview and generated URL and review protection exceptions/share-link bypasses. This access gate does not add per-user ownership inside the app.
 
-Set `MONGODB_URI` for Production and any deployed Preview environment, then redeploy after changes. Explain dynamic Vercel outbound IPs and Static IPs on Pro/Enterprise. If the learning path deliberately uses Atlas `0.0.0.0/0`, explain that database connection attempts are permitted from everywhere; strong scoped credentials remain required. Do not imply Vercel Authentication protects the database port or supplies Atlas network access.
+Set `MONGODB_URI` for Production and any deployed Preview environment, then redeploy after changes. Explain dynamic Vercel outbound IPs and Static IPs on Pro/Enterprise. If the setup uses Atlas `0.0.0.0/0`, explain that database connection attempts are permitted from everywhere; strong scoped credentials remain required. Do not imply Vercel Authentication protects the database port or supplies Atlas network access.
 
 Require live checks before sharing: a clean unauthenticated browser must see the login gate, and replaying an actual valid Server Action POST without auth/bypass data must be gated and leave the database unchanged. A malformed POST is not proof. Confirm authorized CRUD separately. The 29 October verification report records valid-action access checks on the named production deployment; repeat them after deployment/protection changes.
 
@@ -52,4 +52,4 @@ Primary references: [All Deployments on every plan, 9 September 2026](https://ve
 
 ## 9. Explain limits and next steps
 
-Recap implemented CRUD and its evidence. Identify search, tags and persistent local database management as possible extensions. Application sign-in is outside the selected scope. Keep current access restrictions explicit. Add final source/demo links and screenshots only after their locations and behavior are verified; do not invent deployment results.
+Recap implemented CRUD and its evidence. Identify search, tags and persistent local database management as possible extensions. Application sign-in is outside the selected scope. Keep current access restrictions explicit. Add final source and deployed-app links and screenshots only after their locations and behavior are verified; do not invent deployment results.

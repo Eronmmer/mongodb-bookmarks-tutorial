@@ -209,7 +209,7 @@ Before checking the connection, open lib/mongodb.ts and change the existing appN
 appName: "devrel-tutorial-javascript-nextjstemplate",
 ```
 
-MongoDB includes this value in its connection metadata to identify the tutorial application. We’ll keep it when we replace the connection helper later.
+MongoDB includes this value in its connection metadata to identify the app. We’ll keep it when we replace the connection helper later.
 
 Before starting the template, replace app/layout.tsx with this layout. It sets the page title and uses the system font instead of downloading a web font:
 
@@ -454,8 +454,8 @@ const uri = process.env.MONGODB_URI;
 // logs. Keep this in sync with EDD.md.
 const appName = "devrel-tutorial-javascript-nextjstemplate";
 
-// Bounded feedback for this small interactive demo when the database is
-// unavailable — a UX bound, not a performance claim.
+// Wait up to five seconds to select a MongoDB server.
+// This timeout does not limit the full HTTP request.
 const serverSelectionTimeoutMS = 5000;
 
 const options: MongoClientOptions = {
@@ -524,7 +524,7 @@ export async function getDatabase(): Promise<Db> {
 
 Opening a new client for every bookmark operation would mean setting up connections repeatedly. Instead, this helper reuses one client promise within a running server instance. During development, it stores the promise on globalThis so hot reloads can reuse it; in production, it stores it in the module. If the initial connection fails, the helper clears that promise so a later request can try again.
 
-The serverSelectionTimeoutMS option limits how long the driver waits to select a server when MongoDB is unavailable. Five seconds gives this small interactive demo a bounded wait for that stage, though it doesn’t limit the whole HTTP request. The server-only import also prevents a Client Component from importing this module.
+The serverSelectionTimeoutMS option limits how long the driver waits to select a server when MongoDB is unavailable. We’ve set it to five seconds. This timeout doesn’t limit the whole HTTP request. The server-only import also prevents a Client Component from importing this module.
 
 ## Add the MongoDB operations
 

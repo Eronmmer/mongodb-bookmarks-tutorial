@@ -72,9 +72,8 @@ erDiagram
 - **Pagination**: queries fetch at most 101 records and display 100. Timestamp/ID cursors are validated before database filters are built. “Older bookmarks” advances through records and “Back to newest” returns to the first page.
 - **Index setup**: `npm run db:setup` creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`. Run it for each target database before deployment; the application does not create indexes during requests. The verification harness creates it on its disposable database.
 - **Connection behavior**: `lib/mongodb.ts` sets
-  `serverSelectionTimeoutMS: 5000` for bounded feedback when the database is
-  unavailable — a UX bound for this small interactive demo, not a performance
-  claim. The client is created lazily (nothing connects at import time or
+  `serverSelectionTimeoutMS: 5000` to limit server selection to five seconds.
+  This timeout does not cover the entire HTTP request. The client is created lazily (nothing connects at import time or
   during static builds), cached in development on `globalThis` and per module
   in production, and a rejected connection clears the cached promise so a
   later request can retry.

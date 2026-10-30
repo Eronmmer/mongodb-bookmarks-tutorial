@@ -39,7 +39,7 @@ Start the database in one terminal and leave it running:
 npm run db:local
 ```
 
-The helper downloads and starts a real MongoDB **8.2.6** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it loses the demo data. It is not an Atlas account or a mock database.
+The helper downloads and starts a real MongoDB **8.2.6** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it deletes the bookmarks stored in that temporary database. It is not an Atlas account or a mock database.
 
 In another terminal:
 
@@ -54,7 +54,7 @@ Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, e
 
 ## Use Atlas instead
 
-1. Create/select an Atlas project and cluster. Create a database user with only the demo database privileges it needs, such as `readWrite` on `bookmark_app`. This is separate from your Atlas website account.
+1. Create/select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`. This is separate from your Atlas website account.
 2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
 3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmark_app` as the database.
 4. Replace `MONGODB_URI` in `.env`. Run `npm run db:setup` for that database before starting or restarting the app. Do not run `db:local` for this path. Keep the URI out of Git, screenshots and logs.
@@ -78,7 +78,7 @@ npm run verify
 npm run verify:dev
 ```
 
-Use these wrappers for the full suite. Never point destructive tests at an Atlas database, shared demo database, or URI copied from `.env`. Tests need disposable data. `test:e2e` is a lower-level entry point; inspect its configuration before using it directly.
+Use these wrappers for the full suite. Never point destructive tests at an Atlas database, any shared database, or a URI copied from `.env`. Tests need disposable data. `test:e2e` is a lower-level entry point; inspect its configuration before using it directly.
 
 These commands describe the checks, not evidence that they passed on your machine. Local results are recorded separately. The [first hosted GitHub Actions run](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40238792328) passed `verify` on commit `1b7f100`, including six unit tests and twelve production browser checks.
 
@@ -105,15 +105,15 @@ The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for for
 
 GitHub's port proxy can rewrite a browser request's Origin to `localhost:3000` while retaining the public forwarded hostname. `next.config.ts` permits that exact origin only when running `next dev` inside Codespaces (`CODESPACES=true`). It does not add an origin exception to ordinary local development or production. Use port 3000 for this setup and keep its visibility **Private**. This setting handles the proxy header mismatch; it does not authenticate visitors.
 
-## Deploy a restricted demo
+## Deploy the app with restricted access
 
 Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) using a Vercel account with access to the private repository. The restricted [Vercel deployment](https://mongodb-bookmarks-tutorial.vercel.app) connects to Atlas; create, reload, edit and delete were verified on 28 October 2026. The original template's Deploy button targets the original template, not this app.
 
 Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Project → Settings → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
 
-Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Prefer separate demo/preview databases.
+Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Use separate databases for Production and Preview.
 
-Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you deliberately choose Atlas `0.0.0.0/0` for this learning setup, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
+Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you choose Atlas `0.0.0.0/0`, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
 
 Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. On 29 October 2026, create, update and delete payloads succeeded with a temporary automation access credential. The same serialized request bodies, sent without credentials to the production domains, main-branch alias and generated deployment URL, all redirected to Vercel SSO and left the database unchanged. The test credential was revoked afterward. These results apply to the recorded deployment, not future deployments; see the verification report for its identity and evidence.
 

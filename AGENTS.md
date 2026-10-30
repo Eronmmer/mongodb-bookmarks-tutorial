@@ -31,6 +31,6 @@ Keep connection strings, raw driver errors and credentials out of browser output
 
 Use the official MongoDB agent skills from <https://github.com/mongodb/agent-skills> whenever the task is MongoDB-specific and a matching skill exists.
 
-Consult `EDD.md` before changing collections, document fields, queries, validation, form payloads or schema diagrams, and keep it aligned with the implementation. There is no collection-level JSON schema enforcement in this demo.
+Consult `EDD.md` before changing collections, document fields, queries, validation, form payloads or schema diagrams, and keep it aligned with the implementation. There is no collection-level JSON schema enforcement in this app.
 
 Report commands actually run and their outcomes. Configuration is not execution evidence: do not claim CI, Codespaces, Atlas or Vercel validation without a recorded run. Do not create accounts, deploy or write a Google Doc without authorization.
