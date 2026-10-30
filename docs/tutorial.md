@@ -76,7 +76,7 @@ npm update
 npm pkg set 'engines.node=24.x'
 ```
 
-Keep the updated `package.json` and `package-lock.json` in Git. `--save-exact` records the listed versions, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) updates other dependencies within their allowed ranges. When you set up the project again, use `npm ci` to install from the lockfile.
+Keep the updated `package.json` and `package-lock.json` in Git. `--save-exact` records the listed versions, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other dependencies within their allowed ranges. When you set up the project again, use `npm ci` to install from the lockfile.
 
 Add commands for the database helpers and create their directory. We’ll add the helper files when we use them:
 
@@ -185,7 +185,7 @@ MongoDB stores that bookmark as a document in the `bookmarks` collection. Here�
 
 `_id` lets us tell bookmarks apart, even when they point to the same URL. We don’t supply one when saving a bookmark, so the MongoDB driver generates it.
 
-Our code sets `createdAt` and `updatedAt` to the same server timestamp. Editing the note changes `updatedAt` but leaves `createdAt` alone, so an edit won’t send the bookmark back to the top of the list.
+Our code sets `createdAt` and `updatedAt` to the same server timestamp. Editing the note changes `updatedAt` but leaves `createdAt` alone so that an edit won’t send the bookmark back to the top of the list.
 
 ### Describe the values shared by the page and forms
 
@@ -504,7 +504,7 @@ export async function createBookmarkAction(
 }
 ```
 
-If a field is invalid, the action returns its error without saving anything. After a confirmed save, it returns empty form values and calls [`revalidatePath("/")`](https://nextjs.org/docs/app/api-reference/functions/revalidatePath) so the page can show the new bookmark. If it can’t confirm the save, it preserves what the user typed and asks them to refresh before trying again.
+An invalid field sends its error back to the form without writing to MongoDB. After a successful save, the action returns empty form values and calls [`revalidatePath("/")`](https://nextjs.org/docs/app/api-reference/functions/revalidatePath) so the page can show the new bookmark. If it can’t confirm the save, your entries stay in the form. The message asks you to refresh and check for the bookmark before submitting again.
 
 That last message is deliberate. A connection can fail after MongoDB has accepted a write, leaving the app unable to confirm the result. “Could not confirm” avoids telling someone the bookmark definitely failed and encouraging a duplicate submission.
 
@@ -748,7 +748,7 @@ We currently fetch only the newest 100 bookmarks. Anything older is still in Mon
 
 ### Keep the order predictable
 
-We sort by `createdAt` descending, then `_id` descending. In this example, Driver docs and Insert guide have exactly the same creation timestamp. The times are shortened for readability, and the IDs are labels rather than values to paste into MongoDB:
+We sort by `createdAt` descending, then `_id` descending. In this example, Driver docs and Insert guide have the same creation timestamp. The times are shortened for readability, and the IDs are labels rather than values to paste into MongoDB:
 
 - **Driver docs**: 10:00, ID ending in `003`
 
@@ -831,7 +831,9 @@ You should see **Bookmark index is ready.** The script closes its own client whe
 
 `listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
 
-**Older bookmarks** includes the last card’s timestamp and ID in the URL, telling the query where to continue. **Back to newest** opens `/` without that token. Adding a bookmark takes you there too, through `router.replace("/")`, so you can see what you just saved. Editing keeps the original creation time, so the bookmark stays in its place.
+Click **Older bookmarks** to continue from the last card on the page. The link puts that card’s timestamp and ID in the URL. **Back to newest** returns to `/`, without a pagination token.
+
+After you add a bookmark, `router.replace("/")` takes you back to the newest page so you can see it. An edit leaves `createdAt` unchanged, so it doesn’t move the bookmark to the top.
 
 With fewer than 101 records, there is no older page to show. The normal list should still work. Next, we’ll automate the interactions we have been checking by hand.
 
@@ -839,7 +841,7 @@ With fewer than 101 records, there is no older page to show. The normal list sho
 
 A successful build cannot tell us whether clicking Save really persists an edit. We’ll use Playwright to add a bookmark through the form, reload, edit it, reload again, cancel a deletion, then confirm it. We’ll also check that an unavailable database preserves the text someone was trying to save.
 
-The browser tests need somewhere to create, edit and delete bookmarks. The runner starts a temporary MongoDB database for them and shuts it down afterwards, keeping the test data separate from your saved bookmarks. `npm run verify` also checks that the production build can finish without database credentials.
+The browser tests need a place to create, edit, and delete bookmarks. The runner starts a temporary MongoDB database for them and shuts it down afterwards, keeping the test data separate from your saved bookmarks. `npm run verify` also checks that the production build can finish without database credentials.
 
 ```bash
 npm pkg set scripts.typecheck="tsc --noEmit" \
@@ -943,7 +945,11 @@ Import your new repository into Vercel and select the `bookmarks` branch as the 
 
 ### Restrict access before adding the database
 
-There’s no sign-in screen in our app, so we’ll use **Vercel Authentication** to control access. Open **Project → Settings → [Deployment Protection](https://vercel.com/docs/deployment-protection)**, enable Vercel Authentication and choose **All Deployments** before adding the database credentials. This includes the production domain, which Standard Protection leaves public.
+Our app has no sign-in screen, so we’ll use **Vercel Authentication** to control access. Before adding the database credentials:
+
+1. Open **Project → Settings → [Deployment Protection](https://vercel.com/docs/deployment-protection)**.
+2. Enable **Vercel Authentication**.
+3. Choose **All Deployments** to include the production domain. Standard Protection leaves that domain public.
 
 Review any protection exceptions and shareable links that bypass authentication. Remove any that would let someone reach the app without signing in.
 
@@ -962,7 +968,9 @@ If you use Preview deployments, add a separate Preview value that points to a se
 
 Atlas also needs to accept connections from Vercel. By default, Vercel’s outbound IP addresses can change, so there isn’t one fixed address to add to Atlas. Its [allowlisting guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) describes static IP options for Pro and Enterprise plans. The IP behind your app’s public domain is not the address used for these database connections.
 
-For this free-tier setup, add `0.0.0.0/0` to the Atlas IP access list. This allows connection attempts from any IP address, so use a strong password and a database user with `readWrite` access only to `bookmark_app`. Vercel Authentication controls who can open the app. Anyone connecting directly to MongoDB is checked against Atlas’s network rules and database credentials.
+For this free-tier setup, add `0.0.0.0/0` to Atlas’s IP access list so Vercel can connect when its outbound IP changes. That also allows connection attempts from any other IP address. Use a strong password and give the database user `readWrite` access only to `bookmark_app`.
+
+Vercel Authentication controls access to the app. Atlas checks direct database connections against its own network rules and database credentials.
 
 Prepare the index in the Atlas database that Vercel will use:
 
@@ -977,7 +985,9 @@ npm run db:setup
 
 Wait for **Bookmark index is ready**, then deploy. Repeat the index setup for each separate Preview database.
 
-If you changed your local `.env`, restore the connection string you want for local development before restarting Next.js. Update or unset any terminal `MONGODB_URI` override too. [Environment-variable changes](https://vercel.com/docs/environment-variables) apply to new deployments, so redeploy after changing a Vercel value.
+If you changed `.env` for the Atlas setup, restore the connection string you want for local development before restarting Next.js. If you also set `MONGODB_URI` in the terminal, update or unset it.
+
+After changing an [environment variable in Vercel](https://vercel.com/docs/environment-variables), redeploy the app. The new value applies to new deployments.
 
 ### Check the hosted app
 
@@ -990,7 +1000,7 @@ Also check that the access gate blocks a valid Server Action request without aut
 3. Check that the platform rejects the request or requires sign-in.
 4. Refresh the app as an authenticated visitor and confirm that the list is unchanged from immediately after the successful submission.
 
-Use a valid request for this check. A request that fails validation does not prove that authentication is enforced. If the unauthenticated request changes data, take the deployment offline until you have corrected the protection settings and this check passes.
+Use a valid request for this check. A request that fails validation does not prove that authentication is enforced. If an unauthenticated request changes data, take the deployment offline until you correct the protection settings and this check passes.
 
 ## One less tab to keep open
 
