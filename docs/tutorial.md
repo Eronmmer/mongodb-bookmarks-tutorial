@@ -76,7 +76,7 @@ npm update
 npm pkg set 'engines.node=24.x'
 ```
 
-These are the versions we tested together. `--save-exact` records them in `package.json`, and [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other dependencies within their allowed ranges. Commit both `package.json` and `package-lock.json`. For later installs, use `npm ci` to install the versions in the lockfile.
+Keep the updated `package.json` and `package-lock.json` in Git. `--save-exact` records the listed versions, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) updates other dependencies within their allowed ranges. When you set up the project again, use `npm ci` to install from the lockfile.
 
 Add commands for the database helpers and create their directory. We’ll add the helper files when we use them:
 
@@ -183,7 +183,9 @@ MongoDB stores that bookmark as a document in the `bookmarks` collection. Here�
 }
 ```
 
-`_id` identifies this particular bookmark. The driver generates it when we insert a document without one. We set both dates on the server. Later, editing the note will change `updatedAt` while preserving `createdAt`, so the bookmark keeps its place in a list ordered by creation time. Duplicate URLs are allowed in this app.
+`_id` lets us tell bookmarks apart, even when they point to the same URL. We don’t supply one when saving a bookmark, so the MongoDB driver generates it.
+
+Our code sets `createdAt` and `updatedAt` to the same server timestamp. Editing the note changes `updatedAt` but leaves `createdAt` alone, so an edit won’t send the bookmark back to the top of the list.
 
 ### Describe the values shared by the page and forms
 
@@ -413,7 +415,7 @@ export async function createBookmark(input: BookmarkInput): Promise<BookmarkView
 
 ### Let the form call the server
 
-The database functions are ready. Next, we’ll connect them to the form with a [Server Action](https://nextjs.org/docs/app/guides/forms). It will receive the submitted values, validate them, and call `createBookmark()`. In `app/actions.ts`, start with these imports and feedback helpers:
+Now we need to get the values from the form into `createBookmark()`. We’ll use a [Server Action](https://nextjs.org/docs/app/guides/forms) to check the submitted fields and call the database function. Create `app/actions.ts` and start with these imports and feedback helpers:
 
 `app/actions.ts`
 
@@ -581,14 +583,22 @@ try {
 
 That excerpt runs inside `Home`, a [Server Component](https://nextjs.org/docs/app/getting-started/server-and-client-components). `await connection()` makes the database read happen for a request. The rest of the page renders the form and cards, or an empty state. A failed read gets its own message, because “No bookmarks yet” would be misleading if the database could not be reached.
 
-### Try the first save
+### Save your first bookmark
 
 ```bash
 nvm use
 npm run dev -- --hostname 127.0.0.1
 ```
 
-Open the app. Enter **MongoDB Node.js driver docs** as the title, `https://www.mongodb.com/docs/drivers/node/current/` as the URL, and **Check how insertOne returns the new document’s ID.** as the note. Click **Add bookmark**, then reload the page. The card should still be there.
+Let’s save the documentation link from our earlier example. Open the app and fill in:
+
+| Field | Value |
+|---|---|
+| Title | MongoDB Node.js driver docs |
+| URL | `https://www.mongodb.com/docs/drivers/node/current/` |
+| Note | Check how insertOne returns the new document’s ID. |
+
+Click **Add bookmark**. A card should appear with those details. Now reload the page. The card should still be there because the app reads the saved bookmark from MongoDB again.
 
 Follow the bookmark through the code you just wrote:
 
@@ -596,9 +606,7 @@ Follow the bookmark through the code you just wrote:
 
 **Read:** `Home` → `listBookmarks()` → `BookmarkItem`
 
-Reloading is the important part of this check. The app reads the bookmark from MongoDB again, so we know it was saved beyond the form’s browser state.
-
-Try submitting a second bookmark with an empty title or a URL such as `javascript:alert(1)`. You should see a field error, keep your entered values, and get no new card. Once those checks work, we can give the saved bookmark its Edit and Delete buttons.
+Try saving another bookmark with a valid URL but no title. Then add a title and change the URL to `javascript:alert(1)`. Each submission should show a field error and keep what you entered. Neither should add a card.
 
 ## Edit a note and remove a bookmark
 
@@ -652,9 +660,13 @@ export async function deleteBookmark(id: string): Promise<boolean> {
 }
 ```
 
-`updateOne()` finds the bookmark by `_id`. `$set` changes the editable fields and `updatedAt`, while keeping `createdAt`. We check `matchedCount` to see whether a document matched that ID. If the bookmark was deleted in another browser while the editor was open, we can ask the user to refresh instead of reporting a successful update.
+`updateOne()` finds the bookmark by `_id`. `$set` changes the title, URL, note and `updatedAt`, leaving `createdAt` alone.
 
-`deleteOne()` targets the bookmark’s `_id`, and `deletedCount` tells us whether it was removed. Changes won’t appear in another open browser until it refreshes. If two people edit the same bookmark, the app doesn’t merge their changes. The last successful edit can overwrite values saved by the earlier one.
+Suppose you open the editor in one tab, then delete that bookmark in another. There’s nothing left to update. `matchedCount` will be `0`, so the action can ask you to refresh instead of reporting that your changes were saved.
+
+`deleteOne()` targets the bookmark’s `_id`, and `deletedCount` tells us whether it was removed.
+
+Changes won’t appear in another open browser until it refreshes. If two people edit the same bookmark, the app doesn’t merge their changes. The last successful edit can overwrite values saved by the earlier one.
 
 ### Add the edit and delete actions
 
@@ -708,7 +720,7 @@ export async function updateBookmarkAction(
 }
 ```
 
-The update action checks the hidden ID and editable fields before saving. If the bookmark no longer exists, it asks the user to refresh. Invalid fields or a save the app can’t confirm leave the editor open with the submitted values. A confirmed update refreshes the list.
+The action checks the bookmark ID and form values before calling `updateBookmark()`. If the bookmark is gone, it asks you to refresh. Validation errors and saves the app can’t confirm leave the editor open with your changes still filled in. After a successful update, the list refreshes.
 
 The confirmation button helps prevent accidental deletions. On the server, `deleteBookmarkAction()` validates the bookmark ID before calling `deleteBookmark()`.
 
@@ -736,7 +748,7 @@ We currently fetch only the newest 100 bookmarks. Anything older is still in Mon
 
 ### Keep the order predictable
 
-We sort by `createdAt` descending, then `_id` descending. Imagine three bookmarks with these values. The shortened IDs are labels for this example, not values to paste into MongoDB:
+We sort by `createdAt` descending, then `_id` descending. In this example, Driver docs and Insert guide have exactly the same creation timestamp. The times are shortened for readability, and the IDs are labels rather than values to paste into MongoDB:
 
 - **Driver docs**: 10:00, ID ending in `003`
 
@@ -744,7 +756,7 @@ We sort by `createdAt` descending, then `_id` descending. Imagine three bookmark
 
 - **React forms**: 09:55, ID ending in `001`
 
-If a page ends at Driver docs, the next page needs records created before 10:00, plus any records at 10:00 with a smaller ID. A timestamp-only filter would skip Insert guide even though we have not displayed it yet. The second field gives us a stable order through the tie.
+Suppose Driver docs is the last bookmark on the page. Insert guide should come next, but a filter for timestamps before 10:00 would skip it. We also need bookmarks with the same timestamp and a smaller `_id`. That includes Insert guide before we move on to the 09:55 record.
 
 Replace only `listBookmarks()` in `db/bookmarks.ts` with the following helper and function. Keep the imports, collection helpers, limit and three write operations:
 
@@ -819,7 +831,7 @@ You should see **Bookmark index is ready.** The script closes its own client whe
 
 `listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
 
-The **Older bookmarks** link carries the token forward. **Back to newest** drops it. Saving a bookmark also runs `router.replace("/")`, returning you to the newest page to see it. Editing keeps the original creation time, so it doesn’t move the bookmark to the top.
+**Older bookmarks** includes the last card’s timestamp and ID in the URL, telling the query where to continue. **Back to newest** opens `/` without that token. Adding a bookmark takes you there too, through `router.replace("/")`, so you can see what you just saved. Editing keeps the original creation time, so the bookmark stays in its place.
 
 With fewer than 101 records, there is no older page to show. The normal list should still work. Next, we’ll automate the interactions we have been checking by hand.
 
@@ -827,7 +839,7 @@ With fewer than 101 records, there is no older page to show. The normal list sho
 
 A successful build cannot tell us whether clicking Save really persists an edit. We’ll use Playwright to add a bookmark through the form, reload, edit it, reload again, cancel a deletion, then confirm it. We’ll also check that an unavailable database preserves the text someone was trying to save.
 
-The tests use their own temporary MongoDB process on a random port. The runner passes its URI to the app and tests, then stops the process when they finish. It also builds with no database URI to catch accidental connections during the build. These checks use disposable data, leaving your app’s database alone.
+The browser tests need somewhere to create, edit and delete bookmarks. The runner starts a temporary MongoDB database for them and shuts it down afterwards, keeping the test data separate from your saved bookmarks. `npm run verify` also checks that the production build can finish without database credentials.
 
 ```bash
 npm pkg set scripts.typecheck="tsc --noEmit" \
@@ -907,9 +919,11 @@ If a test fails, read the named assertion and open the Playwright report before 
 
 On GitHub, [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) for your bookmark app. Leave its README, licence and `.gitignore` options unchecked because the project already has those files. Copy the repository’s HTTPS URL.
 
-Before pushing, replace `.github/workflows/ci.yml` with the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.github/workflows/ci.yml). It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. It needs no Atlas secret.
+Let GitHub run those checks too. Copy the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.github/workflows/ci.yml) to `.github/workflows/ci.yml`, replacing the template’s version. It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. The tests use a temporary database, so you don’t need to add Atlas credentials.
 
-Remove the template’s `CODEOWNERS` file, which names its upstream maintainers. Rename the template remote to `upstream`, then add your own repository as `origin`. Use your new repository’s HTTPS URL in the command below. Check `git status` before committing to confirm that `.env` is excluded:
+Remove the template’s `CODEOWNERS` file, which lists its maintainers.
+
+Keep the template repository as `upstream` and add your own repository as `origin`. Use your repository’s HTTPS URL in the command below, and check `git status` to confirm that `.env` is excluded before committing:
 
 ```bash
 rm .github/CODEOWNERS
@@ -929,24 +943,41 @@ Import your new repository into Vercel and select the `bookmarks` branch as the 
 
 ### Restrict access before adding the database
 
-Our app has no application login, so the hosting platform must protect the list. Before adding working database credentials, go to **Project → Settings → [Deployment Protection](https://vercel.com/docs/deployment-protection)** and select **All Deployments**. Check for protection exceptions and share-link bypasses too. Standard Protection leaves production domains public.
+There’s no sign-in screen in our app, so we’ll use **Vercel Authentication** to control access. Open **Project → Settings → [Deployment Protection](https://vercel.com/docs/deployment-protection)**, enable Vercel Authentication and choose **All Deployments** before adding the database credentials. This includes the production domain, which Standard Protection leaves public.
+
+Review any protection exceptions and shareable links that bypass authentication. Remove any that would let someone reach the app without signing in.
 
 ### Connect Vercel to Atlas
 
-In the project’s **Environment Variables**, add a Secret named `MONGODB_URI` with the Atlas URI and select **Production**. The temporary database on your computer or Codespace cannot serve the deployed app. Add a separate Preview value only if you use preview deployments, preferably pointing to a separate database so preview changes cannot alter the production list.
+The deployed app needs a database it can reach after you close your laptop. We’ll use Atlas and give Vercel its connection string. In the project’s **Environment Variables**, add:
 
-Atlas must also allow Vercel’s outbound connections. Vercel uses dynamic outbound IPs by default, so follow its [allowlisting guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) for your networking option. The IP behind your app’s public domain is not the outbound address used to reach Atlas.
+| Setting | Value |
+|---|---|
+| Name | `MONGODB_URI` |
+| Value | Your Atlas connection string |
+| Type | Secret |
+| Environment | Production |
 
-If you deliberately use Atlas’s `0.0.0.0/0` entry for this setup, it allows connection attempts from anywhere. Use strong database credentials limited to `bookmark_app`. Vercel’s access gate protects HTTP requests to the app, while Atlas credentials and network rules protect direct database connections.
+If you use Preview deployments, add a separate Preview value that points to a separate database. That keeps changes made in a preview away from your production bookmarks.
 
-Prepare the Atlas index from a trusted terminal in the project directory. Set `MONGODB_URI` to that database in the terminal environment or your local `.env`, allow the terminal host’s outbound IP in Atlas, and run:
+Atlas also needs to accept connections from Vercel. By default, Vercel’s outbound IP addresses can change, so there isn’t one fixed address to add to Atlas. Its [allowlisting guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) describes static IP options for Pro and Enterprise plans. The IP behind your app’s public domain is not the address used for these database connections.
+
+For this free-tier setup, add `0.0.0.0/0` to the Atlas IP access list. This allows connection attempts from any IP address, so use a strong password and a database user with `readWrite` access only to `bookmark_app`. Vercel Authentication controls who can open the app. Anyone connecting directly to MongoDB is checked against Atlas’s network rules and database credentials.
+
+Prepare the index in the Atlas database that Vercel will use:
+
+1. From your project directory, set `MONGODB_URI` in your local `.env` to the Atlas connection string. If you have also set `MONGODB_URI` in the terminal environment, make sure it points to that same database because it takes precedence over `.env`.
+2. In Atlas, allow the public outbound IP of the computer or Codespace running the setup command. If the `0.0.0.0/0` entry is already in place, it covers that address too.
+3. Run the setup command:
 
 ```bash
 nvm use
 npm run db:setup
 ```
 
-Wait for **Bookmark index is ready**, then deploy. Repeat the index setup for each separate Preview database. If you changed your local `.env`, restore the URI you want for local development before restarting Next.js. [Environment-variable changes](https://vercel.com/docs/environment-variables) apply to new deployments, so redeploy after changing a Vercel value.
+Wait for **Bookmark index is ready**, then deploy. Repeat the index setup for each separate Preview database.
+
+If you changed your local `.env`, restore the connection string you want for local development before restarting Next.js. Update or unset any terminal `MONGODB_URI` override too. [Environment-variable changes](https://vercel.com/docs/environment-variables) apply to new deployments, so redeploy after changing a Vercel value.
 
 ### Check the hosted app
 
