@@ -61,49 +61,28 @@ function item(page: Page, title: string) {
     .getByRole("listitem")
     .filter({ has: page.getByRole("link", { name: title, exact: true }) });
 }
-
-test.describe("healthy database", () => {
+test.describe("create/read checkpoint", () => {
   test.skip(!healthy, "Only run against the healthy disposable database.");
-
-  test("a bookmark survives reloads, edits, and a cancelled delete", async ({ page }) => {
+  test("validates, creates and reloads a bookmark", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+    const form = await add(page, "", "javascript:alert(1)", "Keep my note");
+    await expect(form.getByRole("alert")).toBeVisible();
+    expect(await bookmarks.countDocuments()).toBe(0);
+    await expect(form.getByLabel(/Note/)).toHaveValue("Keep my note");
     await add(page, "The tab from Tuesday", "https://example.com/tuesday", "Read before Friday");
     await expect(item(page, "The tab from Tuesday")).toBeVisible();
     await page.reload();
-    const original = item(page, "The tab from Tuesday");
-    await expect(original).toContainText("Read before Friday");
-    const saved = await bookmarks.findOne({ title: "The tab from Tuesday" });
-    expect(saved?.url).toBe("https://example.com/tuesday");
-    expect(saved?.createdAt).toBeInstanceOf(Date);
-    expect(saved?.updatedAt).toEqual(saved?.createdAt);
-
-    await original.getByRole("button", { name: "Edit", exact: true }).click();
-    const edit = page.locator('form').filter({ has: page.locator('input[name="id"]') });
-    await edit.getByLabel("Title", { exact: true }).fill("Read it on Friday");
-    await edit.getByLabel("URL", { exact: true }).fill("https://example.com/friday");
-    await edit.getByLabel(/Note/).fill("Keep this for next time");
-    await edit.getByRole("button", { name: "Save changes", exact: true }).click();
-    await expect(item(page, "Read it on Friday")).toBeVisible();
-    await page.reload();
-    const updated = item(page, "Read it on Friday");
-    await expect(updated).toContainText("Keep this for next time");
-    await expect(updated.getByRole("link", { name: "Read it on Friday" })).toHaveAttribute("href", "https://example.com/friday");
-    const edited = await bookmarks.findOne({ _id: saved!._id });
-    expect(edited?.createdAt).toEqual(saved?.createdAt);
-    expect(edited?.updatedAt.getTime()).toBeGreaterThan(saved!.updatedAt.getTime());
-
-    await updated.getByRole("button", { name: "Delete", exact: true }).click();
-    await expect(updated.getByText("Delete this bookmark?", { exact: true })).toBeVisible();
-    await updated.getByRole("button", { name: "Cancel", exact: true }).click();
+    await expect(item(page, "The tab from Tuesday")).toContainText("Read before Friday");
     expect(await bookmarks.countDocuments()).toBe(1);
-    await expect(updated.getByText("Delete this bookmark?", { exact: true })).toHaveCount(0);
-    await updated.getByRole("button", { name: "Delete", exact: true }).click();
-    await updated.getByRole("button", { name: "Confirm delete", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
-    expect(await bookmarks.countDocuments()).toBe(0);
-    await page.reload();
-    await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Edit", exact: true })).toHaveCount(0);
+  });
+  test("caps this interim list at the newest 100 records", async ({ page }) => {
+    const now = new Date("2026-01-01T12:00:00Z");
+    await bookmarks.insertMany(Array.from({ length: 101 }, (_, i) => ({ title: `Link ${i}`, url: `https://example.com/${i}`, note: "", createdAt: new Date(now.getTime() + i), updatedAt: now })));
+    await page.goto("/");
+    await expect(page.getByRole("listitem")).toHaveCount(100);
+    await expect(item(page, "Link 100")).toBeVisible();
+    await expect(item(page, "Link 0")).toHaveCount(0);
   });
 });
 

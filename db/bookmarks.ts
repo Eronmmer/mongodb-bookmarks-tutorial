@@ -1,14 +1,13 @@
 import "server-only";
 
-import { ObjectId, type WithId } from "mongodb";
-import { isBookmarkId } from "@/lib/bookmark-validation";
+import { type WithId } from "mongodb";
 
 import type { BookmarkInput, BookmarkView } from "@/lib/bookmark-types";
 import { getDatabase } from "@/lib/mongodb";
 
 const COLLECTION_NAME = "bookmarks";
 
-// Show at most 100 bookmarks in the list.
+// Show the newest 100 bookmarks until we add pagination.
 export const BOOKMARK_LIST_LIMIT = 100;
 
 interface BookmarkDocument {
@@ -35,41 +34,14 @@ function toBookmarkView(document: WithId<BookmarkDocument>): BookmarkView {
   };
 }
 
-/** Reject malformed cursors before constructing a database filter. */
-function readCursor(value: string | string[] | undefined) {
-  if (typeof value !== "string" || value.length > 64) return null;
-  const parts = value.split("_");
-  if (parts.length !== 2 || !isBookmarkId(parts[1])) return null;
-  const createdAt = new Date(parts[0]);
-  if (!Number.isFinite(createdAt.getTime()) || createdAt.toISOString() !== parts[0]) {
-    return null;
-  }
-  return { createdAt, _id: new ObjectId(parts[1]) };
-}
-
-/** Read one page plus one record to determine whether an older page exists. */
-export async function listBookmarks(before?: string | string[]) {
-  const cursor = readCursor(before);
+export async function listBookmarks(): Promise<BookmarkView[]> {
   const collection = await getCollection();
-  const filter = cursor
-    ? { $or: [
-        { createdAt: { $lt: cursor.createdAt } },
-        { createdAt: cursor.createdAt, _id: { $lt: cursor._id } },
-      ] }
-    : {};
   const documents = await collection
-    .find(filter)
+    .find({})
     .sort({ createdAt: -1, _id: -1 })
-    .limit(BOOKMARK_LIST_LIMIT + 1)
+    .limit(BOOKMARK_LIST_LIMIT)
     .toArray();
-  const hasMore = documents.length > BOOKMARK_LIST_LIMIT;
-  const bookmarks = documents.slice(0, BOOKMARK_LIST_LIMIT).map(toBookmarkView);
-  const last = bookmarks.at(-1);
-  return {
-    bookmarks,
-    nextCursor: hasMore && last ? `${last.createdAt}_${last.id}` : null,
-    isOlderPage: cursor !== null,
-  };
+  return documents.map(toBookmarkView);
 }
 
 /**
@@ -95,38 +67,4 @@ export async function createBookmark(input: BookmarkInput): Promise<BookmarkView
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   };
-}
-
-/** Updates title, url, note and updatedAt only; createdAt is preserved. */
-export async function updateBookmark(
-  id: string,
-  input: BookmarkInput,
-): Promise<boolean> {
-  if (!isBookmarkId(id)) {
-    return false;
-  }
-  const collection = await getCollection();
-  const result = await collection.updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $set: {
-        title: input.title,
-        url: input.url,
-        note: input.note,
-        updatedAt: new Date(),
-      },
-    },
-  );
-  return result.matchedCount > 0;
-}
-
-export async function deleteBookmark(id: string): Promise<boolean> {
-  if (!isBookmarkId(id)) {
-    return false;
-  }
-  const collection = await getCollection();
-  const result = await collection.deleteOne({
-    _id: new ObjectId(id),
-  });
-  return result.deletedCount > 0;
 }

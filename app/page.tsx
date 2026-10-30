@@ -2,11 +2,8 @@ import { connection } from "next/server";
 
 import { BookmarkForm } from "@/components/bookmark-form";
 import { BookmarkItem } from "@/components/bookmark-item";
-import {
-  listBookmarks,
-} from "@/db/bookmarks";
+import { listBookmarks } from "@/db/bookmarks";
 import type { BookmarkView } from "@/lib/bookmark-types";
-import Link from "next/link";
 
 // MongoDB is reached from Node.js server code only.
 export const runtime = "nodejs";
@@ -14,26 +11,16 @@ export const runtime = "nodejs";
 // The page reads the database on every request; never connect during a
 // static build.
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ before?: string | string[] }>;
-}) {
+export default async function Home() {
   // Marks the page dynamic and waits for a request connection, so the
   // database is only queried for real visitors, never at build time.
   await connection();
 
   let bookmarks: BookmarkView[] = [];
-  const { before } = await searchParams;
-  let nextCursor: string | null = null;
-  let isOlderPage = false;
   let isDatabaseUnavailable = false;
 
   try {
-    const result = await listBookmarks(before);
-    bookmarks = result.bookmarks;
-    nextCursor = result.nextCursor;
-    isOlderPage = result.isOlderPage;
+    bookmarks = await listBookmarks();
   } catch {
     // Distinguish "database down" from "empty database" for the visitor.
     // Do not log raw driver errors or connection details here.
@@ -80,12 +67,10 @@ export default async function Home({
             ) : bookmarks.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-[#1C2B26]/20 bg-white/60 p-8 text-center">
                 <h2 className="text-lg font-semibold">
-                  {isOlderPage ? "No older bookmarks" : "No bookmarks yet"}
+                  No bookmarks yet
                 </h2>
                 <p className="mt-2 text-sm text-[#4B5F58]">
-                  {isOlderPage
-                    ? "You’ve reached the end of the list."
-                    : "Add your first link with the form on this page."}
+                  Add your first link with the form on this page.
                 </p>
               </div>
             ) : (
@@ -97,20 +82,6 @@ export default async function Home({
                 </ul>
               </>
             )}
-            {!isDatabaseUnavailable && (isOlderPage || nextCursor) ? (
-              <nav aria-label="Bookmark pages" className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
-                {isOlderPage ? (
-                  <Link href="/" className="rounded-lg px-3 py-2 font-medium text-[#00684A] underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
-                    Back to newest
-                  </Link>
-                ) : <span />}
-                {nextCursor ? (
-                  <Link href={`/?${new URLSearchParams({ before: nextCursor })}`} className="rounded-lg border border-[#1C2B26]/15 bg-white px-3 py-2 font-medium text-[#00684A] hover:bg-[#1C2B26]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00684A]">
-                    Older bookmarks
-                  </Link>
-                ) : null}
-              </nav>
-            ) : null}
           </section>
         </main>
 
