@@ -1,0 +1,32 @@
+{
+  "edited_paragraphs": 33,
+  "unchanged_paragraphs_verified": 711,
+  "all_new_text_and_inline_styles_verified": true,
+  "code_blocks_unchanged": 36,
+  "native_code_markers_preserved": 72,
+  "image_ids_preserved": [
+    "kix.abkwve6izhj",
+    "kix.ducglxw1j6iy"
+  ],
+  "unique_hyperlink_targets_preserved": 41,
+  "native_numbered_steps": 4,
+  "runtime_tests_rerun": false,
+  "reason": "Prose-only editorial update. Executable code and commands unchanged.",
+  "date": "2026-10-30",
+  "document_url": "https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc/edit",
+  "scope": "Approved targeted editorial changes following the Grammarly review. No app code, setup commands, package versions, deployment configuration or repository visibility changes.",
+  "source_sha256": "8303c359c0ecf9b2fa63a8c817ec19797a9ced191b01ae394be7719db632fc65",
+  "source_paragraph_variations_reconciled": 4,
+  "pdf_pages": 28,
+  "rendered_pages_visually_checked": [
+    1,
+    3,
+    12,
+    26,
+    27,
+    28
+  ],
+  "visual_result": "Opening and hero intact. Native code panels retain language labels and syntax styling. Inline identifiers and hyperlinks retain formatting. Four Server Action verification steps render as an ordered list. Closing heading and text render cleanly.",
+  "independent_review": "Reviewed connection reuse, uncertain writes, CRUD outcomes, form hooks, stage-specific query limits and test isolation against source. Incorporated explicit refresh/baseline comparison and field-specific accessibility wording.",
+  "grammarly_rerun": false
+}

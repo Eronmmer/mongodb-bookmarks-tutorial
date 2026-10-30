@@ -16,7 +16,7 @@ This version has one bookmark list and no application sign-in. Anyone with acces
 
 ## Before you start
 
-You’ll be comfortable with this tutorial if you’ve used React components, props and forms, and can read basic TypeScript. We’ll explain the Next.js server conventions and MongoDB operations as we use them. The terminal commands assume a macOS or Linux shell.
+You’ll need basic TypeScript and some experience with React components, props and forms. We’ll explain the Next.js server conventions and MongoDB operations as we use them. The commands below use a macOS or Linux shell.
 
 The main walkthrough uses your computer and MongoDB Atlas. If you prefer a browser editor, follow the Codespaces option below, then rejoin the same build. A temporary local database is also available if you want to try the app before setting up Atlas.
 
@@ -34,13 +34,13 @@ cd bookmarks-build
 git switch -c bookmarks 09278fa9369ce03c3e988156351655f87317ecf6
 ```
 
-The long commit ID selects the template revision used to test this tutorial. That gives us the same starting files even if the template changes later. `bookmarks` is simply the name of your working branch. The companion-file links also select tested revisions. When a step asks you to copy a file, open its link, choose **Raw**, and save the complete contents at the stated path. Create the parent directory if it does not exist.
+The long commit ID selects the template revision used to test this tutorial. That gives us the same starting files even if the template changes later. `bookmarks` is simply the name of your working branch. The companion-file links also select tested revisions. When a step asks you to copy a file, open its link, choose **Raw**, and save the complete contents at the stated path. If the file belongs in a folder you don’t have yet, create that folder before saving it.
 
 ### Or use GitHub Codespaces
 
-Open the [official template repository](https://github.com/mongodb-developer/nextjs-template-mongodb) and choose **Code → Codespaces → Create codespace**. Select the 2-core machine. Check your account’s included allowance and spending settings first if you need to stay within the free allowance.
+Before creating a Codespace, check your account’s included allowance and spending settings if you need to stay within the free allowance. Then open the [official template repository](https://github.com/mongodb-developer/nextjs-template-mongodb) and choose **Code → Codespaces → Create codespace**. Select the 2-core machine.
 
-Once the editor opens, use its terminal to select the same template revision. A Codespaces prebuild may start from an older revision, so fetch before switching:
+In the Codespace terminal, fetch the repository before switching to the tutorial commit. A prebuilt Codespace may start from an older revision:
 
 ```bash
 git fetch origin
@@ -76,7 +76,7 @@ npm update
 npm pkg set 'engines.node=24.x'
 ```
 
-The numbers record the releases tested together. `--save-exact` saves those versions in `package.json`, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other packages within their allowed ranges. Keep `package.json` and `package-lock.json` in Git. After this setup, use `npm ci` to reinstall what your lockfile records.
+These are the versions we tested together. `--save-exact` records them in `package.json`, and [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other dependencies within their allowed ranges. Commit both `package.json` and `package-lock.json`. For later installs, use `npm ci` to install the versions in the lockfile.
 
 Add commands for the database helpers and create their directory. We’ll add the helper files when we use them:
 
@@ -153,7 +153,7 @@ In `tailwind.config.ts`, replace the `sans` array inside `theme.extend.fontFamil
 sans: [...defaultTheme.fontFamily.sans],
 ```
 
-Replace `next.config.ts` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/next.config.ts). It keeps this directory as the Turbopack root and handles the `localhost:3000` origin used by the Codespaces development proxy. That exception applies only in Codespaces development, leaving production unchanged.
+Replace `next.config.ts` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/next.config.ts). It keeps this directory as the Turbopack root. In Codespaces development, it also handles the `localhost:3000` origin used by the development proxy. That origin exception does not apply in production.
 
 Start Next.js:
 
@@ -162,13 +162,13 @@ nvm use
 npm run dev -- --hostname 127.0.0.1
 ```
 
-Open the app and look for **Database connected** on the starter page. If it is missing, check the URI and database credentials, the Atlas IP access list, or whether the temporary database is still running. Restart Next.js after changing `.env`. Getting this check green now gives us a known connection before we add our own code.
+Open the starter page and look for **Database connected**. If you don’t see it, check the URI, database credentials and Atlas IP access list. If you’re using the temporary database, make sure it is still running. Restart Next.js after changing `.env`. Once the message appears, we know the app can reach MongoDB.
 
 Stop Next.js with **Ctrl+C** once the connection works. Keep the temporary database running if you’re using it. We’ll restart the app when the first bookmark form and list are ready.
 
 ## Give a bookmark somewhere to live
 
-Let’s save the MongoDB Node.js driver documentation. The URL tells us where to go, the title makes the link readable, and the note records what we wanted to revisit: “Check how insertOne returns the new document’s ID.”
+Let’s use the MongoDB Node.js driver documentation for our first bookmark. Add a note about what you want to revisit: “Check how insertOne returns the new document’s ID.”
 
 MongoDB stores that bookmark as a document in the `bookmarks` collection. Here’s an illustrative document in MongoDB Extended JSON. Your generated ID and timestamps will differ:
 
@@ -243,7 +243,7 @@ function validateUrl(url: string): string | null {
 }
 ```
 
-Notice the distinction between checking a URL and opening it. This code checks the address format. It does not fetch the page or establish that the destination is safe. The identifier check will be useful for edits and deletes, where we must validate an ID before constructing an `ObjectId`.
+This check validates the address format. It doesn’t visit the page or tell us whether the destination is safe. We also validate each bookmark ID before constructing an `ObjectId` for an edit or deletion.
 
 ## Connect once and reuse the client
 
@@ -312,13 +312,13 @@ export async function getDatabase(): Promise<Db> {
 }
 ```
 
-`getClient()` connects on first use. In development, the promise lives on `globalThis` so hot reloads can reuse it. In production, it lives in the module and can be reused within that running server instance. Each `MongoClient` manages its own [connection pools](https://www.mongodb.com/docs/drivers/node/current/connect/connection-options/connection-pools/), so we leave the client open for later operations. A failed initial connection clears the cached promise, allowing another call to try again.
+`getClient()` connects on first use and keeps the promise for later calls. In development, storing it on `globalThis` lets it survive hot reloads. In production, the module keeps it for that running server instance. Each `MongoClient` manages its own [connection pools](https://www.mongodb.com/docs/drivers/node/current/connect/connection-options/connection-pools/), so we keep the client open. If the initial connection fails, we clear the promise so a later call can try again.
 
 `serverSelectionTimeoutMS` gives the driver five seconds to select a database server. It does not time out the whole HTTP request. We leave connection-pool sizes at the driver defaults.
 
 `getDatabase()` selects `bookmark_app` from the URI. The `server-only` import catches accidental use of this module from a Client Component. It protects the code boundary, but it does not authenticate a visitor.
 
-The starter’s connection-status module imports the old default export. Remove it now, along with the starter branding files we no longer need. We’ll replace the starter page before running the app again:
+The starter’s connection-status module still expects the old default export. Remove it, along with the starter branding files listed below. We’ll replace the starter page before starting the app again:
 
 ```bash
 rm db/connection-status.ts app/favicon.ico app/fonts.js public/og.png \
@@ -381,7 +381,7 @@ export async function listBookmarks(): Promise<BookmarkView[]> {
 }
 ```
 
-[`find()` returns a cursor](https://www.mongodb.com/docs/drivers/node/current/crud/query/cursor/), which lets us configure the query before reading its results. Here, `sort()` puts newer bookmarks first, `limit()` bounds the result, and `toArray()` gives the page an array to render. `_id` breaks ties when two bookmarks have the same creation timestamp.
+[`find()` returns a cursor](https://www.mongodb.com/docs/drivers/node/current/crud/query/cursor/), which lets us configure the query before reading its results. We use `sort()` to put newer bookmarks first and `limit()` to cap this list at 100 bookmarks. Then `toArray()` reads the results into an array the page can render. `_id` breaks ties when two bookmarks have the same creation timestamp.
 
 Now append `createBookmark()` to the same file:
 
@@ -409,11 +409,11 @@ export async function createBookmark(input: BookmarkInput): Promise<BookmarkView
 }
 ```
 
-`insertOne()` saves the document and returns its generated identifier. We list each field explicitly, so extra request properties cannot become document fields. Both timestamps use the same `now` value because a new bookmark has not been edited yet.
+`insertOne()` saves the document and returns a result containing its `insertedId`. We name each field explicitly to keep unexpected request properties out of the document. Both timestamps start with the same `now` value because the bookmark hasn’t been edited yet.
 
 ### Let the form call the server
 
-We have database functions, but the browser needs a way to reach them. A [Server Action](https://nextjs.org/docs/app/guides/forms) will receive the form submission, validate it, and call `createBookmark()`. Create `app/actions.ts` with the imports and feedback helpers first:
+The database functions are ready. Next, we’ll connect them to the form with a [Server Action](https://nextjs.org/docs/app/guides/forms). It will receive the submitted values, validate them, and call `createBookmark()`. In `app/actions.ts`, start with these imports and feedback helpers:
 
 `app/actions.ts`
 
@@ -502,7 +502,7 @@ export async function createBookmarkAction(
 }
 ```
 
-There are three outcomes worth keeping separate. Invalid fields return specific errors without writing. A confirmed save returns empty values and calls [`revalidatePath("/")`](https://nextjs.org/docs/app/api-reference/functions/revalidatePath), so the page can show the new record. A database error keeps what the user typed and asks them to refresh before retrying.
+If a field is invalid, the action returns its error without saving anything. After a confirmed save, it returns empty form values and calls [`revalidatePath("/")`](https://nextjs.org/docs/app/api-reference/functions/revalidatePath) so the page can show the new bookmark. If it can’t confirm the save, it preserves what the user typed and asks them to refresh before trying again.
 
 That last message is deliberate. A connection can fail after MongoDB has accepted a write, leaving the app unable to confirm the result. “Could not confirm” avoids telling someone the bookmark definitely failed and encouraging a duplicate submission.
 
@@ -530,9 +530,9 @@ useEffect(() => {
 }, [state, router]);
 ```
 
-The form uses `action={formAction}` to submit to the function returned by `useActionState()`. That hook calls `createBookmarkAction` and gives the component its result. On success, the effect clears the fields and returns to the newest page. Rejected submissions keep their values. The submit button uses `useFormStatus()` to show “Saving…” while the action is pending.
+`action={formAction}` connects the form to `createBookmarkAction` through `useActionState()`. The hook gives the component the action’s result. After a successful save, the effect clears the fields and returns to the newest page. A rejected submission keeps what you typed. While the request is pending, `useFormStatus()` changes the button text to “Saving…”.
 
-The complete form also connects each label and error message to its input. Its `noValidate` attribute lets our server validation provide consistent feedback. Those details matter to the app, but they do not change the form-to-action flow above.
+Each field’s label and validation error are linked to its input. `noValidate` turns off the browser’s built-in form validation, so the server validator handles the feedback.
 
 ### Show the saved bookmark
 
@@ -596,7 +596,7 @@ Follow the bookmark through the code you just wrote:
 
 **Read:** `Home` → `listBookmarks()` → `BookmarkItem`
 
-The form sent `FormData` to the action, the action validated it and inserted a document, and the refreshed Server Component read that document back. Reloading matters here. It shows that the bookmark came from MongoDB rather than existing only in the form’s browser state.
+Reloading is the important part of this check. The app reads the bookmark from MongoDB again, so we know it was saved beyond the form’s browser state.
 
 Try submitting a second bookmark with an empty title or a URL such as `javascript:alert(1)`. You should see a field error, keep your entered values, and get no new card. Once those checks work, we can give the saved bookmark its Edit and Delete buttons.
 
@@ -652,9 +652,9 @@ export async function deleteBookmark(id: string): Promise<boolean> {
 }
 ```
 
-`updateOne()` selects the document by `_id`. `$set` changes the editable fields and `updatedAt`, leaving `createdAt` alone. We check `matchedCount` because the useful question is whether the record still exists. If someone deleted it while another browser had the editor open, the action can explain that instead of reporting success.
+`updateOne()` finds the bookmark by `_id`. `$set` changes the editable fields and `updatedAt`, while keeping `createdAt`. We check `matchedCount` to see whether a document matched that ID. If the bookmark was deleted in another browser while the editor was open, we can ask the user to refresh instead of reporting a successful update.
 
-`deleteOne()` also targets one `_id`. Its `deletedCount` tells us whether anything was removed. These operations do not merge concurrent edits. Another open browser needs a refresh to see changes, and the last successful edit can replace earlier field values.
+`deleteOne()` targets the bookmark’s `_id`, and `deletedCount` tells us whether it was removed. Changes won’t appear in another open browser until it refreshes. If two people edit the same bookmark, the app doesn’t merge their changes. The last successful edit can overwrite values saved by the earlier one.
 
 ### Add the edit and delete actions
 
@@ -708,9 +708,9 @@ export async function updateBookmarkAction(
 }
 ```
 
-The update action validates the hidden ID and editable fields before writing. If the record has gone, it asks for a refresh. Invalid fields or an unconfirmed write keep the editor open with the submitted values. A confirmed update refreshes the list.
+The update action checks the hidden ID and editable fields before saving. If the bookmark no longer exists, it asks the user to refresh. Invalid fields or a save the app can’t confirm leave the editor open with the submitted values. A confirmed update refreshes the list.
 
-`deleteBookmarkAction()` follows the same pattern, with only the ID to validate. Its confirmation button helps prevent accidental clicks, while the server still checks the request before calling `deleteBookmark()`.
+The confirmation button helps prevent accidental deletions. On the server, `deleteBookmarkAction()` validates the bookmark ID before calling `deleteBookmark()`.
 
 ### Turn the card into an editor
 
@@ -718,7 +718,7 @@ Replace `components/bookmark-item.tsx` with the [editable bookmark card](https:/
 
 The edit form starts with the saved title, URL and note. It includes the bookmark ID in a hidden field, and gives each input a unique ID so labels target the right card. A successful save closes the editor. **Cancel** closes it without submitting. Validation errors leave the entered values in place.
 
-The first **Delete** click only reveals the confirmation controls. The action runs when **Confirm delete** is submitted. A pending request disables the controls, and a stale or unconfirmed result leaves the message visible instead of pretending the card was removed.
+Clicking **Delete** reveals the confirmation controls. Submitting **Confirm delete** runs the action and disables the controls while the request is pending. If the bookmark is already gone or the app can’t confirm the deletion, it keeps the message visible.
 
 ### Try an edit, then change your mind about deleting
 
@@ -732,7 +732,7 @@ Click **Delete**, then **Cancel**. The card should stay. Click Delete again and 
 
 ## Make room for older bookmarks
 
-The list currently stops at the newest 100 records. That keeps a request bounded, but it leaves older bookmarks out of reach. Let’s add an **Older bookmarks** link without changing how saving or editing works.
+We currently fetch only the newest 100 bookmarks. Anything older is still in MongoDB, but the page has no way to show it. Let’s add an **Older bookmarks** link.
 
 ### Keep the order predictable
 
@@ -819,7 +819,7 @@ You should see **Bookmark index is ready.** The script closes its own client whe
 
 `listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
 
-**Older bookmarks** carries the token forward. **Back to newest** drops it. After a new bookmark is saved, the add form’s existing `router.replace("/")` also returns to the newest page, where that record belongs. Editing keeps the original creation time, so an edit does not jump to the top.
+The **Older bookmarks** link carries the token forward. **Back to newest** drops it. Saving a bookmark also runs `router.replace("/")`, returning you to the newest page to see it. Editing keeps the original creation time, so it doesn’t move the bookmark to the top.
 
 With fewer than 101 records, there is no older page to show. The normal list should still work. Next, we’ll automate the interactions we have been checking by hand.
 
@@ -827,7 +827,7 @@ With fewer than 101 records, there is no older page to show. The normal list sho
 
 A successful build cannot tell us whether clicking Save really persists an edit. We’ll use Playwright to add a bookmark through the form, reload, edit it, reload again, cancel a deletion, then confirm it. We’ll also check that an unavailable database preserves the text someone was trying to save.
 
-The test runner starts a separate temporary MongoDB process on a random port, supplies its URI to the app and tests, then stops it afterwards. It also builds with no database URI to catch accidental connections during the build. These checks use disposable data, leaving your app’s database alone.
+The tests use their own temporary MongoDB process on a random port. The runner passes its URI to the app and tests, then stops the process when they finish. It also builds with no database URI to catch accidental connections during the build. These checks use disposable data, leaving your app’s database alone.
 
 ```bash
 npm pkg set scripts.typecheck="tsc --noEmit" \
@@ -905,11 +905,11 @@ If a test fails, read the named assertion and open the Playwright report before 
 
 ## Save your project and run the checks on GitHub
 
-[Create an empty repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) in your GitHub account. Leave its README, licence and `.gitignore` options unchecked because the project already has those files. Copy the repository’s HTTPS URL.
+On GitHub, [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) for your bookmark app. Leave its README, licence and `.gitignore` options unchecked because the project already has those files. Copy the repository’s HTTPS URL.
 
 Before pushing, replace `.github/workflows/ci.yml` with the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.github/workflows/ci.yml). It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. It needs no Atlas secret.
 
-Remove the template’s `CODEOWNERS` file, which names its upstream maintainers. Rename the template remote to `upstream`, then add your own repository as `origin`. Replace the example URL below with the URL you copied. Check `git status` before committing to confirm that `.env` is excluded:
+Remove the template’s `CODEOWNERS` file, which names its upstream maintainers. Rename the template remote to `upstream`, then add your own repository as `origin`. Use your new repository’s HTTPS URL in the command below. Check `git status` before committing to confirm that `.env` is excluded:
 
 ```bash
 rm .github/CODEOWNERS
@@ -921,7 +921,7 @@ git commit -m "Build the bookmarks app"
 git push -u origin bookmarks
 ```
 
-Now open the repository’s **Actions** tab and check the run. If a browser test fails, the workflow uploads a Playwright report. Keep the run green before deploying, so a setup mistake does not become a second problem to diagnose on Vercel.
+Open the repository’s **Actions** tab and check the run. If a browser test fails, open the Playwright report uploaded by the workflow. Fix any failing checks here before moving on to Vercel.
 
 ## Deploy the app to Vercel
 
@@ -952,10 +952,17 @@ Wait for **Bookmark index is ready**, then deploy. Repeat the index setup for ea
 
 Open the production domain, generated deployment URL and any preview URL in a signed-out browser. Each must require authentication before showing the app. Then sign in as an allowed visitor and repeat the create, reload, edit, cancel-delete and confirm-delete flow with a public sample link.
 
-Also verify that the access gate blocks a valid Server Action request without authentication. A protected-looking page alone does not prove that writes are protected. Capture a test submission in your browser’s Network panel and confirm that it succeeds while you are authenticated. Replay the same request body and action binding against the same deployment URL, removing cookies, Authorization credentials and any protection-bypass credentials. The platform should reject it or require sign-in, and the bookmark list should remain unchanged. An invalid request failing validation would not prove protection. If the unauthenticated request changes data, take the deployment offline until you have corrected the protection settings and this check passes.
+Also check that the access gate blocks a valid Server Action request without authentication. A sign-in screen alone doesn’t prove that writes are protected.
 
-## Give that tab a home
+1. While signed in, capture a test submission in your browser’s Network panel and confirm that it succeeds.
+2. Replay the same request body and action binding against the same deployment URL. Remove cookies, Authorization credentials and any protection-bypass credentials.
+3. Check that the platform rejects the request or requires sign-in.
+4. Refresh the app as an authenticated visitor and confirm that the list is unchanged from immediately after the successful submission.
 
-You now have somewhere to save the documentation link and the reason you wanted it. The form passes real input through a Server Action, MongoDB stores the document, and the Server Component reads it back. Editing and deletion use the same path, with browser tests checking that the changes survive a reload.
+Use a valid request for this check. A request that fails validation does not prove that authentication is enforced. If the unauthenticated request changes data, take the deployment offline until you have corrected the protection settings and this check passes.
 
-For a next step, add tags to group links by project. Start with one question: what should happen when someone saves a bookmark without a tag? Work that choice through the input type, validation, document and form, then add a browser test. It’s the same path we followed for the note field, applied to a feature you choose.
+## One less tab to keep open
+
+You can close that documentation tab now. Your bookmark is in MongoDB, with a note to remind you why you saved it.
+
+Try adding tags to group links by project. Decide whether a bookmark needs a tag or can be saved without one. Then update the input type, validator, document and form. Test both a tagged bookmark and an untagged one, checking that the latter is saved or rejected according to your choice.
