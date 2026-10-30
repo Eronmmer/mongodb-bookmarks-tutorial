@@ -1938,10 +1938,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7.0.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -1957,7 +1957,7 @@ jobs:
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: playwright-report
           path: playwright-report/
@@ -1966,6 +1966,8 @@ jobs:
 
 
 ```
+
+A release tag can later point to a different commit. To keep the action code fixed, [pin it to a full commit SHA](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions) instead.
 
 After pushing your repository, open its Actions tab to check the run. If a browser test fails, the workflow uploads a Playwright report to help you inspect the result.
 
