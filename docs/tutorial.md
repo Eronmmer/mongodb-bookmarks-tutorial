@@ -441,7 +441,7 @@ Updates and deletes also need a valid identifier. The ID check requires exactly 
 
 The template exports a client promise from its connection helper. We’ll replace that with getClient(), which connects when first called, and getDatabase(), which selects the database named in the URI. Replace lib/mongodb.ts with the following code:
 
-`lib/mongodb.ts` ([source](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/07361f2c747a9e05be119c69f2582f59306fbabd/lib/mongodb.ts))
+`lib/mongodb.ts` ([source](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/29d6867d6ac2aeb5d5996f0442470174df72a364/lib/mongodb.ts))
 
 ```typescript
 import "server-only";
