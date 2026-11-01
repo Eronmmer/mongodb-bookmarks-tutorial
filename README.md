@@ -1,155 +1,75 @@
-![Next.js with MongoDB](./public/og.png)
+# Bookmarks with Next.js and MongoDB
 
--> View demo: [nextjs.mongodb.com](https://nextjs.mongodb.com/?utm_campaign=devrel&utm_source=github&utm_medium=referral&utm_content=template-nextjs-mongodb&utm_term=learning.fuel)
+A single-page bookmark app built from [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). Save a link with a title and an optional note, edit it in place, confirm a deletion, and browse older entries 100 at a time.
 
-# Next.js with MongoDB
+This is the reader version used by the tutorial. It contains the app and the small browser test suite shown in the article. It uses one shared list with no application sign-in or per-user records. Use public sample links and restrict access through your deployment platform.
 
-A minimal, production-ready template for building full-stack React applications with
-[Next.js](https://nextjs.org/) (App Router), the [MongoDB](https://www.mongodb.com/) Node.js
-driver, TypeScript, and Tailwind CSS / shadcn/ui. Use it as a starting point for full-stack
-apps backed by MongoDB Atlas, with one-click deployment to Vercel.
+## Run the app locally
 
-## Features
-
-- **Next.js 16 App Router** with React 19 and server components
-- **MongoDB integration** via the official Node.js driver with a shared client singleton
-- **Live connection status** badge on the home page (server-side `ping` health check)
-- **TypeScript** throughout, with strict mode enabled
-- **Tailwind CSS + shadcn/ui** components for styling
-- **One-click Vercel deploy** with the MongoDB Atlas integration
-- **End-to-end tests** (Playwright) and **CI** (GitHub Actions) against a real MongoDB
-
-## Tech Stack
-
-| Layer | Technology |
-| --- | --- |
-| Framework | Next.js 16 (App Router), React 19 |
-| Language | TypeScript 5 |
-| Database | MongoDB (Node.js driver `mongodb` v7) |
-| Styling | Tailwind CSS 3, shadcn/ui, lucide-react |
-| Testing | Playwright (end-to-end) |
-| Hosting | Vercel |
-
-## Architecture Overview
-
-The home page (`app/page.tsx`) is a server component. On render it calls
-`dbConnectionStatus()` (`db/connection-status.ts`), which uses the shared MongoDB client
-from `lib/mongodb.ts` to run a `ping` command and report whether the database is reachable.
-The result is shown as a status badge in the UI.
-
-```mermaid
-flowchart LR
-    Browser["Browser"] --> Page["app/page.tsx (Server Component)"]
-    Page --> Status["db/connection-status.ts<br/>dbConnectionStatus()"]
-    Status --> Client["lib/mongodb.ts<br/>MongoClient singleton"]
-    Client -->|ping| Atlas[("MongoDB Atlas")]
-```
-
-## Getting Started
-
-Click the "Deploy" button to clone this repo, create a new Vercel project, setup the MongoDB integration, and provision a new MongoDB database:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Minimal%20template%20for%20building%20full-stack%20React%20applications%20using%20Next.js%2C%20Vercel%2C%20and%20MongoDB.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4N50YqRe7FHsd0ysfGM8bC%2F1201fe6929b842ec3ee15ee036625471%2Fog.png&demo-title=MongoDB%20%26%20Next.js%20Starter%20Template%20&demo-url=https%3A%2F%2Fnextjs.mongodb.com%2F&products=%255B%257B%2522type%2522%253A%2522integration%2522%252C%2522protocol%2522%253A%2522storage%2522%252C%2522productSlug%2522%253A%2522atlas%2522%252C%2522integrationSlug%2522%253A%2522mongodbatlas%2522%257D%255D&project-name=MongoDB%20%26%20Next.js%20Starter%20Template%20&repository-name=mongo-db-and-next-js-starter-template&repository-url=https%3A%2F%2Fgithub.com%2Fmongodb-developer%2Fnextjs-template-mongodb&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects&skippable-integrations=1)
-
-## Local Setup
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 20 or later
-- A MongoDB connection string (from [MongoDB Atlas](https://www.mongodb.com/atlas/database) or a local MongoDB instance)
-
-### Installation
-
-Install the dependencies:
+Use Node.js 24 LTS, Git, npm and a macOS or Linux shell. `.nvmrc` selects the latest installed or available patch in Node 24 when used with nvm.
 
 ```bash
-npm install
-```
-
-### Development
-
-#### Create a .env file in the project root
-
-```bash
+nvm install
+nvm use
+npm ci
 cp .env.example .env
+npm run db:local
 ```
 
-#### Get your database URL
+Leave the database terminal running. The helper downloads and starts MongoDB 9.0.4 on `127.0.0.1:27028`. Its data is temporary and is deleted when the helper stops. If the port is occupied, the helper reports an error.
 
-Obtain the database connection string from the Cluster tab on the [MongoDB Atlas Dashboard](https://account.mongodb.com/account/login/?utm_campaign=devrel&utm_source=github&utm_medium=referral&utm_content=template-nextjs-mongodb&utm_term=learning.fuel).
-
-#### Add the database URL to the .env file
-
-Update the `.env` file with your database connection string:
-
-```txt
-MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database>?retryWrites=true&w=majority
-```
-
-#### Start the development server
+In a second terminal at the project root:
 
 ```bash
-npm run dev
+nvm use
+npm run db:setup
+npm run dev -- --hostname 127.0.0.1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Wait for `Bookmark index is ready.`, then open http://127.0.0.1:3000. Run `db:setup` again each time you restart the temporary database.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If you use a different Node version manager, select Node 24 and omit the nvm commands. `npm ci` installs the versions recorded in `package-lock.json`.
 
-## Environment Variables
+## Use MongoDB Atlas
 
-Create a `.env` file from the example (`cp .env.example .env`) and set:
+Set `MONGODB_URI` in `.env` to the Atlas driver connection string. Include the database name `bookmark_app` before the query string, retain the options Atlas provides, and percent-encode reserved characters in credentials. Create a database user with `readWrite` access to that database and allow the Node host’s outbound IP in Atlas Network Access.
 
-| Name | Required | Example | Description |
-| --- | --- | --- | --- |
-| `MONGODB_URI` | Yes | `mongodb+srv://user:pass@cluster0.example.mongodb.net/nextjs_template?retryWrites=true&w=majority` | MongoDB connection string used by the app and the end-to-end tests |
+Run `npm run db:setup` against the selected database before starting the app. It creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`; the app does not create indexes during requests. Restart Next.js after changing `.env`. Keep credentials out of Git and never use a `NEXT_PUBLIC_` prefix for this URI.
 
-## Project Structure
+## Run in Codespaces
 
-- `app/` — Next.js App Router pages, layout, and global styles (`app/page.tsx` is the home page)
-- `db/connection-status.ts` — server-side MongoDB connection health check
-- `lib/mongodb.ts` — MongoDB client singleton (sets the `appName` connection metadata)
-- `components/ui/` — shadcn/ui components
-- `tests/e2e/` — Playwright end-to-end tests
-- `.github/workflows/ci.yml` — CI pipeline (build + e2e against MongoDB)
-- `AGENTS.md` / `EDD.md` — guidance for AI agents and the MongoDB data model
+The devcontainer uses Debian Bookworm with Node 24 and runs `npm ci`. Run the same database setup and app commands in its terminal. Open port 3000 through the Ports panel and keep its visibility Private. If using Atlas, allow the Codespace’s outbound IP and recheck it after a restart.
 
-## Testing
-
-End-to-end tests use [Playwright](https://playwright.dev/) and run against a real MongoDB
-instance. They require `MONGODB_URI` to be set and the Playwright browser installed.
+## Check the app
 
 ```bash
-# one-time: install the browser
 npx playwright install --with-deps chromium
-
-# run the end-to-end suite (starts the app automatically)
-MONGODB_URI="mongodb://localhost:27017/nextjs_template" npm run test:e2e
+npm run verify
+npm run verify:dev
 ```
 
-Expected result: the suite renders the home page and asserts the status badge shows
-`Database connected`. The same suite runs in CI on every push and pull request via
-[GitHub Actions](./.github/workflows/ci.yml), using a `mongo` service container.
+`verify` runs lint, TypeScript and a production build, then browser checks. `verify:dev` runs the browser checks against the development server. Both start their own temporary MongoDB 9.0.4 instance and Next.js processes, create the index in a unique test database, and stop their processes when finished. They exercise the CRUD flow and missing/unreachable database states. They do not use Atlas credentials or an existing development server. This reader version does not include the separate unit test suite.
 
-## Troubleshooting
+Use these commands rather than invoking Playwright directly. The runner uses POSIX process groups and is intended for macOS or Linux; installing Chromium dependencies on Linux may require elevated permissions. The GitHub workflow runs `npm run verify` on pushes to `bookmarks` or `main`, pull requests and manual dispatches.
 
-- **Badge shows "No MONGODB_URI environment variable"** — create `.env` (`cp .env.example .env`) and set `MONGODB_URI`, then restart the dev server.
-- **Badge shows "Database not connected"** — verify the connection string, that your IP is allow-listed in Atlas Network Access, and that the database user and password are correct.
-- **e2e tests fail to start the server** — ensure nothing else is using port 3000, or set `PORT` before running the tests.
-- **Playwright "browser not found"** — run `npx playwright install --with-deps chromium`.
+## Project structure
 
-## Learn More
+- `app/page.tsx`: Server Component that reads bookmarks and renders pagination or an appropriate empty/error state.
+- `app/actions.ts`: validates form input, calls the database operations and returns form feedback.
+- `db/bookmarks.ts`: MongoDB queries and conversion to the UI’s string IDs and dates.
+- `lib/mongodb.ts`: lazy, reusable MongoDB client.
+- `lib/bookmark-types.ts` and `lib/bookmark-validation.ts`: shared shapes and runtime input checks.
+- `components/bookmark-form.tsx` and `components/bookmark-item.tsx`: add, edit and delete interfaces.
+- `scripts/`: local database, index setup and isolated verification helpers.
+- `tests/e2e/bookmarks.spec.ts`: the article’s browser tests.
+- `EDD.md`: the document model and query contract.
 
-To learn more about MongoDB, check out the MongoDB documentation:
+## Deployment
 
-- [MongoDB Documentation](https://www.mongodb.com/docs/?utm_campaign=devrel&utm_source=github&utm_medium=referral&utm_content=template-nextjs-mongodb&utm_term=learning.fuel) - learn about MongoDB features and APIs
-- [MongoDB Node.js Driver](https://www.mongodb.com/docs/drivers/node/current/?utm_campaign=devrel&utm_source=github&utm_medium=referral&utm_content=template-nextjs-mongodb&utm_term=learning.fuel) - documentation for the official Node.js driver
+Deploy the completed application, not the unmodified template. Configure Vercel Authentication with All Deployments before adding a working Atlas URI. Standard Protection leaves production domains public. Check exceptions and bypass links, configure Atlas networking, and run `db:setup` for each target database before deploying.
 
-To learn more about Next.js, take a look at the following resources:
+Use separate Production and Preview databases where possible. Redeploy after changing environment variables. Verify that production, preview and generated deployment URLs require authentication in a signed-out browser, then repeat the CRUD flow as an allowed visitor before sharing the app. Vercel’s gate controls web access; it does not restrict direct connections to MongoDB.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial
+## Attribution
 
-## Deploy on Vercel
-
-Commit and push your code changes to your GitHub repository to automatically trigger a new deployment.
+Based on the MongoDB Next.js template. The original MIT licence is retained in `LICENSE`.

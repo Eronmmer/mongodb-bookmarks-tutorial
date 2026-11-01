@@ -1,61 +1,47 @@
 # AGENTS.md
 
-## Build and Test Commands
+## Scope and commands
 
-Use these commands from the repository root:
+This is the reader version of the MongoDB bookmark tutorial. Use Node.js 24 LTS from `.nvmrc`. Keep TypeScript 5 and Tailwind CSS 3 unless a separate migration is requested.
+
+From the repository root:
 
 ```bash
-npm install
-npm run build
-npm run lint
-npm run test:e2e
-npm run dev
+npm ci
+npx playwright install --with-deps chromium
+npm run verify
+npm run verify:dev
 ```
 
-`npm run test:e2e` runs the Playwright end-to-end suite. It requires a MongoDB instance
-reachable via `MONGODB_URI` and the Playwright browsers installed
-(`npx playwright install --with-deps chromium`). Playwright starts the app automatically
-(`next dev` locally, `next start` in CI) via the `webServer` config in
-[playwright.config.ts](./playwright.config.ts).
+`verify` runs lint, TypeScript, a production build and the article’s browser tests. `verify:dev` runs those browser checks in development mode. The runner owns a disposable MongoDB 9.0.4 instance and Next.js processes; do not point the tests at Atlas or run Playwright directly. This reader version has no unit test suite.
 
-## Project Structure
+For manual development, copy `.env.example` to `.env`, start `npm run db:local` in one terminal, then run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1` in another. Restarting the local database discards its data and index; rerun setup. Never print or commit database credentials.
 
-- `app/`: Next.js App Router pages, layout, and global styles
-- `app/page.tsx`: home page server component that renders the MongoDB connection badge
-- `db/connection-status.ts`: server-side data access (MongoDB `ping` health check)
-- `lib/mongodb.ts`: MongoDB client singleton (sets the `appName` connection metadata)
-- `lib/utils.ts`: shared UI helpers (`cn` class merger)
-- `components/ui/`: shadcn/ui components
-- `tests/e2e/`: Playwright end-to-end tests
-- `README.md`: setup and architecture guide
-- `EDD.md`: MongoDB entity/document schema contract
+## Project structure and invariants
 
-## Environment Variables and Configuration
+- `app/page.tsx`: Server Component for reads, pagination and empty/error states.
+- `app/actions.ts`: form validation, mutation feedback and revalidation.
+- `db/bookmarks.ts`: reads and writes of the `bookmarks` collection.
+- `lib/mongodb.ts`: lazy shared MongoDB client and connection metadata.
+- `lib/bookmark-types.ts`, `lib/bookmark-validation.ts`: shared values and runtime validation.
+- `components/bookmark-form.tsx`, `components/bookmark-item.tsx`: client forms and cards.
+- `scripts/setup-db.mjs`: explicit compound-index setup, separate from requests.
+- `scripts/verify.mjs`, `playwright.config.ts`, `tests/e2e/`: isolated reader test harness.
+- `.github/workflows/ci.yml`: checks on `bookmarks`, `main`, pull requests and manual dispatches.
 
-Required:
+The app deliberately has one shared bookmark list and no application sign-in or per-user ownership. Restrict hosted access at the deployment platform. Do not add authentication without a user request.
 
-- `MONGODB_URI`: MongoDB connection string used by the app and the end-to-end tests
+Preserve uncertainty when a mutation throws: the UI asks the user to refresh and check before retrying. A failed read must remain distinct from an empty collection.
 
-Configuration files:
+## MongoDB model and skills
 
-- `.env.example`: example environment values
-- `.env`: local environment values (create from the example with `cp .env.example .env`)
+Read `EDD.md` before changing collections, fields, queries, validation or UI that depends on persisted data. Update it when the model changes. Keep `appName` set to `devrel-tutorial-javascript-nextjstemplate`.
 
-## MongoDB Skills
+Use the official MongoDB agent skills from https://github.com/mongodb/agent-skills whenever the task is MongoDB-specific and a matching skill exists.
 
-Use the official MongoDB agent skills from https://github.com/mongodb/agent-skills
-whenever the task is MongoDB-specific and a matching skill exists.
+## Evidence
 
-## When To Use EDD.md
-
-Use [EDD.md](./EDD.md) as the source of truth for the MongoDB data model in this repository.
-
-Consult [EDD.md](./EDD.md) before making changes that touch:
-
-- MongoDB collections, document structure, or field names
-- Server code or route handlers that read or write database records
-- Validation, form fields, API payloads, or UI that depend on persisted data
-- Schema documentation, Mermaid diagrams, or entity modeling discussions
+Report the commands and results actually checked. Local tests do not prove Atlas, Codespaces or Vercel behavior. Do not rewrite dated evidence as though older runs used current versions.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

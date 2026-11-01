@@ -3,7 +3,7 @@ import { MongoMemoryServer } from "mongodb-memory-server-core";
 let mongo;
 try {
   mongo = await MongoMemoryServer.create({
-    binary: { version: "8.2.6" },
+    binary: { version: "9.0.4" },
     // .env.example uses this exact port. Never silently start elsewhere.
     instance: { ip: "127.0.0.1", port: 27028, portGeneration: false, dbName: "bookmark_app" },
   });
