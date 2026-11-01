@@ -68,7 +68,7 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
 try {
   if (!dev) for (const script of ["lint", "typecheck", "test:unit", "build"]) await run("npm", ["run", script]);
   const dbName = `bookmarks_test_${randomUUID().replaceAll("-", "")}`;
-  mongo = await MongoMemoryServer.create({ binary: { version: "8.2.6" }, instance: { ip: "127.0.0.1", dbName } });
+  mongo = await MongoMemoryServer.create({ binary: { version: "9.0.4" }, instance: { ip: "127.0.0.1", dbName } });
   const uri = mongo.getUri(dbName);
   await run("npm", ["run", "db:setup"], { ...cleanEnv, MONGODB_URI: uri });
   const unavailablePort = await freePort();
