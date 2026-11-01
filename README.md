@@ -4,7 +4,7 @@ An app for saving, listing, editing and deleting bookmarks with Next.js App Rout
 
 The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
 
-See the [verification report](docs/verification.md) for the executed checks and their limits. The [tutorial](docs/tutorial.md) starts from MongoDB's public template, explains the core database and application flow, and links to complete supporting files at tested companion revisions. The article and those files together provide the build. Atlas connectivity and index setup, Vercel deployment and live CRUD have been checked. On 29 October 2026, valid create, update and delete Server Action requests were blocked without credentials across all four URLs of the tested production deployment; database contents stayed unchanged.
+See the [verification report](docs/verification.md) for the executed checks and their limits. The [tutorial](docs/tutorial.md) starts from MongoDB's public template, explains the core database and application flow, and links to complete supporting files at tested companion revisions. The article and those files together provide the build. Atlas connectivity and index setup, Vercel deployment and live CRUD have been checked. On 1 November 2026, all 12 valid create, update and delete Server Action requests without credentials were blocked across four URLs of the recorded production deployment. The same request bodies succeeded with temporary authorized access. App readbacks and separate Atlas observations confirmed the expected bookmark state, and the temporary access token was revoked.
 
 ## Source repository
 

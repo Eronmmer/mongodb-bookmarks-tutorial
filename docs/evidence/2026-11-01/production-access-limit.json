@@ -20,5 +20,8 @@
     "Identical-byte current-deployment authenticated positive controls",
     "Current-deployment database digest comparison around denied requests"
   ],
-  "reason": "The previous temporary test credential was revoked. A fresh credential was not created. The browser DOM surface redacts the native action fields needed for the alternative request reconstruction."
+  "reason": "The previous temporary test credential was revoked. A fresh credential was not created. The browser DOM surface redacts the native action fields needed for the alternative request reconstruction.",
+  "historicalSnapshot": true,
+  "supersededBy": "production-server-actions.json",
+  "followUpNote": "Owner subsequently approved temporary access. The follow-up verified valid actions with fresh app reads and independent Atlas UI observations; it did not repeat the direct-driver BSON digest method."
 }

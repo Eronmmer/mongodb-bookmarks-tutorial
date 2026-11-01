@@ -1,0 +1,96 @@
+{
+  "startedAt": "2026-11-01T18:30:01.577Z",
+  "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+  "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+  "mode": "approved-http-app-readbacks",
+  "method": "One Next encodeReply serialization per action; same raw multipart bytes for credential-free negatives and bypass-authenticated positives",
+  "actions": [],
+  "complete": false,
+  "limitations": [
+    "This harness does not use a MongoDB-driver connection or compute BSON collection digests. Separate authenticated Atlas Data Explorer observations are recorded at action-batch boundaries when available.",
+    "Readback compares the complete rendered bookmark list and this run’s serialized fixture fields returned by fresh authenticated app GETs. It does not prove absence of unrelated database side effects."
+  ],
+  "urls": [
+    "https://mongodb-bookmarks-tutorial.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+    "https://mongodb-bookmarks-tutorial-koni43514-erons.vercel.app/"
+  ],
+  "mappingBefore": [
+    {
+      "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-koni43514-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    }
+  ],
+  "runtime": {
+    "node": "v24.22.2",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "reactDom": "19.3.1",
+    "mongodb": "7.8.0"
+  },
+  "credentialCreatedAt": "2026-11-01T18:30:06.374Z",
+  "failure": {
+    "name": "CheckFailure",
+    "message": "Authenticated deployment page is unavailable"
+  },
+  "accessCleanup": {
+    "revokedAt": "2026-11-01T18:30:08.950Z",
+    "tokenCountBefore": 0,
+    "createdTestTokens": 1,
+    "tokenCountAfter": 0,
+    "protection": {
+      "deploymentType": "all"
+    },
+    "revokedTokenStatus": 302,
+    "revokedTokenLocationOrigin": "https://vercel.com",
+    "revokedTokenLocationPath": "/sso-api"
+  },
+  "mappingAfter": [
+    {
+      "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-git-main-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    },
+    {
+      "url": "https://mongodb-bookmarks-tutorial-koni43514-erons.vercel.app/",
+      "deploymentId": "dpl_2zbLgpG3KMsB8Z69ofuqJnjFspVF",
+      "sourceCommit": "723d298aee8edcf60ed7971d14f9b161902ed9ce",
+      "readyState": "READY"
+    }
+  ],
+  "finishedAt": "2026-11-01T18:30:12.390Z"
+}
