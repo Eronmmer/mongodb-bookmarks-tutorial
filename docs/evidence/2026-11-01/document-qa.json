@@ -1,0 +1,65 @@
+{
+  "verdict": "pass",
+  "scope": "Read-only independent final Google Doc readback and PDF QA; no runtime tests rerun",
+  "files": {
+    "doc-final.json": {
+      "sha256": "c3c5787a8c10fdd319a23e815e06f3da271dfe617a7b5307a9a4c4038afe727e",
+      "bytes": 846841
+    },
+    "doc-expected-text.txt": {
+      "sha256": "2f625f7c2bff1227b6838afb0c3f56c372ca3658e7fe59e36ef97548727f89e2",
+      "bytes": 44451
+    },
+    "article-postfix.pdf": {
+      "sha256": "453f44ad14b0169716ee24ca0c93b3289187ffcc564ed235be382351162faba8",
+      "bytes": 716402
+    }
+  },
+  "currentMarkdown": {
+    "path": "/Users/erons/Documents/personal-projects/mongodb-bookmarks-tutorial/docs/tutorial.md",
+    "sha256": "f73837ad9b2f2d4963a83099b5300471fdc7be964ca00ca665322fa1d84019a9"
+  },
+  "runtimeTestedMarkdown": {
+    "path": "/tmp/bookmarks-refresh-20261101/verification/evidence/candidate.md",
+    "sha256": "7cb83974cbbf8501b48e55f077d2d90a2359fadc2d5341f52f7cd6ab0769edd8",
+    "recordedBy": "evidence/reconstruction-summary.json",
+    "relationship": "The runtime-tested prior Markdown differs from the current Markdown only in one prose replacement: starts with `v24.`. -> reports a Node 24 release. All code blocks, commands, source links and remaining text are identical.",
+    "runtimeTestsRerunForThisProseChange": false
+  },
+  "finalDelta": {
+    "old": "starts with v24..",
+    "new": "reports a Node 24 release.",
+    "occurrences": 1,
+    "onlyTextDeltaFromReviewedBaseline": true,
+    "codeBlocksUnchanged": 36,
+    "allCodeBlocksExactlyMatchCurrentMarkdown": true,
+    "expectedTopLevelTextMatchesExactly": true
+  },
+  "preservedBaselineChecks": {
+    "nativeCodeBlocks": 36,
+    "images": 2,
+    "tables": 2,
+    "sourceLinksAtC07959c": 18,
+    "firstSaveRevision": "88d9af5ac809d4d5cf778435d07a9af63077f793",
+    "publicationNotesRetained": 2,
+    "linksUnchangedFromReviewedBaseline": true,
+    "tablesUnchangedFromReviewedBaseline": true,
+    "imageIDsUnchangedFromReviewedBaseline": true
+  },
+  "visualReview": {
+    "finalPage3Screenshot": "/tmp/bookmarks-refresh-20261101/visual-review/final-page-03.png",
+    "finalPage3Inspected": true,
+    "findings": [],
+    "observation": "Node-version prose renders cleanly with a single sentence period; both updated setup code blocks remain fully visible and well spaced.",
+    "baselineReviewedPages": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      9
+    ],
+    "baselineReport": "/tmp/bookmarks-refresh-20261101/visual-review/baseline-qa-report.json"
+  },
+  "sourceOrDocumentEditsMadeByReviewer": false
+}

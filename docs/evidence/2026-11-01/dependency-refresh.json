@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-01",
+  "codeCommit": "2777e29ad22f74ec7fc2c66edddbe7eceab7bf31",
+  "readerCommit": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+  "environment": {
+    "node": "24.22.2",
+    "npm": "11.19.1",
+    "mongodbServer": "9.0.4",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "mongodbDriver": "7.8.0",
+    "playwright": "1.64.1",
+    "mongodbMemoryServerCore": "11.3.0"
+  },
+  "cleanCompanion": {
+    "lint": "passed",
+    "types": "passed",
+    "unitTests": 8,
+    "uriFreeBuild": "passed",
+    "productionBrowserTests": 14,
+    "developmentBrowserTests": 14,
+    "candidateFileComparison": "66 tracked source/config/test files match code commit; README/tutorial excluded",
+    "logs": [
+      "/tmp/bookmarks-refresh-20261101/companion-clean-verify.log",
+      "/tmp/bookmarks-refresh-20261101/companion-clean-verify-dev.log"
+    ]
+  },
+  "ci": {
+    "main": {
+      "result": "success",
+      "runId": 41332696807,
+      "commit": "2777e29ad22f74ec7fc2c66edddbe7eceab7bf31"
+    },
+    "reader": {
+      "result": "success",
+      "runId": 41332787009,
+      "commit": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22"
+    }
+  },
+  "audit": {
+    "productionFindings": 0,
+    "fullModerateEntries": 16,
+    "advisory": "GHSA-g3hv-75wg-m249",
+    "scope": "Development linting dependency chain",
+    "unresolved": true,
+    "forcedDowngradesOrMajorOverridesApplied": false
+  },
+  "review": {
+    "main": "independent review passed at exact code commit",
+    "reader": "independent review passed at exact reader commit"
+  },
+  "existingLocalPreview": "Left running; its MongoDB process and data were not stopped or changed",
+  "repositoryVisibility": "private",
+  "codespaces": {
+    "freshTemplateClone": true,
+    "existingCompatibleContainerRebuilt": false,
+    "verify": "passed",
+    "verifyDev": "passed",
+    "mongoLocalHelper": "9.0.4",
+    "indexSetup": "passed",
+    "manualCRUD": "passed",
+    "validAnonymousCreateAction": {
+      "status": 401,
+      "databaseUnchanged": true,
+      "sameBodyLocalPositiveControl": true
+    },
+    "invalidOriginControls": 2,
+    "configMatrixCases": 4,
+    "sourceHashesMatched": 22,
+    "finalBookmarkCount": 0,
+    "portsPrivate": [
+      3000,
+      27028
+    ],
+    "stopped": true,
+    "paidUsageUSD": 0,
+    "paidBudgetUSD": 0
+  },
+  "productionValidActionReplayRerun": false
+}

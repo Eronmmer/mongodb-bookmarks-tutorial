@@ -1,0 +1,71 @@
+{
+  "sourceCommit": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+  "templateCommit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "articleSha256": "7cb83974cbbf8501b48e55f077d2d90a2359fadc2d5341f52f7cd6ab0769edd8",
+  "runtime": {
+    "node": "v24.22.2",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "mongodb": "9.0.4"
+  },
+  "npmVersion": "11.19.1",
+  "sourceAudit": {
+    "linkedFileSteps": 18,
+    "excerpts": 7,
+    "inlineCodeBlocks": 36
+  },
+  "checks": [
+    {
+      "stage": "a",
+      "runtime": "development",
+      "exitCode": 0,
+      "log": "/tmp/bookmarks-refresh-20261101/verification/evidence/checkpoint-a.log"
+    },
+    {
+      "stage": "b",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/bookmarks-refresh-20261101/verification/evidence/checkpoint-b.log"
+    },
+    {
+      "stage": "c",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/bookmarks-refresh-20261101/verification/evidence/checkpoint-c.log"
+    },
+    {
+      "stage": "d",
+      "runtime": "production",
+      "exitCode": 0,
+      "log": "/tmp/bookmarks-refresh-20261101/verification/evidence/checkpoint-d.log"
+    }
+  ],
+  "browserPasses": {
+    "starter": 1,
+    "createRead": 4,
+    "crud": 3,
+    "pagination": 4,
+    "exactReaderProduction": 3,
+    "exactReaderDevelopment": 3
+  },
+  "fileComparison": {
+    "exact": 20,
+    "commentsOnlyDifference": [
+      "db/bookmarks.ts",
+      "lib/mongodb.ts"
+    ],
+    "comparisonMethod": "Full-file diff and normalized non-comment lines"
+  },
+  "packageJsonSemanticMatch": true,
+  "lockfileDependencyDataIdentical": true,
+  "lockfileMetadataDifference": {
+    "readerSourceRootEngines": {
+      "node": "24.x"
+    },
+    "reconstructedRootEngines": null
+  },
+  "nvmrc": "24",
+  "productionAuditVulnerabilities": 0,
+  "fullAuditModerateDevVulnerabilities": 16,
+  "fixedPortLocalHelperTest": "Left user-owned MongoDB PID84304 on port27028 untouched; Codespaces agent owns the free-port helper smoke test."
+}

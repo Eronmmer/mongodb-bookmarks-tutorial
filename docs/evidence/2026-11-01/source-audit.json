@@ -1,0 +1,221 @@
+{
+  "references": [
+    {
+      "id": "codespaces-config",
+      "file": ".devcontainer/devcontainer.json",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/.devcontainer/devcontainer.json",
+      "operation": "write",
+      "stage": "codespaces",
+      "sha256": "0b75d4ae5b37a0355d4fa42b9f31e2718d58b3186d834bef9f78a3393341f7f8",
+      "resolved": true
+    },
+    {
+      "id": "local-db-helper",
+      "file": "scripts/local-db.mjs",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/local-db.mjs",
+      "operation": "write",
+      "stage": "a-starter",
+      "sha256": "75b8b97abb6ff284948017e80622c0db73a51ce6b62efb222c2d676d21bb84e8",
+      "resolved": true
+    },
+    {
+      "id": "layout-file",
+      "file": "app/layout.tsx",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/layout.tsx",
+      "operation": "write",
+      "stage": "a-starter",
+      "sha256": "5c7a2cbfa92003bff88ca3980f1f571b0ca365a5bd80d8bfed507d436babc2e3",
+      "resolved": true
+    },
+    {
+      "id": "next-config",
+      "file": "next.config.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/next.config.ts",
+      "operation": "write",
+      "stage": "a-starter",
+      "sha256": "2268276dc823aefe437ab8c662d0534c8b6a1c68e2dd9b301f7dd0740015c0d5",
+      "resolved": true
+    },
+    {
+      "id": "shared-types",
+      "file": "lib/bookmark-types.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-types.ts",
+      "operation": "write",
+      "stage": "b-create-read",
+      "sha256": "2a9f8882ed54f8f809eb0b654e050d0f6f9a21cdc025379436cf2564f26b9b43",
+      "resolved": true
+    },
+    {
+      "id": "validation-file",
+      "file": "lib/bookmark-validation.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-validation.ts",
+      "operation": "write",
+      "stage": "b-create-read",
+      "sha256": "2d0d04c7e6060d3d8141b93fdafad0fb2c810b70d33aeacd7f15f461e6f71558",
+      "resolved": true
+    },
+    {
+      "id": "create-form-file",
+      "file": "components/bookmark-form.tsx",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-form.tsx",
+      "operation": "write",
+      "stage": "b-create-read",
+      "sha256": "4f7f71a844cb12b03a945a50cda935d16432180ad7a328b6160a45d54e76dada",
+      "resolved": true
+    },
+    {
+      "id": "style-file",
+      "file": "app/globals.css",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/globals.css",
+      "operation": "write",
+      "stage": "a-starter",
+      "sha256": "dbf5e548ed0079d80633af341f6619b04a162a289d05f0ee01c15d0f716c84c8",
+      "resolved": true
+    },
+    {
+      "id": "icon-file",
+      "file": "app/icon.svg",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/icon.svg",
+      "operation": "write",
+      "stage": "a-starter",
+      "sha256": "b39f08b9467edef525f86403c89532f80fc1aa713644c6504a2c0563a50d3f7a",
+      "resolved": true
+    },
+    {
+      "id": "first-bookmark-page",
+      "file": "app/page.tsx",
+      "source_sha": "88d9af5ac809d4d5cf778435d07a9af63077f793",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx",
+      "operation": "write",
+      "stage": "b-create-read",
+      "sha256": "59122a4d8325dd5237aa7ad6ba497627378dbb8e9c26de0ec5fd0df69f738a64",
+      "resolved": true
+    },
+    {
+      "id": "crud-actions-file",
+      "file": "app/actions.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/actions.ts",
+      "operation": "write",
+      "stage": "c-crud",
+      "sha256": "348c8816216feeee8cf2931ef5b34db74c3c24c718c71c086c38707053a01d31",
+      "resolved": true
+    },
+    {
+      "id": "edit-card-file",
+      "file": "components/bookmark-item.tsx",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-item.tsx",
+      "operation": "write",
+      "stage": "c-crud",
+      "sha256": "0fc96ddc06263bd2c352903f455144e39592464ac6084553588158fbe9defd6d",
+      "resolved": true
+    },
+    {
+      "id": "index-helper",
+      "file": "scripts/setup-db.mjs",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/setup-db.mjs",
+      "operation": "write",
+      "stage": "d-pagination",
+      "sha256": "f9e653481a54cab87157db32b05eb213f541a6b0b3f2ff14e67592176db20d62",
+      "resolved": true
+    },
+    {
+      "id": "paginated-page",
+      "file": "app/page.tsx",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/page.tsx",
+      "operation": "write",
+      "stage": "d-pagination",
+      "sha256": "4e39d8549896691fe626d8a1e9c9694defb56b7ddb2a804b87460a164332c534",
+      "resolved": true
+    },
+    {
+      "id": "test-runner",
+      "file": "scripts/verify.mjs",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/verify.mjs",
+      "operation": "write",
+      "stage": "testing",
+      "sha256": "c5ef422406cdf793b88958dc458915e1b40b7928ecaf769cf2deb8b88520f9c1",
+      "resolved": true
+    },
+    {
+      "id": "playwright-config",
+      "file": "playwright.config.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/playwright.config.ts",
+      "operation": "write",
+      "stage": "testing",
+      "sha256": "a3b94904a3da78b6baac67e578ef06575014045df93bb80430abf76d879e2163",
+      "resolved": true
+    },
+    {
+      "id": "browser-tests",
+      "file": "tests/e2e/bookmarks.spec.ts",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/tests/e2e/bookmarks.spec.ts",
+      "operation": "write",
+      "stage": "testing",
+      "sha256": "7792c62451f29106a7431acaa13e121cd81b5f114504bb23a6029ae5af4b2f5b",
+      "resolved": true
+    },
+    {
+      "id": "ci-workflow",
+      "file": ".github/workflows/ci.yml",
+      "source_sha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+      "url": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/.github/workflows/ci.yml",
+      "operation": "write",
+      "stage": "ci",
+      "sha256": "a45a5072e635bd538e153eb926cd86551d56a4ccee883a394ddf55588b5b40a2",
+      "resolved": true
+    }
+  ],
+  "excerpts": [
+    {
+      "id": "types-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-types.ts",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "url-validation-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-validation.ts",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "form-state-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-form.tsx",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "read-page-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "update-action-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/actions.ts",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "index-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/setup-db.mjs",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    },
+    {
+      "id": "crud-test-excerpt",
+      "source": "https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/tests/e2e/bookmarks.spec.ts",
+      "matchesIgnoringOnlyIndentationBlankLinesAndFullLineComments": true
+    }
+  ]
+}

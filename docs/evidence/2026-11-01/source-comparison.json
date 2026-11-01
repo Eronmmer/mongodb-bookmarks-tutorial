@@ -1,0 +1,161 @@
+{
+  "sourceSha": "c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22",
+  "files": [
+    {
+      "file": ".devcontainer/devcontainer.json",
+      "sha256": "0b75d4ae5b37a0355d4fa42b9f31e2718d58b3186d834bef9f78a3393341f7f8",
+      "sourceSha256": "0b75d4ae5b37a0355d4fa42b9f31e2718d58b3186d834bef9f78a3393341f7f8",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": ".env.example",
+      "sha256": "e76a9d5612c858837c2e0cb74729db3e40bffdf3ad28b20cf18c3969c377c613",
+      "sourceSha256": "e76a9d5612c858837c2e0cb74729db3e40bffdf3ad28b20cf18c3969c377c613",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": ".github/workflows/ci.yml",
+      "sha256": "a45a5072e635bd538e153eb926cd86551d56a4ccee883a394ddf55588b5b40a2",
+      "sourceSha256": "a45a5072e635bd538e153eb926cd86551d56a4ccee883a394ddf55588b5b40a2",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "0caffa4b7526d2a02c1873a21d1a3d39444fe2b9c642f41ba212ed201d0387f3",
+      "sourceSha256": "0caffa4b7526d2a02c1873a21d1a3d39444fe2b9c642f41ba212ed201d0387f3",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "app/actions.ts",
+      "sha256": "348c8816216feeee8cf2931ef5b34db74c3c24c718c71c086c38707053a01d31",
+      "sourceSha256": "348c8816216feeee8cf2931ef5b34db74c3c24c718c71c086c38707053a01d31",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "app/globals.css",
+      "sha256": "dbf5e548ed0079d80633af341f6619b04a162a289d05f0ee01c15d0f716c84c8",
+      "sourceSha256": "dbf5e548ed0079d80633af341f6619b04a162a289d05f0ee01c15d0f716c84c8",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "app/icon.svg",
+      "sha256": "b39f08b9467edef525f86403c89532f80fc1aa713644c6504a2c0563a50d3f7a",
+      "sourceSha256": "b39f08b9467edef525f86403c89532f80fc1aa713644c6504a2c0563a50d3f7a",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "app/layout.tsx",
+      "sha256": "5c7a2cbfa92003bff88ca3980f1f571b0ca365a5bd80d8bfed507d436babc2e3",
+      "sourceSha256": "5c7a2cbfa92003bff88ca3980f1f571b0ca365a5bd80d8bfed507d436babc2e3",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "app/page.tsx",
+      "sha256": "4e39d8549896691fe626d8a1e9c9694defb56b7ddb2a804b87460a164332c534",
+      "sourceSha256": "4e39d8549896691fe626d8a1e9c9694defb56b7ddb2a804b87460a164332c534",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "components/bookmark-form.tsx",
+      "sha256": "4f7f71a844cb12b03a945a50cda935d16432180ad7a328b6160a45d54e76dada",
+      "sourceSha256": "4f7f71a844cb12b03a945a50cda935d16432180ad7a328b6160a45d54e76dada",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "components/bookmark-item.tsx",
+      "sha256": "0fc96ddc06263bd2c352903f455144e39592464ac6084553588158fbe9defd6d",
+      "sourceSha256": "0fc96ddc06263bd2c352903f455144e39592464ac6084553588158fbe9defd6d",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "db/bookmarks.ts",
+      "sha256": "1c52a8da1850271b8bd007f3dafe53a2b4d9abb04888a19e1c75566805530475",
+      "sourceSha256": "d956cda880550143d06da7c1b924335062acdfb122570784e0bcbcc6429b1fe5",
+      "matches": false,
+      "comparison": "identical-after-ignoring-indentation-blank-lines-and-full-line-comments",
+      "normalizedCodeSha256": "ee96a93a942119fd826c23e0bc26212ce59976f2cb97eb028756b10ba5cd77d1"
+    },
+    {
+      "file": "lib/bookmark-types.ts",
+      "sha256": "2a9f8882ed54f8f809eb0b654e050d0f6f9a21cdc025379436cf2564f26b9b43",
+      "sourceSha256": "2a9f8882ed54f8f809eb0b654e050d0f6f9a21cdc025379436cf2564f26b9b43",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "lib/bookmark-validation.ts",
+      "sha256": "2d0d04c7e6060d3d8141b93fdafad0fb2c810b70d33aeacd7f15f461e6f71558",
+      "sourceSha256": "2d0d04c7e6060d3d8141b93fdafad0fb2c810b70d33aeacd7f15f461e6f71558",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "lib/mongodb.ts",
+      "sha256": "f4bf1a5a766fdf05f7b462ad5cfb35866296545078fcf2f40765896e251944cd",
+      "sourceSha256": "ff916c0d984b257c97c12652ebc32c2f0dbd34522751d538723de26d122e318c",
+      "matches": false,
+      "comparison": "identical-after-ignoring-indentation-blank-lines-and-full-line-comments",
+      "normalizedCodeSha256": "e4a263fb25c7de5747832497ecb346a33476989ec5f95f68c3cfd8899f72e8ee"
+    },
+    {
+      "file": "next.config.ts",
+      "sha256": "2268276dc823aefe437ab8c662d0534c8b6a1c68e2dd9b301f7dd0740015c0d5",
+      "sourceSha256": "2268276dc823aefe437ab8c662d0534c8b6a1c68e2dd9b301f7dd0740015c0d5",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "playwright.config.ts",
+      "sha256": "a3b94904a3da78b6baac67e578ef06575014045df93bb80430abf76d879e2163",
+      "sourceSha256": "a3b94904a3da78b6baac67e578ef06575014045df93bb80430abf76d879e2163",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "scripts/local-db.mjs",
+      "sha256": "75b8b97abb6ff284948017e80622c0db73a51ce6b62efb222c2d676d21bb84e8",
+      "sourceSha256": "75b8b97abb6ff284948017e80622c0db73a51ce6b62efb222c2d676d21bb84e8",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "scripts/setup-db.mjs",
+      "sha256": "f9e653481a54cab87157db32b05eb213f541a6b0b3f2ff14e67592176db20d62",
+      "sourceSha256": "f9e653481a54cab87157db32b05eb213f541a6b0b3f2ff14e67592176db20d62",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "scripts/verify.mjs",
+      "sha256": "c5ef422406cdf793b88958dc458915e1b40b7928ecaf769cf2deb8b88520f9c1",
+      "sourceSha256": "c5ef422406cdf793b88958dc458915e1b40b7928ecaf769cf2deb8b88520f9c1",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "tailwind.config.ts",
+      "sha256": "1573db9f3df8049f4125591fc7696508c8c6df9e5fcb646ce3e591ef9f3383e7",
+      "sourceSha256": "1573db9f3df8049f4125591fc7696508c8c6df9e5fcb646ce3e591ef9f3383e7",
+      "matches": true,
+      "comparison": "exact-bytes"
+    },
+    {
+      "file": "tests/e2e/bookmarks.spec.ts",
+      "sha256": "7792c62451f29106a7431acaa13e121cd81b5f114504bb23a6029ae5af4b2f5b",
+      "sourceSha256": "7792c62451f29106a7431acaa13e121cd81b5f114504bb23a6029ae5af4b2f5b",
+      "matches": true,
+      "comparison": "exact-bytes"
+    }
+  ]
+}

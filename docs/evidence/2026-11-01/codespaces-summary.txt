@@ -1,0 +1,49 @@
+CODESPACES REFRESH CAPTURE 2026-11-01
+Source: c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22
+Template HEAD: 09278fa9369ce03c3e988156351655f87317ecf6
+Runtime: v24.22.2 npm 11.19.1
+NVMRC: 24
+Source file SHA256 matches: 22/22
+next: 16.4.3
+react: 19.3.1
+react-dom: 19.3.1
+mongodb: 7.8.0
+mongodb-memory-server-core: 11.3.0
+@playwright/test: 1.64.1
+eslint: 9.39.5
+eslint-config-next: 16.4.3
+typescript: 5.9.3
+Audit full: {"info":0,"low":0,"moderate":16,"high":0,"critical":0,"total":16}
+Audit production: {"info":0,"low":0,"moderate":0,"high":0,"critical":0,"total":0}
+verify browser outcomes:
+1 skipped
+1 passed (9.1s)
+1 skipped
+1 passed (1.5s)
+1 skipped
+1 passed (12.0s)
+verify-dev browser outcomes:
+1 skipped
+1 passed (3.7s)
+1 skipped
+1 passed (2.1s)
+1 skipped
+1 passed (12.6s)
+Mongo helper evidence:
+{"mongoVersion":"9.0.4","versionArray":[9,0,4,0],"platform":"linux"}
+{"indexes":[{"v":2,"key":{"_id":1},"name":"_id_"},{"v":2,"key":{"createdAt":-1,"_id":-1},"name":"bookmarks_newest_first"}],"count":0}
+Action and origin evidence:
+serialized_body_sha256=3f25a5c50af4b3bfee538005ec4ef0d92f70152ca9afbf6734d70e21f43689c9
+x-forwarded-host=terrible-gravestone-xv4vx9gr54h6467-3000.app.github.dev
+{"origin":"https://untrusted.example","status":500,"invalidServerAction":true,"databaseUnchanged":true}
+{"origin":"http://localhost:3001","status":500,"invalidServerAction":true,"databaseUnchanged":true}
+{"anonymousForwardedPOST":401,"authenticationRequired":true,"databaseUnchanged":true,"sameSerializedBody":true}
+{"origin":"http://localhost:3000","status":200,"created":1,"sameSerializedBody":true}
+{"cleanupOwnedFixtureDeleted":1}
+Config matrix:
+{"mode":"development","codespaces":"absent","allowedOrigins":[],"pass":true}
+{"mode":"development","codespaces":"true","allowedOrigins":["localhost:3000"],"pass":true}
+{"mode":"production","codespaces":"true","allowedOrigins":[],"pass":true}
+{"mode":"production","codespaces":"absent","allowedOrigins":[],"pass":true}
+Final manual database bookmark count: 0
+MANIFEST_AND_CLEANUP_EXIT=0

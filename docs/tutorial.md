@@ -10,7 +10,7 @@ One page, a few fields, and somewhere to put those links. Each bookmark has a ti
 
 ![The finished bookmark app](images/bookmarks-desktop.png)
 
-We’ll start with [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). The [finished project](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/tree/8a655d6f2b3dba43d429c9cbe2164bc464457a7c) contains the complete source. We’ll write the core database operations here and link to longer supporting files when we need them.
+We’ll start with [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). The [finished project](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/tree/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22) contains the complete source. We’ll write the core database operations here and link to longer supporting files when we need them.
 
 This version has one bookmark list and no application sign-in. Anyone with access to the app can read and change that list. We’ll keep the hosted app behind Vercel’s access controls and use public example links while building.
 
@@ -26,7 +26,7 @@ Atlas keeps your bookmarks after you stop the app, and we’ll use it for deploy
 
 ### On your computer
 
-Make sure you have [Git](https://git-scm.com/downloads) and [Node.js 24 LTS](https://nodejs.org/en/download) installed, then clone the template. This tutorial was tested with Node.js 24.22.1:
+Make sure you have [Git](https://git-scm.com/downloads) and [Node.js 24 LTS](https://nodejs.org/en/download) installed, then clone the template. This tutorial was tested with Node.js 24.22.2:
 
 ```bash
 git clone https://github.com/mongodb-developer/nextjs-template-mongodb.git bookmarks-build
@@ -47,36 +47,34 @@ git fetch origin
 git switch -c bookmarks 09278fa9369ce03c3e988156351655f87317ecf6
 ```
 
-Replace `.devcontainer/devcontainer.json` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.devcontainer/devcontainer.json). It selects Debian Bookworm with Node 24 and forwards port 3000. Choose **Codespaces: Rebuild Container** from the Command Palette, then wait for the rebuild before continuing.
+Replace `.devcontainer/devcontainer.json` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/.devcontainer/devcontainer.json) (in the final article, replace this link w the appropriate link to the correct file in the public repo we decide to go with). It selects Debian Bookworm with Node 24 and forwards port 3000. Choose **Codespaces: Rebuild Container** from the Command Palette, then wait for the rebuild before continuing.
 
 From here, both routes use the same commands in the project terminal. In Codespaces, open the running app through port 3000 in the **Ports** panel and leave its visibility set to **Private**. On your computer, use `http://127.0.0.1:3000`.
 
-## Install the tested dependencies
+## Install the dependencies
 
-The template already includes Next.js, React, TypeScript, Tailwind CSS, the MongoDB driver and Playwright. Let’s install its locked dependencies first, then update the versions we’ll use for this build.
+The template includes Next.js, React, TypeScript, Tailwind CSS, the MongoDB driver and Playwright. We’ll update its older packages and add two helpers for this app.
 
-Create `.nvmrc` and select Node 24.22.1. If you installed Node without [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), skip the `nvm` commands throughout the tutorial and check that `node --version` prints `v24.22.1`.
+Set `.nvmrc` to Node 24 so [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) can install the latest patch in that LTS release. If you already manage Node another way, skip the nvm commands and check that `node --version` reports a Node 24 release.
 
 ```bash
-printf '24.22.1\n' > .nvmrc
+printf '24\n' > .nvmrc
 nvm install
 nvm use
 node --version
-npm ci
 ```
 
-The template snapshot has older packages. These commands bring in the [patched Next.js release](https://github.com/vercel/next.js/security/advisories/GHSA-2464-fhr4-w9xw) used here and keep its ESLint configuration aligned. Two additions serve specific purposes: `server-only` catches accidental imports of database modules into client code, and `mongodb-memory-server-core` starts a temporary MongoDB process for development and tests.
+The commands below stay within the major versions this tutorial uses. `server-only` catches accidental imports of database code into the browser, and `mongodb-memory-server-core` starts a temporary database for local development and tests.
 
 ```bash
-npm install --save-exact next@16.4.3 react@19.2.7 react-dom@19.2.7 \
-  mongodb@7.5.0 server-only@0.0.1
-npm install --save-dev --save-exact @playwright/test@1.61.1 \
-  mongodb-memory-server-core@11.3.0 eslint-config-next@16.4.3
+npm install next@16 react@19 react-dom@19 mongodb@7 server-only
+npm install --save-dev @playwright/test@1 \
+  mongodb-memory-server-core@11 eslint-config-next@16
 npm update
 npm pkg set 'engines.node=24.x'
 ```
 
-Keep the updated `package.json` and `package-lock.json` in Git. `--save-exact` records the listed versions, while [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes other dependencies within their allowed ranges. When you set up the project again, use `npm ci` to install from the lockfile.
+Keep `package.json` and `package-lock.json` in Git. The lockfile records the versions npm installed. Use `npm ci` when setting up another copy of your project. [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) refreshes the template’s remaining dependencies within their allowed ranges.
 
 Add commands for the database helpers and create their directory. We’ll add the helper files when we use them:
 
@@ -122,7 +120,7 @@ Choose [Connect → Drivers → Node.js](https://www.mongodb.com/docs/atlas/driv
 
 ### Or run a temporary database
 
-For this option, leave `.env` set to `mongodb://127.0.0.1:27028/bookmark_app` and copy [scripts/local-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/local-db.mjs) into your project. It downloads and starts a real MongoDB 8.2.6 process on loopback port 27028. If that port is occupied, the helper stops instead of choosing another port.
+For this option, leave `.env` set to `mongodb://127.0.0.1:27028/bookmark_app` and copy [scripts/local-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/local-db.mjs) (replace with final, public link before publishing) into your project. It downloads and starts a real MongoDB 9.0 process on loopback port 27028. If that port is occupied, the helper stops instead of choosing another port.
 
 ```bash
 nvm use
@@ -143,7 +141,7 @@ appName: "devrel-tutorial-javascript-nextjstemplate",
 
 `appName` labels this client in MongoDB connection metadata and logs. This value identifies the tutorial. It does not name the database or change the website’s title. The database is still `bookmark_app`, selected by the URI.
 
-Replace `app/layout.tsx` with the [bookmark layout](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/layout.tsx). It sets the page title and uses system fonts, removing the starter’s web-font download.
+Replace `app/layout.tsx` with the [bookmark layout](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/layout.tsx). It sets the page title and uses system fonts, removing the starter’s web-font download.
 
 In `tailwind.config.ts`, replace the `sans` array inside `theme.extend.fontFamily` with the following line. Keep the `defaultTheme` import and the rest of the configuration:
 
@@ -153,7 +151,7 @@ In `tailwind.config.ts`, replace the `sans` array inside `theme.extend.fontFamil
 sans: [...defaultTheme.fontFamily.sans],
 ```
 
-Replace `next.config.ts` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/next.config.ts). It keeps this directory as the Turbopack root. In Codespaces development, it also handles the `localhost:3000` origin used by the development proxy. That origin exception does not apply in production.
+Replace `next.config.ts` with the [companion configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/next.config.ts). It keeps this directory as the Turbopack root. In Codespaces development, it also handles the `localhost:3000` origin used by the development proxy. That origin exception does not apply in production.
 
 Start Next.js:
 
@@ -189,7 +187,7 @@ Our code sets `createdAt` and `updatedAt` to the same server timestamp. Editing 
 
 ### Describe the values shared by the page and forms
 
-Copy [lib/bookmark-types.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/lib/bookmark-types.ts) into your project. The two shapes below describe what we save and what the components receive. This is an excerpt from the complete file:
+Copy [lib/bookmark-types.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-types.ts) into your project. The two shapes below describe what we save and what the components receive. This is an excerpt from the complete file:
 
 `lib/bookmark-types.ts` — excerpt
 
@@ -216,7 +214,7 @@ export interface BookmarkView {
 
 TypeScript helps us while writing the app, but a request can contain values that never passed through our form. We need to validate those values on the server before saving them.
 
-Copy the complete [lib/bookmark-validation.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/lib/bookmark-validation.ts) into your project. It checks the submitted types, trims text, and limits titles to 120 characters, URLs to 2,048 and notes to 1,000. Here is its URL check, shown as an excerpt:
+Copy the complete [lib/bookmark-validation.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-validation.ts) into your project. It checks the submitted types, trims text, and limits titles to 120 characters, URLs to 2,048 and notes to 1,000. Here is its URL check, shown as an excerpt:
 
 `lib/bookmark-validation.ts` — excerpt
 
@@ -512,7 +510,7 @@ The `_prevState` parameter is there because [`useActionState`](https://react.dev
 
 ### Build the add form
 
-Copy the complete [components/bookmark-form.tsx](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/components/bookmark-form.tsx) into your project. It contains the labels, inputs, field errors and submit button. The part connecting that UI to our action is worth a closer look:
+Copy the complete [components/bookmark-form.tsx](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-form.tsx) into your project. It contains the labels, inputs, field errors and submit button. The part connecting that UI to our action is worth a closer look:
 
 `components/bookmark-form.tsx` — excerpt
 
@@ -559,9 +557,9 @@ export function BookmarkItem({ bookmark }: { bookmark: BookmarkView }) {
 }
 ```
 
-The note appears only when it has a value. For the finished app’s background, typography and focus styles, replace `app/globals.css` with the [stylesheet](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/globals.css).
+The note appears only when it has a value. For the finished app’s background, typography and focus styles, replace `app/globals.css` with the [stylesheet](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/globals.css).
 
-Copy [app/icon.svg](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/icon.svg) to give the browser tab its bookmark icon.
+Copy [app/icon.svg](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/icon.svg) to give the browser tab its bookmark icon.
 
 Now replace `app/page.tsx` with the [first-bookmark page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx). Use this checkpoint version here. The final page expects the pagination code we’ll add later.
 
@@ -670,7 +668,7 @@ Changes won’t appear in another open browser until it refreshes. If two people
 
 ### Add the edit and delete actions
 
-Replace `app/actions.ts` with the [complete action file](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/actions.ts), which keeps the create action and adds `updateBookmarkAction()` and `deleteBookmarkAction()`. Here is the update action from that file:
+Replace `app/actions.ts` with the [complete action file](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/actions.ts), which keeps the create action and adds `updateBookmarkAction()` and `deleteBookmarkAction()`. Here is the update action from that file:
 
 `app/actions.ts` — excerpt
 
@@ -726,7 +724,7 @@ The confirmation button helps prevent accidental deletions. On the server, `dele
 
 ### Turn the card into an editor
 
-Replace `components/bookmark-item.tsx` with the [editable bookmark card](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/components/bookmark-item.tsx). It adds an edit form and a delete-confirmation state to the card we already have.
+Replace `components/bookmark-item.tsx` with the [editable bookmark card](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-item.tsx). It adds an edit form and a delete-confirmation state to the card we already have.
 
 The edit form starts with the saved title, URL and note. It includes the bookmark ID in a hidden field, and gives each input a unique ID so labels target the right card. A successful save closes the editor. **Cancel** closes it without submitting. Validation errors leave the entered values in place.
 
@@ -807,7 +805,7 @@ The query reads up to 101 records. The first 100 become cards, and the extra rec
 
 ### Create an index for that query
 
-Copy [scripts/setup-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/setup-db.mjs) into your project. It creates the compound index matching our sort and pagination filter. This is the key operation from the script:
+Copy [scripts/setup-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/setup-db.mjs) into your project. It creates the compound index matching our sort and pagination filter. This is the key operation from the script:
 
 `scripts/setup-db.mjs` — excerpt
 
@@ -829,7 +827,7 @@ You should see **Bookmark index is ready.** The script closes its own client whe
 
 ### Connect the page links
 
-`listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
+`listBookmarks()` now returns page metadata alongside the records. Replace `app/page.tsx` with the [final page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/page.tsx). It reads the `before` search parameter, passes it to the query, and uses `nextCursor` to show the navigation links.
 
 Click **Older bookmarks** to continue from the last card on the page. The link puts that card’s timestamp and ID in the URL. **Back to newest** returns to `/`, without a pagination token.
 
@@ -851,11 +849,11 @@ npm pkg set scripts.typecheck="tsc --noEmit" \
 rm tests/e2e/home.spec.ts
 ```
 
-Copy the [isolated test runner](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/scripts/verify.mjs) to `scripts/verify.mjs`. It owns the temporary database and app processes, and refuses to rely on a server you already have running.
+Copy the [isolated test runner](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/verify.mjs) to `scripts/verify.mjs`. It owns the temporary database and app processes, and refuses to rely on a server you already have running.
 
-Replace `playwright.config.ts` with the [test configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/playwright.config.ts).
+Replace `playwright.config.ts` with the [test configuration](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/playwright.config.ts).
 
-Copy [tests/e2e/bookmarks.spec.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/tests/e2e/bookmarks.spec.ts) into your project. The full file includes the disposable-database checks, form helpers and outage scenarios. Here is its main CRUD test, already included in that file:
+Copy [tests/e2e/bookmarks.spec.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/tests/e2e/bookmarks.spec.ts) into your project. The full file includes the disposable-database checks, form helpers and outage scenarios. Here is its main CRUD test, already included in that file:
 
 `tests/e2e/bookmarks.spec.ts` — excerpt
 
@@ -921,7 +919,7 @@ If a test fails, read the named assertion and open the Playwright report before 
 
 On GitHub, [create a new repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) for your bookmark app. Leave its README, licence and `.gitignore` options unchecked because the project already has those files. Copy the repository’s HTTPS URL.
 
-Let GitHub run those checks too. Copy the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/8a655d6f2b3dba43d429c9cbe2164bc464457a7c/.github/workflows/ci.yml) to `.github/workflows/ci.yml`, replacing the template’s version. It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. The tests use a temporary database, so you don’t need to add Atlas credentials.
+Let GitHub run those checks too. Copy the [companion workflow](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/.github/workflows/ci.yml) to `.github/workflows/ci.yml`, replacing the template’s version. It installs the locked dependencies and Chromium, then runs `npm run verify` on pushes to `bookmarks` or `main` and on pull requests. The tests use a temporary database, so you don’t need to add Atlas credentials.
 
 Remove the template’s `CODEOWNERS` file, which lists its maintainers.
 

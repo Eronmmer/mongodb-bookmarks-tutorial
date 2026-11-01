@@ -1,0 +1,11 @@
+{
+  "checkedAtUTC": "2026-11-01T17:42:37.289192+00:00",
+  "url": "https://mongodb-bookmarks-tutorial.vercel.app/",
+  "method": "GET",
+  "statusLine": "HTTP/2 302 ",
+  "redirectOrigin": "https://vercel.com",
+  "redirectPath": "/sso-api",
+  "redirectsFollowed": false,
+  "authenticationHeadersOrCookiesSupplied": false,
+  "scope": "Anonymous page GET only; not a valid Server Action replay"
+}

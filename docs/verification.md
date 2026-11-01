@@ -1,12 +1,50 @@
 # Bookmark app verification
 
-Latest checks: 30 October 2026, covering the revised tutorial's runnable stages, exact snippet reconstruction, and the public-template Codespaces path. The dated checkpoints below identify tested revisions and configuration. Earlier runs retain their original dates and scope.
+Latest checks: **1 November 2026**. The dependency refresh below records the current main and reader commits, local and cloud checks, document review, and outstanding audit findings. Older sections retain their original dates and scope.
 
-The latest tutorial setup is self-contained. The 30 October rewrite adds a connected starter, create/read, full CRUD, and pagination in runnable stages. It includes the Codespaces container and proxy-origin configuration. Earlier instructions that fetched files from the companion repository remain historical evidence only.
+The current article keeps core operations inline and links to longer supporting files. Those links require public companion access before publication. This supersedes the earlier fully self-contained format.
 
-Full-suite verification was performed on 25 October 2026. Application and verification code: `32a6c7ce838489f7f9fb2b8f591f2b185904adfe`. Subsequent evidence/document changes do not change that runtime. A separate build-along reconstruction was verified on 26 October 2026, as recorded below.
+## Dependency refresh, 1 November 2026
 
-## Environment and provenance
+The runtime change is `2777e29ad22f74ec7fc2c66edddbe7eceab7bf31`. The article’s separate reader source is `c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22`, retained by branch `codex/reader-dependency-refresh`. Its smaller browser suite and runner remain intentional. The first-save page stays at `88d9af5ac809d4d5cf778435d07a9af63077f793`.
+
+The article now installs within compatible major release lines instead of prescribing exact npm patch versions. `.nvmrc` selects Node 24. The committed lockfiles record the tested resolutions for subsequent `npm ci` installs. The local and test helpers select MongoDB Server **9.0.4**, independently of the npm driver. MongoDB 8.2 reached end of life on 31 July 2026, so the earlier 8.2.6 selection was unsuitable for a new tutorial. The original brief’s required `appName` remains unchanged.
+
+Measured versions: Node 24.22.2, npm 11.19.1, Next.js and eslint-config-next 16.4.3, React 19.3.1, MongoDB Node driver 7.8.0, Playwright 1.64.1 and mongodb-memory-server-core 11.3.0. Actual `buildInfo` confirmed MongoDB 9.0.4 on macOS arm64 and in Codespaces on Linux.
+
+| Check | Result |
+| --- | --- |
+| Clean main checkout, `npm ci` | Passed |
+| Main production verification | Lint, types, 8 unit tests, URI-free build and 14 browser checks passed |
+| Main development verification | 14 browser checks passed |
+| Reader source, production and development | 3 browser scenarios passed in each mode; production lint, types and build passed |
+| Fresh public-template reconstruction | All four runnable stages passed: starter, create/read, CRUD and pagination |
+| Reconstructed reader’s exact verify commands | Both modes passed |
+| Source audit | 18 linked-file steps, 7 excerpts and all 36 inline code blocks matched |
+| Hosted main CI | [Run 41332696807](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/41332696807) passed on `2777e29` |
+| Hosted reader CI | [Run 41332787009](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/41332787009) passed on `c07959c` |
+| Independent runtime review | No blocking findings on either exact source commit |
+| Live Vercel UI | Create/reload/edit/reload/delete/reload passed on deployment `dpl_GHwSzpH7qrjkgCxx6iHbLD4yrgkW`, code `2777e29` |
+
+The Codespaces check used a fresh clone of the public template inside the existing Debian 12 / Node 24 container, with the article’s exact install commands. It did not rebuild the already-compatible container. Both reader verification modes passed, `db:local` and `db:setup` worked, and all 22 delivered-file hashes matched the frozen source. Manual create/reload/edit/reload/delete/reload passed and the final database count was zero. Ports 3000 and 27028 remained private. The owned Codespace was stopped afterward; the account still showed $0 paid usage and its $0 budget remained unchanged.
+
+For Codespaces access verification, one valid serialized create-action body returned 401 without credentials through the private forwarded port and left the database unchanged. The same body succeeded against the local development server as a positive control. Both disallowed-origin controls returned the explicit invalid-action error without changing the database. The configuration matrix confirmed that the localhost origin exception applies only to Codespaces development. These are GitHub private-port and Next.js origin checks, not Vercel production checks. [Captured Codespaces summary](evidence/2026-11-01/codespaces-summary.txt).
+
+The current Vercel deployment passed authenticated UI CRUD, and an anonymous page request redirected to Vercel sign-in. Read-only project inspection confirmed All Deployments protection and no bypass credentials. The production valid-action replay and database-digest test was **not rerun**: its previous temporary credential was revoked, and the permitted browser DOM view redacted the required action bindings. No new bypass access was created. That stronger production proof remains the dated 29 October result, not evidence for this new deployment. [Recorded limitation](evidence/2026-11-01/production-access-limit.json).
+
+The clean main checkout matched all 66 reviewed source/configuration/test files. It excluded mutable README/tutorial text from that comparison. In the article reconstruction, 20 of 22 final files matched exactly; the other two differed only by explanatory comments omitted from the inline snippets. Package manifests matched semantically and lockfile dependency data matched. Root lockfile `engines` metadata differed because the article sets that field after `npm update`. Existing download caches were reused. No existing local app or database was stopped.
+
+Production `npm audit --omit=dev` reported **zero findings**. The full audit reported **16 moderate entries**, all tracing to [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) in the development linting chain. ESLint 10 still used an affected minimatch release, while several Next.js lint plugins declared support only through ESLint 9. Forced obsolete downgrades and broad cross-major overrides were not applied. This development/CI issue and the ESLint 9 maintenance concern remain unresolved.
+
+The Google Doc was updated after the clean-template checks passed. Seven paragraphs and two code blocks were revised, and 18 source targets were updated. Both existing images and tables, all 36 native code blocks, language labels, inline code styling, the first-save link and both owner-added publication reminders were preserved. Independent readback and PDF review passed. A final wording correction changed only “starts with `v24.`.” to “reports a Node 24 release.” All runtime-tested commands and code remained identical.
+
+Grammarly reported **10% AI text patterns and no reference matches** after the edit. Eight writing suggestions were reviewed. The double-period wording was corrected; seven suggestions for headings, code, exact labels or optional commas were left unchanged. This result is an editorial signal, not proof of authorship or originality.
+
+Evidence: [refresh summary](evidence/2026-11-01/dependency-refresh.json), [reconstruction](evidence/2026-11-01/reconstruction-summary.json), [source audit](evidence/2026-11-01/source-audit.json), [file comparison](evidence/2026-11-01/source-comparison.json), [document review](evidence/2026-11-01/document-qa.json), [live UI check](evidence/2026-11-01/live-ui-check.json) and [Grammarly result](evidence/2026-11-01/grammarly.json). Detailed local logs and screenshots are under `/tmp/bookmarks-refresh-20261101/`.
+
+The repository remains private. Reader access and the two owner-added link reminders still need resolution before publication, along with the publisher’s reviews. Native Windows, other browser engines, load behavior, live database failover and a full accessibility audit remain outside this verification. Atlas’s server version was not changed or independently rechecked in this refresh.
+
+## Historical environment and provenance, 25 October 2026
 
 - Upstream: `mongodb-developer/nextjs-template-mongodb`, commit `09278fa9369ce03c3e988156351655f87317ecf6`.
 - Local environment: macOS on Apple silicon; Node 24.22.1.

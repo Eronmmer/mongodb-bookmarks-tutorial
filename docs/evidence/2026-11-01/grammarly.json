@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-01",
+  "aiTextPatternsPercent": 10,
+  "referenceMatches": 0,
+  "plagiarismDetected": false,
+  "writingSuggestionsReviewed": 8,
+  "writingSuggestionsRemaining": 7,
+  "proseFix": "Replaced awkward v24.. wording with reports a Node 24 release.",
+  "remainingSuggestions": [
+    "Periods on two headings",
+    "Article before bookmark label Insert guide",
+    "Rewrite inside router.replace code identifier",
+    "Optional comma before or",
+    "Article before exact terminal output Bookmark index is ready",
+    "Optional comma before and"
+  ],
+  "automaticallyAccepted": 0,
+  "screenshots": "/tmp/bookmarks-refresh-20261101/grammarly-final.jpg",
+  "scope": "Grammarly output is an editorial signal, not proof of authorship or originality."
+}

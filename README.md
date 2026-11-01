@@ -10,7 +10,7 @@ See the [verification report](docs/verification.md) for the executed checks and 
 
 The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial). It remains private during review. The owner plans to make it public before publication, because the shortened article now requires access to its linked supporting files. Repository visibility has not been changed. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the walkthrough.
 
-Companion links select immutable source commits. The completed reader implementation is `8a655d6f2b3dba43d429c9cbe2164bc464457a7c`. The first-save page uses `88d9af5ac809d4d5cf778435d07a9af63077f793`, which works before pagination is introduced. Excerpts are labelled and are not substitutes for the complete linked files.
+Companion links select immutable source commits. The completed reader implementation is `c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22`. The first-save page uses `88d9af5ac809d4d5cf778435d07a9af63077f793`, which works before pagination is introduced. Excerpts are labelled and are not substitutes for the complete linked files.
 
 ```bash
 git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git
@@ -19,7 +19,7 @@ cd mongodb-bookmarks-tutorial
 
 ## Run locally
 
-Use Node.js **24.22.1**, recorded in `.nvmrc`. With nvm:
+Use Node.js **24 LTS**, selected by `.nvmrc`. With nvm:
 
 ```bash
 nvm install
@@ -41,7 +41,7 @@ Start the database in one terminal and leave it running:
 npm run db:local
 ```
 
-The helper downloads and starts a real MongoDB **8.2.6** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it deletes the bookmarks stored in that temporary database. It is not an Atlas account or a mock database.
+The helper downloads and starts a real MongoDB **9.0.4** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it deletes the bookmarks stored in that temporary database. It is not an Atlas account or a mock database.
 
 In another terminal:
 
@@ -125,6 +125,6 @@ Sources: [deployment protection](https://vercel.com/docs/deployment-protection),
 
 Adapted from [MongoDB's official template at commit `09278fa`](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6). The original licence is retained in `LICENSE`. This adaptation adds bookmarks CRUD and isolated verification; it does not imply official MongoDB authorship or endorsement of the adaptation.
 
-The refreshed lockfile resolves Next.js 16.4.3, React 19.2.7, MongoDB driver 7.5.0 and Playwright 1.61.1. Use `npm ci` to reproduce it. The 28 October 2026 audit reported zero known vulnerabilities. Earlier audit results and remaining execution limits are recorded in `docs/verification.md`; advisory results can change.
+The 1 November 2026 refresh resolves Next.js 16.4.3, React 19.3.1, MongoDB driver 7.8.0 and Playwright 1.64.1. The article installs within their major release lines; the committed lockfile records the tested resolution for `npm ci`. Node 24.22.2 was used for the refresh. The local and test helpers explicitly select MongoDB Server 9.0.4, independently of the npm driver version. Earlier results remain in `docs/verification.md`.
 
-Vercel installation also reported an ESLint 9 end-of-life warning and a deprecated `glob` dependency in the Tailwind chain. These are development-tool maintenance follow-ups, separate from vulnerability-audit findings.
+On 1 November 2026, `npm audit --omit=dev` reported zero findings. The full audit reported 16 moderate entries tracing to one [minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249) in the development linting stack. ESLint 10 still depends on an affected minimatch version, while several Next.js lint plugins declare compatibility through ESLint 9. No forced downgrade or cross-major override was applied. This development/CI issue remains unresolved; the clean production audit is not a claim that all dependencies are vulnerability-free. ESLint 9 also remains a tooling-maintenance follow-up.
