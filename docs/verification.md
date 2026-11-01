@@ -51,6 +51,10 @@ Evidence: [refresh summary](evidence/2026-11-01/dependency-refresh.json), [recon
 
 The repository remains private. Reader access and the two owner-added link reminders still need resolution before publication, along with the publisher’s reviews. Native Windows, other browser engines, load behavior, live database failover and a full accessibility audit remain outside this verification. The Atlas cluster was not upgraded. Its dashboard displayed MongoDB **8.0.34** during the follow-up, distinct from MongoDB **9.0.4** used by the local and test helpers.
 
+### Code-label wording, 1 November 2026
+
+A subsequent editorial pass simplified seven code-block labels to filenames alone and removed the repeated partial-file terminology from four surrounding paragraphs in both the Google Doc and Markdown article. Complete-file copy instructions remain explicit, and the page example now introduces the part that loads the bookmarks. All 36 code blocks and every link target stayed unchanged. Google Doc readback confirmed that unrelated content, filename styling, both images and both tables were preserved. Independent wording review passed. This prose-only change did not rerun application tests or Grammarly. See the [wording verification](evidence/2026-11-01/code-label-cleanup.json).
+
 ## Historical environment and provenance, 25 October 2026
 
 - Upstream: `mongodb-developer/nextjs-template-mongodb`, commit `09278fa9369ce03c3e988156351655f87317ecf6`.

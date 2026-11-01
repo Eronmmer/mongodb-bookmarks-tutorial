@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-01",
+  "documentUrl": "https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc",
+  "filenameLabelsSimplified": 7,
+  "proseParagraphsUpdated": 4,
+  "remainingOccurrences": 0,
+  "documentElementsUnchanged": 768,
+  "unrelatedDocumentNodesUnchanged": true,
+  "filenameTextAndStylesPreserved": true,
+  "imageObjectsUnchanged": true,
+  "imageCount": 2,
+  "tableCount": 2,
+  "codeAndLinksChanged": false,
+  "independentMarkdownReview": "passed;36 code blocks and all link targets unchanged",
+  "scope": "Editorial labels and prose only; no runtime changes or new runtime tests",
+  "markdownSha256": "2085c5432232cb9c96d1ed8a7c6717187db80745f9a21fe1b1c5771eda0485fd"
+}

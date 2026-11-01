@@ -10,7 +10,7 @@ See the [verification report](docs/verification.md) for the executed checks and 
 
 The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial). It remains private during review. The owner plans to make it public before publication, because the shortened article now requires access to its linked supporting files. Repository visibility has not been changed. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the walkthrough.
 
-Companion links select immutable source commits. The completed reader implementation is `c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22`. The first-save page uses `88d9af5ac809d4d5cf778435d07a9af63077f793`, which works before pagination is introduced. Excerpts are labelled and are not substitutes for the complete linked files.
+Companion links select immutable source commits. The completed reader implementation is `c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22`. The first-save page uses `88d9af5ac809d4d5cf778435d07a9af63077f793`, which works before pagination is introduced. Where the article shows only part of a file, the surrounding instructions identify what it covers and link to the complete file to copy.
 
 ```bash
 git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git

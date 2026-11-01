@@ -187,9 +187,9 @@ Our code sets `createdAt` and `updatedAt` to the same server timestamp. Editing 
 
 ### Describe the values shared by the page and forms
 
-Copy [lib/bookmark-types.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-types.ts) into your project. The two shapes below describe what we save and what the components receive. This is an excerpt from the complete file:
+Copy the complete [lib/bookmark-types.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-types.ts) into your project. The two types below describe what we save and what the components receive:
 
-`lib/bookmark-types.ts` — excerpt
+`lib/bookmark-types.ts`
 
 ```typescript
 export interface BookmarkInput {
@@ -214,9 +214,9 @@ export interface BookmarkView {
 
 TypeScript helps us while writing the app, but a request can contain values that never passed through our form. We need to validate those values on the server before saving them.
 
-Copy the complete [lib/bookmark-validation.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-validation.ts) into your project. It checks the submitted types, trims text, and limits titles to 120 characters, URLs to 2,048 and notes to 1,000. Here is its URL check, shown as an excerpt:
+Copy the complete [lib/bookmark-validation.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/lib/bookmark-validation.ts) into your project. It checks the submitted types, trims text, and limits titles to 120 characters, URLs to 2,048 and notes to 1,000. Here is its URL check:
 
-`lib/bookmark-validation.ts` — excerpt
+`lib/bookmark-validation.ts`
 
 ```typescript
 function validateUrl(url: string): string | null {
@@ -512,7 +512,7 @@ The `_prevState` parameter is there because [`useActionState`](https://react.dev
 
 Copy the complete [components/bookmark-form.tsx](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/components/bookmark-form.tsx) into your project. It contains the labels, inputs, field errors and submit button. The part connecting that UI to our action is worth a closer look:
 
-`components/bookmark-form.tsx` — excerpt
+`components/bookmark-form.tsx`
 
 ```typescript
 const router = useRouter();
@@ -561,9 +561,9 @@ The note appears only when it has a value. For the finished app’s background, 
 
 Copy [app/icon.svg](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/icon.svg) to give the browser tab its bookmark icon.
 
-Now replace `app/page.tsx` with the [first-bookmark page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx). Use this checkpoint version here. The final page expects the pagination code we’ll add later.
+Now replace `app/page.tsx` with the [first-bookmark page](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/88d9af5ac809d4d5cf778435d07a9af63077f793/app/page.tsx). Use this checkpoint version here. The final page expects the pagination code we’ll add later. Here’s the part that loads the bookmarks:
 
-`app/page.tsx` — excerpt
+`app/page.tsx`
 
 ```typescript
 await connection();
@@ -579,7 +579,7 @@ try {
 }
 ```
 
-That excerpt runs inside `Home`, a [Server Component](https://nextjs.org/docs/app/getting-started/server-and-client-components). `await connection()` makes the database read happen for a request. The rest of the page renders the form and cards, or an empty state. A failed read gets its own message, because “No bookmarks yet” would be misleading if the database could not be reached.
+This code runs inside `Home`, a [Server Component](https://nextjs.org/docs/app/getting-started/server-and-client-components). `await connection()` makes the database read happen for a request. The rest of the page renders the form and cards, or an empty state. A failed read gets its own message, because “No bookmarks yet” would be misleading if the database could not be reached.
 
 ### Save your first bookmark
 
@@ -670,7 +670,7 @@ Changes won’t appear in another open browser until it refreshes. If two people
 
 Replace `app/actions.ts` with the [complete action file](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/app/actions.ts), which keeps the create action and adds `updateBookmarkAction()` and `deleteBookmarkAction()`. Here is the update action from that file:
 
-`app/actions.ts` — excerpt
+`app/actions.ts`
 
 ```typescript
 export async function updateBookmarkAction(
@@ -807,7 +807,7 @@ The query reads up to 101 records. The first 100 become cards, and the extra rec
 
 Copy [scripts/setup-db.mjs](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/scripts/setup-db.mjs) into your project. It creates the compound index matching our sort and pagination filter. This is the key operation from the script:
 
-`scripts/setup-db.mjs` — excerpt
+`scripts/setup-db.mjs`
 
 ```javascript
 await client.db().collection("bookmarks").createIndex(
@@ -855,7 +855,7 @@ Replace `playwright.config.ts` with the [test configuration](https://github.com/
 
 Copy [tests/e2e/bookmarks.spec.ts](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22/tests/e2e/bookmarks.spec.ts) into your project. The full file includes the disposable-database checks, form helpers and outage scenarios. Here is its main CRUD test, already included in that file:
 
-`tests/e2e/bookmarks.spec.ts` — excerpt
+`tests/e2e/bookmarks.spec.ts`
 
 ```typescript
 test("a bookmark survives reloads, edits, and a cancelled delete", async ({ page }) => {
