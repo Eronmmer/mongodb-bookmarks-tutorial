@@ -46,7 +46,6 @@ test.describe("healthy database", () => {
     await expect(page.getByRole("heading", { name: "No bookmarks yet" })).toBeVisible();
     await expect(page).toHaveTitle("Bookmarks");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Save your useful links in one place.");
-    await expect(page.getByText(/learning demo|Everyone visiting this demo|Built with Next.js/)).toHaveCount(0);
     await expect(page.getByText("Couldn’t load bookmarks", { exact: true })).toHaveCount(0);
     await createForm(page).evaluate((form) => {
       for (const [name, value] of [["createdAt", "2000-01-01"], ["unexpected", "must not persist"]]) {

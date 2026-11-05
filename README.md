@@ -1,138 +1,86 @@
 # Bookmarks with Next.js and MongoDB
 
-An app for saving, listing, editing and deleting bookmarks with Next.js App Router, React, TypeScript and the official MongoDB driver. Each bookmark has a title, an HTTP(S) URL and an optional note.
+Save useful links with a title and an optional note. Edit or delete them when you need to, and browse older bookmarks with cursor-based pagination.
 
-The app uses one bookmark list, with no application sign-in or per-user records. Keep hosted access restricted to the people who should be able to read and change that list. The tutorial uses public sample links.
+Built with Next.js App Router, React, TypeScript and the MongoDB Node.js driver. The app has one bookmark list and no application sign-in. Restrict hosted access to the people who should be able to read and change it.
 
-See the [verification report](docs/verification.md) for the executed checks and their limits. The [tutorial](docs/tutorial.md) starts from MongoDB's public template, explains the core database and application flow, and links to complete supporting files at tested companion revisions. The article and those files together provide the build. Atlas connectivity and index setup, Vercel deployment and live CRUD have been checked. On 1 November 2026, all 12 valid create, update and delete Server Action requests without credentials were blocked across four URLs of the recorded production deployment. The same request bodies succeeded with temporary authorized access. App readbacks and separate Atlas observations confirmed the expected bookmark state, and the temporary access token was revoked.
+## Run locally
 
-## Source repository
-
-The completed app is in [Eronmmer/mongodb-bookmarks-tutorial](https://github.com/Eronmmer/mongodb-bookmarks-tutorial). It remains private during review. The owner plans to make it public before publication, because the shortened article now requires access to its linked supporting files. Repository visibility has not been changed. The editable [Google Doc](https://docs.google.com/document/d/1PsKBmGwGZt-PWeIgUWjp9XN6XXzOrwbvrAjt3HiLTZc) and Markdown tutorial contain the walkthrough.
-
-Companion links select immutable source commits. The completed reader implementation is `c07959c5b7f6d333a7e0c5ce7a8b0433c13e9d22`. The first-save page uses `88d9af5ac809d4d5cf778435d07a9af63077f793`, which works before pagination is introduced. Where the article shows only part of a file, the surrounding instructions identify what it covers and link to the complete file to copy.
+Make sure you have Git and Node.js 24 or later installed. Use a [supported LTS release](https://nodejs.org/en/about/previous-releases) with its latest patches. If you use nvm, `nvm install` and `nvm use` select the current LTS release from `.nvmrc`.
 
 ```bash
 git clone https://github.com/Eronmmer/mongodb-bookmarks-tutorial.git
 cd mongodb-bookmarks-tutorial
-```
-
-## Run locally
-
-Use **Node.js 24 or later**, choosing a [currently supported LTS release](https://nodejs.org/en/about/previous-releases) and its latest patches. If you already have a suitable version installed, keep using it. For nvm users, `.nvmrc` follows the current LTS release. Skip the first two commands if you use another installer or version manager:
-
-```bash
-nvm install
-nvm use
-node --version
 npm ci
 cp .env.example .env
 ```
 
-The example leaves `MONGODB_URI` empty. Configure Atlas before starting the app:
+Configure [MongoDB Atlas](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/):
 
-1. Create/select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`. This is separate from your Atlas website account.
-2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
-3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmark_app` as the database.
-4. Set `MONGODB_URI` in `.env` to that connection string. Keep the URI out of Git, screenshots and logs.
+1. Create or select a cluster, then create a database user with `readWrite` access to `bookmark_app`.
+2. Add the public outbound IP of your development machine to the project's IP access list.
+3. Under **Connect → Drivers → Node.js**, copy the connection string. Replace the credential placeholders and select `bookmark_app` as the database. Percent-encode reserved characters in the username and password.
+4. Set `MONGODB_URI` in `.env` to that connection string. Keep credentials out of Git and screenshots.
 
-Prepare the index, then start the app:
+Create the pagination index, then start the app:
 
 ```bash
 npm run db:setup
 npm run dev -- --hostname 127.0.0.1
 ```
 
-`db:setup` creates the `{ createdAt: -1, _id: -1 }` index used by bookmark ordering and pagination. Run it once for each database; repeating it is safe. The database user needs permission to create indexes. For a hosted database, run this command from a trusted environment with the destination `MONGODB_URI` before deploying.
+Open [localhost:3000](http://127.0.0.1:3000). Add a bookmark, refresh the page, edit its note and try deleting it.
 
-Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Stop the app with Ctrl+C. Atlas keeps the saved bookmarks after the app stops.
+`db:setup` creates the `{ createdAt: -1, _id: -1 }` index. Run it for each database before using the app. Running it again against the same database is safe. The database user must have permission to create indexes.
 
-Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [IP access lists](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [URI encoding](https://www.mongodb.com/docs/v8.3/reference/connection-string-formats/).
+## Run the checks
 
-## Optional temporary local database
-
-For disposable manual development, set `.env` to:
-
-```dotenv
-MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
-```
-
-If `MONGODB_URI` is also set in your terminal environment, update or unset it so it does not override `.env`. Start the database in one terminal and leave it running:
-
-```bash
-npm run db:local
-```
-
-The helper downloads and starts a real MongoDB **9.0.4** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it deletes the bookmarks stored in that temporary database. It is not an Atlas account or a mock database.
-
-In another terminal at the project root, run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1`. Repeat index setup whenever you restart the disposable database, because its indexes disappear with its data. Stop the app and database with Ctrl+C.
-
-## Verify the app
-
-The verification helper uses POSIX process groups and has been tested on macOS and Ubuntu. WSL has not been tested. Native Windows execution is not implemented.
-
-Install Chromium once, including operating-system dependencies where needed:
+Install the browser used by the tests:
 
 ```bash
 npx playwright install --with-deps chromium
-npm run verify
 ```
 
-`verify` runs lint, TypeScript checks, unit tests, a production build without a database URI, and browser checks against isolated temporary MongoDB data. It also checks missing-URI and unreachable-database states. Exercise development CRUD with:
+Then run:
 
 ```bash
+npm run verify
 npm run verify:dev
 ```
 
-Use these wrappers for the full suite. Never point destructive tests at an Atlas database, any shared database, or a URI copied from `.env`. Tests need disposable data. `test:e2e` is a lower-level entry point; inspect its configuration before using it directly.
+`verify` runs lint, TypeScript checks, unit tests, a production build and browser tests. `verify:dev` runs the browser tests against the development server. Both cover saving, editing and deleting bookmarks, pagination, validation and database error states.
 
-These commands describe the checks, not evidence that they passed on your machine. Local results are recorded separately. The [first hosted GitHub Actions run](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/40238792328) passed `verify` on commit `1b7f100`, including six unit tests and twelve production browser checks.
+The verification runner starts its own temporary MongoDB process and deletes its test data afterward. It does not use the Atlas URI in `.env`. Use these commands for the full suite rather than invoking `test:e2e` directly. The first run needs internet access to download MongoDB.
 
-## Code map
+The runner supports macOS and Linux. Native Windows is not supported, and WSL has not been verified. GitHub Actions runs the production checks on Node.js 24 and 26.
 
-| Path | Responsibility |
+## Project structure
+
+| Path | Purpose |
 | --- | --- |
-| `app/page.tsx` | Dynamic Node.js page, list, empty and database-error states |
-| `app/actions.ts` | Server Actions, validation, mutation feedback and refresh |
-| `components/bookmark-form.tsx` | Create form and field errors |
-| `components/bookmark-item.tsx` | Display, edit and delete controls |
-| `db/bookmarks.ts` | Fixed-field MongoDB CRUD and browser-safe values |
-| `lib/mongodb.ts` | Lazy shared client and retry after connection failure |
-| `lib/bookmark-validation.ts` | String lengths, HTTP(S) URLs and identifier checks |
-| `EDD.md` | Document model and database behavior |
-| `scripts/verify.mjs` | Isolated verification orchestration |
-| `docs/tutorial.md` | Build from the public MongoDB template with linked companion files |
+| `app/page.tsx` | Bookmark list, pagination and loading errors |
+| `app/actions.ts` | Server Actions for creating, updating and deleting bookmarks |
+| `components/bookmark-form.tsx` | New-bookmark form |
+| `components/bookmark-item.tsx` | Bookmark card with edit and delete controls |
+| `db/bookmarks.ts` | MongoDB queries and writes |
+| `lib/mongodb.ts` | Shared database connection |
+| `lib/bookmark-validation.ts` | Input validation |
+| `scripts/setup-db.mjs` | Pagination index setup |
+| `scripts/verify.mjs` | Isolated test runner |
+| `tests/` | Browser and unit tests |
 
-The list shows 100 bookmarks per page. “Older bookmarks” uses a validated timestamp/ID cursor, and “Back to newest” returns to recent links. Reads request at most 101 records to detect another page without counting the entire collection. The MongoDB driver generates identifiers; the server generates timestamps. Validation is application code, not a collection-level JSON schema. There is no user ownership or application authentication. Fields are read-only while a save is pending. A write whose result cannot be confirmed asks the user to refresh and check before retrying.
+Each document stores a title, URL, optional note and creation/update timestamps. The server validates input and generates timestamps. The list shows 100 bookmarks per page, ordered by creation time and `_id`. Editing a bookmark preserves its original position.
 
-## Codespaces
+## Deploy with restricted access
 
-The devcontainer selects Node 24, runs `npm ci` and configures port 3000 for forwarding. It does not create Atlas resources, supply credentials, start the database/app or install Playwright browsers. Follow setup above and keep the forwarded port private. The corrected configuration was exercised in a GitHub Codespace on 29 October 2026; see the dated verification report. See [GitHub's access rules](https://docs.github.com/en/codespaces/reference/security-in-github-codespaces).
+Import this repository into Vercel. Before adding working database credentials, enable Vercel Authentication for **All Deployments** under **Settings → Deployment Protection**. Check exceptions and bypass links too. The app has no user accounts, so everyone who passes the hosting access check can read and change the same list.
 
-GitHub's port proxy can rewrite a browser request's Origin to `localhost:3000` while retaining the public forwarded hostname. `next.config.ts` permits that exact origin only when running `next dev` inside Codespaces (`CODESPACES=true`). It does not add an origin exception to ordinary local development or production. Use port 3000 for this setup and keep its visibility **Private**. This setting handles the proxy header mismatch; it does not authenticate visitors.
+Add `MONGODB_URI` as a server-only Production environment variable. Use a separate database if you also enable Preview deployments. Run `npm run db:setup` against the target database from a trusted machine, then deploy. Redeploy after changing environment variables.
 
-## Deploy the app with restricted access
+Atlas must allow connections from Vercel's outbound network. Follow [Vercel's Atlas networking guidance](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address). An Atlas `0.0.0.0/0` entry permits connection attempts from anywhere, so use strong credentials scoped to `bookmark_app`. Vercel's access gate protects the app, not direct database connections.
 
-Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-bookmarks-tutorial) using a Vercel account with access to the private repository. The restricted [Vercel deployment](https://mongodb-bookmarks-tutorial.vercel.app) connects to Atlas; create, reload, edit and delete were verified on 28 October 2026. The original template's Deploy button targets the original template, not this app.
+Before sharing a deployment, verify that signed-out visitors cannot read bookmarks or submit valid create, update or delete requests. Then check the CRUD flow with authorized access.
 
-Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Project → Settings → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
+## Licence and source
 
-Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Use separate databases for Production and Preview.
-
-The package declares Node 24 as its minimum (`>=24`). Vercel selects its latest available version that satisfies this range, overriding its dashboard setting. CI checks Node 24 and 26. Verify each new deployment before relying on earlier hosted results. See [Vercel's Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
-
-Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you choose Atlas `0.0.0.0/0`, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
-
-Before sharing, use a fresh unauthenticated browser context to check every URL type. Confirm visitors get the Vercel login gate instead of bookmark data. Replay an actual valid Server Action POST from the same deployment without authentication or bypass cookies/headers; verify it is gated and changes no database record. A malformed request failing validation does not prove protection. On 29 October 2026, create, update and delete payloads succeeded with a temporary automation access credential. The same serialized request bodies, sent without credentials to the production domains, main-branch alias and generated deployment URL, all redirected to Vercel SSO and left the database unchanged. The test credential was revoked afterward. These results apply to the recorded deployment, not future deployments; see the verification report for its identity and evidence.
-
-Sources: [deployment protection](https://vercel.com/docs/deployment-protection), [environment scopes](https://vercel.com/docs/environment-variables), [outbound IPs](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address), [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
-
-## Provenance and dependency limits
-
-Adapted from [MongoDB's official template at commit `09278fa`](https://github.com/mongodb-developer/nextjs-template-mongodb/tree/09278fa9369ce03c3e988156351655f87317ecf6). The original licence is retained in `LICENSE`. This adaptation adds bookmarks CRUD and isolated verification; it does not imply official MongoDB authorship or endorsement of the adaptation.
-
-On 5 November 2026, clean installs and the production/development suites passed on Node 24 and 26. The article was also rebuilt from a clean copy of the MongoDB template. The current production audit reported zero findings; the full audit reported eight moderate development-tooling entries. See [the dated verification report](docs/verification.md) for exact versions, CI runs, hosted checks and remaining limits.
-
-The 1 November 2026 refresh resolves Next.js 16.4.3, React 19.3.1, MongoDB driver 7.8.0 and Playwright 1.64.1. The committed lockfile records the companion project’s tested resolution for `npm ci`. The article adds `server-only` and runs `npm update` against the template’s existing dependency ranges. Node 24.22.2 was used for the refresh. The local and test helpers explicitly select MongoDB Server 9.0.4, independently of the npm driver version. Earlier results remain in `docs/verification.md`.
-
-On 1 November 2026, `npm audit --omit=dev` reported zero findings. The full audit reported 16 moderate entries tracing to one [minimatch advisory](https://github.com/advisories/GHSA-g3hv-75wg-m249) in the development linting stack. ESLint 10 still depends on an affected minimatch version, while several Next.js lint plugins declare compatibility through ESLint 9. No forced downgrade or cross-major override was applied. This development/CI issue remains unresolved; the clean production audit is not a claim that all dependencies are vulnerability-free. ESLint 9 also remains a tooling-maintenance follow-up.
+Adapted from [MongoDB's Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). The original Apache 2.0 licence is preserved in [LICENSE](LICENSE).

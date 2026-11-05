@@ -5,7 +5,7 @@ import { MongoClient, type Db, type MongoClientOptions } from "mongodb";
 const uri = process.env.MONGODB_URI;
 
 // Connection metadata so MongoDB can identify this app in monitoring and
-// logs. Keep this in sync with EDD.md.
+// logs.
 const appName = "devrel-tutorial-javascript-nextjstemplate";
 
 // Wait up to five seconds to select a MongoDB server.
