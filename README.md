@@ -19,7 +19,7 @@ cd mongodb-bookmarks-tutorial
 
 ## Run locally
 
-Use a current patch of **Node.js 24 or 26 LTS**. `.nvmrc` selects Node 24 as the default. If you already use Node 26, you can keep it and skip the nvm commands. With nvm:
+Use **Node.js 24 or later**, choosing a [currently supported LTS release](https://nodejs.org/en/about/previous-releases) and its latest patches. If you already have a suitable version installed, keep using it. For nvm users, `.nvmrc` follows the current LTS release. Skip the first two commands if you use another installer or version manager:
 
 ```bash
 nvm install
@@ -119,7 +119,7 @@ Before deploying working CRUD, configure Vercel Authentication with **All Deploy
 
 Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Use separate databases for Production and Preview.
 
-The package allows Node 24 and 26. Vercel selects a matching version from `package.json`, overriding its dashboard setting. This range allows Vercel to select Node 26. Verify the runtime on the new deployment before relying on earlier hosted results. See [Vercel's Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+The package declares Node 24 as its minimum (`>=24`). Vercel selects its latest available version that satisfies this range, overriding its dashboard setting. CI checks Node 24 and 26. Verify each new deployment before relying on earlier hosted results. See [Vercel's Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 
 Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you choose Atlas `0.0.0.0/0`, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
 

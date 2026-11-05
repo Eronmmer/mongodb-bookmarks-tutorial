@@ -1,6 +1,6 @@
 # Working on Bookmarks
 
-Use a current patch of Node.js 24 or 26 and `npm ci`. `.nvmrc` selects Node 24 as the default, and CI checks both major versions. Read `README.md` and `EDD.md` before changing database behavior. The user selected a single-list app with no application sign-in or per-user ownership. Keep tutorial labels and engineering disclaimers out of the product interface. Hosted access restriction is a separate deployment requirement; do not claim production validation before the hosted checks have run.
+Use Node.js 24 or later from a currently supported LTS release, with its latest patches, and `npm ci`. `.nvmrc` follows the current LTS release. CI checks Node 24 and 26; a minimum engine version is not evidence that future releases have been tested. Read `README.md` and `EDD.md` before changing database behavior. The user selected a single-list app with no application sign-in or per-user ownership. Keep tutorial labels and engineering disclaimers out of the product interface. Hosted access restriction is a separate deployment requirement; do not claim production validation before the hosted checks have run.
 
 ## Commands
 
