@@ -6,7 +6,7 @@ This is the reader version used by the tutorial. It contains the app and the sma
 
 ## Run the app locally
 
-Use a current patch of Node.js 24 or 26, Git, npm and a macOS or Linux shell. `.nvmrc` selects Node 24 as the default. If you already use Node 26, you can keep it and skip the nvm commands. With nvm:
+Use Node.js 24 or later, choosing a [currently supported LTS release](https://nodejs.org/en/about/previous-releases) and its latest patches. You also need Git, npm and a macOS or Linux shell. If you already have a suitable Node version installed, keep using it. For nvm users, `.nvmrc` follows the current LTS release. Skip the first two commands if you use another installer or version manager:
 
 ```bash
 nvm install
@@ -86,7 +86,7 @@ Deploy the completed application, not the unmodified template. Configure Vercel 
 
 Use separate Production and Preview databases where possible. Redeploy after changing environment variables. Verify that production, preview and generated deployment URLs require authentication in a signed-out browser, then repeat the CRUD flow as an allowed visitor before sharing the app. Vercel’s gate controls web access; it does not restrict direct connections to MongoDB.
 
-The package allows Node 24 and 26. Vercel selects a matching version from `package.json`, overriding its dashboard setting. This range allows Vercel to select Node 26; verify the runtime of each new deployment before relying on earlier hosted results. See [Vercel’s Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+The package declares Node 24 as its minimum (`>=24`). Vercel selects its latest available version that satisfies this range, overriding its dashboard setting. CI checks Node 24 and 26. Verify each new deployment before relying on earlier hosted results. See [Vercel’s Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 
 ## Attribution
 

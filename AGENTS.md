@@ -2,7 +2,7 @@
 
 ## Scope and commands
 
-This is the reader version of the MongoDB bookmark tutorial. Use a current patch of Node.js 24 or 26. `.nvmrc` selects Node 24 as the default, and CI checks both major versions. Keep TypeScript 5 and Tailwind CSS 3 unless a separate migration is requested.
+This is the reader version of the MongoDB bookmark tutorial. Use Node.js 24 or later from a currently supported LTS release, with its latest patches. `.nvmrc` follows the current LTS release. CI checks Node 24 and 26; a minimum engine version is not evidence that future releases have been tested. Keep TypeScript 5 and Tailwind CSS 3 unless a separate migration is requested.
 
 From the repository root:
 
