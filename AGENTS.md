@@ -2,7 +2,7 @@
 
 ## Scope and commands
 
-This is the reader version of the MongoDB bookmark tutorial. Use Node.js 24 LTS from `.nvmrc`. Keep TypeScript 5 and Tailwind CSS 3 unless a separate migration is requested.
+This is the reader version of the MongoDB bookmark tutorial. Use a current patch of Node.js 24 or 26. `.nvmrc` selects Node 24 as the default, and CI checks both major versions. Keep TypeScript 5 and Tailwind CSS 3 unless a separate migration is requested.
 
 From the repository root:
 
@@ -15,7 +15,7 @@ npm run verify:dev
 
 `verify` runs lint, TypeScript, a production build and the article’s browser tests. `verify:dev` runs those browser checks in development mode. The runner owns a disposable MongoDB 9.0.4 instance and Next.js processes; do not point the tests at Atlas or run Playwright directly. This reader version has no unit test suite.
 
-For manual development, copy `.env.example` to `.env`, start `npm run db:local` in one terminal, then run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1` in another. Restarting the local database discards its data and index; rerun setup. Never print or commit database credentials.
+For manual development, copy `.env.example` to `.env`, set `MONGODB_URI` to an Atlas connection string selecting `bookmark_app`, then run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1`. Follow the database-user and network setup in `README.md`. The optional `db:local` route remains available there; restarting that temporary database discards its data and index, so rerun setup. Automated checks use their own disposable database and must not use the Atlas URI. Never print or commit database credentials.
 
 ## Project structure and invariants
 

@@ -6,39 +6,55 @@ This is the reader version used by the tutorial. It contains the app and the sma
 
 ## Run the app locally
 
-Use Node.js 24 LTS, Git, npm and a macOS or Linux shell. `.nvmrc` selects the latest installed or available patch in Node 24 when used with nvm.
+Use a current patch of Node.js 24 or 26, Git, npm and a macOS or Linux shell. `.nvmrc` selects Node 24 as the default. If you already use Node 26, you can keep it and skip the nvm commands. With nvm:
 
 ```bash
 nvm install
 nvm use
+node --version
 npm ci
 cp .env.example .env
-npm run db:local
 ```
 
-Leave the database terminal running. The helper downloads and starts MongoDB 9.0.4 on `127.0.0.1:27028`. Its data is temporary and is deleted when the helper stops. If the port is occupied, the helper reports an error.
+The example leaves `MONGODB_URI` empty. Configure Atlas before starting the app:
 
-In a second terminal at the project root:
+1. Create or select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`, separate from your Atlas website account.
+2. Allow the public outbound IP of the machine running Node in Atlas Network Access. Recheck this address if your network changes or you restart a Codespace.
+3. Choose Connect → Drivers → Node.js. Copy the connection string, replace credential placeholders, percent-encode reserved characters in credentials, and include `bookmark_app` before the query string. Retain the options Atlas supplies.
+4. Set `MONGODB_URI` in `.env` to that connection string. Keep the URI out of Git, screenshots and logs, and never use a `NEXT_PUBLIC_` prefix.
+
+Prepare the index, then start the app:
 
 ```bash
-nvm use
 npm run db:setup
 npm run dev -- --hostname 127.0.0.1
 ```
 
-Wait for `Bookmark index is ready.`, then open http://127.0.0.1:3000. Run `db:setup` again each time you restart the temporary database.
+Wait for `Bookmark index is ready.`, then open http://127.0.0.1:3000. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Atlas keeps saved bookmarks after the app stops. Restart Next.js after changing `.env`.
 
-If you use a different Node version manager, select Node 24 and omit the nvm commands. `npm ci` installs the versions recorded in `package-lock.json`.
+`db:setup` creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`; the app does not create indexes during requests. Run setup for each target database before starting the app. Repeating it is safe. `npm ci` installs the versions recorded in `package-lock.json`.
 
-## Use MongoDB Atlas
+## Optional temporary local database
 
-Set `MONGODB_URI` in `.env` to the Atlas driver connection string. Include the database name `bookmark_app` before the query string, retain the options Atlas provides, and percent-encode reserved characters in credentials. Create a database user with `readWrite` access to that database and allow the Node host’s outbound IP in Atlas Network Access.
+For disposable manual development, set `.env` to:
 
-Run `npm run db:setup` against the selected database before starting the app. It creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`; the app does not create indexes during requests. Restart Next.js after changing `.env`. Keep credentials out of Git and never use a `NEXT_PUBLIC_` prefix for this URI.
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
+```
+
+If `MONGODB_URI` is also set in your terminal environment, update or unset it so it does not override `.env`. Start the database in one terminal and leave it running:
+
+```bash
+npm run db:local
+```
+
+The helper downloads and starts a real MongoDB 9.0.4 process on `127.0.0.1:27028`. Its data is temporary and is deleted when the helper stops. If the port is occupied, the helper reports an error.
+
+In a second terminal at the project root, select the same Node version, then run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1`. Run setup again each time you restart the temporary database, because its index is deleted along with its data. Stop the app and database with Ctrl+C.
 
 ## Run in Codespaces
 
-The devcontainer uses Debian Bookworm with Node 24 and runs `npm ci`. Run the same database setup and app commands in its terminal. Open port 3000 through the Ports panel and keep its visibility Private. If using Atlas, allow the Codespace’s outbound IP and recheck it after a restart.
+The devcontainer uses Debian Bookworm with Node 24 and runs `npm ci`. It does not configure Atlas, supply credentials or start the database/app. Follow the Atlas setup above in its terminal, or use the optional temporary database. Open port 3000 through the Ports panel and keep its visibility Private. For Atlas, allow the Codespace’s outbound IP and recheck it after a restart.
 
 ## Check the app
 
@@ -50,7 +66,7 @@ npm run verify:dev
 
 `verify` runs lint, TypeScript and a production build, then browser checks. `verify:dev` runs the browser checks against the development server. Both start their own temporary MongoDB 9.0.4 instance and Next.js processes, create the index in a unique test database, and stop their processes when finished. They exercise the CRUD flow and missing/unreachable database states. They do not use Atlas credentials or an existing development server. This reader version does not include the separate unit test suite.
 
-Use these commands rather than invoking Playwright directly. The runner uses POSIX process groups and is intended for macOS or Linux; installing Chromium dependencies on Linux may require elevated permissions. The GitHub workflow runs `npm run verify` on pushes to `bookmarks` or `main`, pull requests and manual dispatches.
+Use these commands rather than invoking Playwright directly. The runner uses POSIX process groups and is intended for macOS or Linux; installing Chromium dependencies on Linux may require elevated permissions. The GitHub workflow runs `npm run verify` on Node 24 and 26 for pushes to `bookmarks` or `main`, pull requests and manual dispatches.
 
 ## Project structure
 
@@ -69,6 +85,8 @@ Use these commands rather than invoking Playwright directly. The runner uses POS
 Deploy the completed application, not the unmodified template. Configure Vercel Authentication with All Deployments before adding a working Atlas URI. Standard Protection leaves production domains public. Check exceptions and bypass links, configure Atlas networking, and run `db:setup` for each target database before deploying.
 
 Use separate Production and Preview databases where possible. Redeploy after changing environment variables. Verify that production, preview and generated deployment URLs require authentication in a signed-out browser, then repeat the CRUD flow as an allowed visitor before sharing the app. Vercel’s gate controls web access; it does not restrict direct connections to MongoDB.
+
+The package allows Node 24 and 26. Vercel selects a matching version from `package.json`, overriding its dashboard setting. This range allows Vercel to select Node 26; verify the runtime of each new deployment before relying on earlier hosted results. See [Vercel’s Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 
 ## Attribution
 
