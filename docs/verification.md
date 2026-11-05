@@ -1,8 +1,33 @@
 # Bookmark app verification
 
-Latest checks: **1 November 2026**. The dependency refresh below records the current main and reader commits, local and cloud checks, document review, and outstanding audit findings. Older sections retain their original dates and scope.
+Latest checks: **5 November 2026**. The review below records the current Node policy, main and reader commits, local and cloud checks, and article revisions. Older sections retain their original dates and scope.
 
 The current article keeps core operations inline and links to longer supporting files. Those links require public companion access before publication. This supersedes the earlier fully self-contained format.
+
+## Tutorial review, Node minimum and setup verification, 5 November 2026
+
+The article now follows one local-computer/Atlas route, lists prerequisites, explains how the template becomes the bookmark app, and introduces index and test commands where they are used. `MONGODB_URI` is blank in the example file. Node.js 24 is the minimum (`engines.node: >=24`); the guide recommends a currently supported LTS release and its latest patches, with nvm optional and `.nvmrc` set to `lts/*`. The CI matrix checks Node 24 and 26. These measured versions do not establish compatibility with every future release allowed by the engine range.
+
+Final code/configuration commits are main `134c9c51a3445348d8f279bb2562c0ef945bc27f` and reader `d164bdd3cff87a0f858ce42913b960fc1aec60a2`. Their final changes from `e933f12` and `5d3941` affect only the root engine metadata, `.nvmrc` and explanatory README/AGENTS text; application source, tests and dependency resolutions are unchanged.
+
+| Check | Result and scope |
+| --- | --- |
+| Main locked install on local Node 24.22.2 and 26.13.0 | Fresh `npm ci`; lint, types, build, 8 unit tests and 14 production browser checks passed on each version. The 14 development browser checks also passed on each. Executed candidate `fc1f75a` has the same Git tree as integrated `e933f12`. |
+| Reader locked install on local Node 24.22.2 and 26.13.0 | Fresh `npm ci`, `verify` and `verify:dev` passed on `5d3941`: 3 browser scenarios per mode, per Node version. The compact reader suite has no unit runner. |
+| Fresh public-template reconstruction | Started at `09278fa9369ce03c3e988156351655f87317ecf6`. On Node 24.22.2, the starter connection, first save, full CRUD and pagination checkpoints passed in article order, followed by the exact reader production/development checks. After the final Node-policy change, clean `npm ci` and both reader suites passed on Node 26.13.0 against that fresh lockfile. |
+| Final main CI | [Run 42027782121](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/42027782121) passed on exact `134c9c5`: Node 24.22.2 and 26.13.0, with 8 unit and 14 production browser checks per job. |
+| Final reader CI | [Run 42027785923](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/actions/runs/42027785923) passed on exact `d164bdd`: Node 24.22.1 and 26.13.0, with 3 production browser scenarios per job. |
+| Source and partial-example comparison | All 16 complete-file references resolved to the intended immutable sources; all 7 partial examples matched after the documented whitespace/comment normalization. The first-save page remains at `88d9af5ac809d4d5cf778435d07a9af63077f793`. |
+
+Local checks used disposable MongoDB 9.0.4 and owned loopback ports, without Atlas credentials or the existing app/database. Checkpoint-only QA helpers were restored before continuing the article steps. Fresh major-version installs resolved Next.js and its lint configuration to 16.4.5; the frozen companion lock remains on 16.4.3. Both dependency sets passed their recorded checks. Production audits found zero advisories; full audits retained eight moderate development-tooling entries associated with `GHSA-g3hv-75wg-m249`. No dependency upgrade or advisory fix is claimed for the Node-support changes.
+
+The live browser CRUD flow first passed on `e933f12`, deployment `dpl_7vmMZXLTiKwmP4zs7frzfug1qUkp`. It was then repeated on final `134c9c5`, deployment `dpl_AdAjTsVVZTD8xGR2YdrneCkk4oBU`: create a synthetic bookmark, reload, edit its note, reload, cancel deletion, reload, confirm deletion and reload to an empty list. Both deployments report Node 26.x in Vercel metadata, despite the project dashboard default of 24.x. The final record was removed. These UI observations were made directly through the built-in browser tools; the saved screenshots support the edited and empty states, not an independent database digest.
+
+Read-only checks on the final deployment confirmed Vercel Authentication on all deployments and zero automation bypass tokens. Anonymous GETs to the production, account, main-branch and generated deployment URLs each returned 302 to Vercel SSO. No new paired valid Server Action HTTP replay was run; earlier authenticated/unauthenticated POST evidence remains tied to its original deployment. This work also did not rerun Codespaces or connect a clean local checkout to Atlas using live credentials.
+
+Sanitized evidence: [local test results](evidence/2026-11-05/local-tests.json), [template reconstruction](evidence/2026-11-05/reconstruction-summary.json), [final CI](evidence/2026-11-05/ci-summary.json), [live verification](evidence/2026-11-05/live-verification.json), [independent review](evidence/2026-11-05/independent-review.json) and [evidence manifest](evidence/2026-11-05/manifest.json). Raw local logs and screenshots remain outside the repository.
+
+The final Google Doc readback and affected-page visual review passed. All 37 native code blocks, both images and both tables are intact, and the text and links match the tested article. Code introductions and filename labels now stay with their blocks. The PDF export has 28 pages. See [document QA](evidence/2026-11-05/document-qa.json). All 17 comment replies are drafted but unposted, and no comment was resolved. The companion repository remains private as requested. Its linked supporting files must become publicly accessible, or move to an approved public source, before publication; authenticated link checks do not establish public availability.
 
 ## Dependency refresh, 1 November 2026
 

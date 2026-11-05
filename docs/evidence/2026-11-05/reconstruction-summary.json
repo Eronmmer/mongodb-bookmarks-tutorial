@@ -1,0 +1,155 @@
+{
+  "status": "passed",
+  "templateCommit": "09278fa9369ce03c3e988156351655f87317ecf6",
+  "finalReaderCommit": "d164bdd3cff87a0f858ce42913b960fc1aec60a2",
+  "firstSavePageCommit": "88d9af5ac809d4d5cf778435d07a9af63077f793",
+  "executedStagesCandidateSHA256": "cbc3d6cf6aa4c9c8d4f8010a892a309df8728b3933a6011576d27cff0e603263",
+  "finalCandidateSHA256": "7dfbf39deb255a13bfe8ab7f57e3f661458deeab746df43beec7e85d1593e91e",
+  "finalCodeBlocks": 37,
+  "postCheckpointChanges": "Two code blocks changed only .nvmrc default to lts/* and root engines.node to >=24; all other code and all linked runtime source bytes unchanged. Final metadata validated by clean npmci and full reader suites onNode26.",
+  "runtimes": [
+    {
+      "node": "24.22.2",
+      "npm": "11.19.1",
+      "platform": "darwin",
+      "arch": "arm64",
+      "coverage": "All four in-order checkpoints and exact article verify + verify:dev"
+    },
+    {
+      "node": "26.13.0",
+      "npm": "11.20.0",
+      "platform": "darwin",
+      "arch": "arm64",
+      "coverage": "Final metadata clean npmci, verify and verify:dev against freshly resolved article lock"
+    }
+  ],
+  "linkedCompleteFiles": 16,
+  "partialBlocksMatched": 7,
+  "deliveredFilesCompared": 23,
+  "byteIdenticalDeliveredFiles": 19,
+  "commentOnlyDifferences": [
+    "db/bookmarks.ts",
+    "lib/mongodb.ts"
+  ],
+  "manifestDifferencesFromReader": [
+    "Fresh Next.js and eslint-config-next ^16.4.5 versus companion ^16.4.3",
+    "No db:local npm script in article; companion retains optional manual local database route"
+  ],
+  "resolvedVersions": {
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "mongodb": "7.8.0",
+    "@playwright/test": "1.64.1",
+    "mongodb-memory-server-core": "11.3.0",
+    "eslint-config-next": "16.4.5",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "postcss": "8.5.32",
+    "tailwindcss": "3.4.19"
+  },
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 8,
+    "high": 0,
+    "critical": 0,
+    "total": 8
+  },
+  "productionAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "knownAdvisory": "https://github.com/advisories/GHSA-g3hv-75wg-m249",
+  "gitDiffCheck": {
+    "exitCode": 2,
+    "note": "Inherited mixed space/tab indentation in modified tailwind.config.ts sans line. This file is byte-identical to reader source. No functional failure or unsolicited indentation edit."
+  },
+  "recordedAt": "2026-11-05T12:32:58.145644+00:00",
+  "checks": [
+    {
+      "label": "checkpoint-a",
+      "browserPassesByScenarioRun": [
+        1
+      ],
+      "total": 1,
+      "sha256": "fe48c8957e58963bf1291bf0e12f1e65a6edbb11cf2c8842b09251b534c9e98b"
+    },
+    {
+      "label": "checkpoint-b",
+      "browserPassesByScenarioRun": [
+        2,
+        1,
+        1
+      ],
+      "total": 4,
+      "sha256": "37e540eb903c579004e6c538d297bf30365377537fa5a7631ed59fe94cfc8a60"
+    },
+    {
+      "label": "checkpoint-c",
+      "browserPassesByScenarioRun": [
+        1,
+        1,
+        1
+      ],
+      "total": 3,
+      "sha256": "2af78c5dce8cfb110e3bf7905dac8b7b0f0b5b85b7f5676475ee0d6f85f09d13"
+    },
+    {
+      "label": "checkpoint-d",
+      "browserPassesByScenarioRun": [
+        2,
+        1,
+        1
+      ],
+      "total": 4,
+      "sha256": "5a8de6b156e09554d253501c06dcaa2df8580633a6ba33bd97ab5287574cdb1e"
+    },
+    {
+      "label": "test-commands",
+      "browserPassesByScenarioRun": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "total": 6,
+      "sha256": "99b90b29cc938c5e5eef1eb36a3f714682005545fa4c41bbc275942f27fcc134"
+    },
+    {
+      "label": "final-node26-verify",
+      "browserPassesByScenarioRun": [
+        1,
+        1,
+        1
+      ],
+      "total": 3,
+      "sha256": "d8a8c6056ccf43ef6318c5a7dcbc3226a7e95e94bb5f0f9dfc6cb998a14ec58b"
+    },
+    {
+      "label": "final-node26-verify-dev",
+      "browserPassesByScenarioRun": [
+        1,
+        1,
+        1
+      ],
+      "total": 3,
+      "sha256": "0e0592c9d416da810dc4fd420f92d02771d4cd6b4b6b5e2ca0c7287f79bb54b6"
+    }
+  ],
+  "limitations": [
+    "All database checks used synthetic disposable loopback MongoDB 9.0.4, not Atlas.",
+    "Checkpoint-only QA helpers were restored before article steps continued; final reader commands used article-installed dependencies and linked source.",
+    "Final metadata change was followed by clean npm ci and both reader suites on Node 26.13.0.",
+    "Fresh dependency resolution differs from the companion lockfile as listed.",
+    "Existing package, browser and database download caches could be reused.",
+    "Publishing and deployment commands were not executed by this reconstruction.",
+    "Inherited mixed space/tab indentation was reported by git diff --check; no functional test failure resulted."
+  ]
+}
