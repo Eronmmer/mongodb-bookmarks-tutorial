@@ -4,6 +4,18 @@ Latest checks: **5 November 2026**. The review below records the current Node po
 
 The current article keeps core operations inline and links to longer supporting files. Those links require public companion access before publication. This supersedes the earlier fully self-contained format.
 
+## Simplified dependency commands, 5 November 2026
+
+The article now adds `server-only` and runs `npm update` against the template’s existing dependency ranges. It no longer repeats the template’s Next.js, React, MongoDB and lint dependencies in named install commands. The testing section installs `@playwright/test` and `mongodb-memory-server-core` without version suffixes. The Node minimum and lockfile guidance are unchanged.
+
+Five isolated clean checkouts of template `09278fa9369ce03c3e988156351655f87317ecf6` received the same hash-verified article source. The selected short setup, unversioned named installs followed by `npm update`, and the previous major-selector commands resolved identical package versions throughout the dependency tree. All three passed fresh `npm ci`, lint, typechecking, a URI-free production build, and three production plus three development browser scenarios on each of Node 24.22.2 and 26.13.0. The browser scenarios cover persisted CRUD, cancelled deletion, and missing/unreachable database states with retained form input.
+
+The two routes without `npm update` retained older tooling and failed lint. Diagnostic runs omitting only that gate confirmed their typechecking, builds and production browser flows worked, but their required verification remained failed. Their production audits reported 12 and eight affected package entries respectively. The selected route reported zero production entries and eight moderate development-tooling entries. The ESLint 9 support warning remains a maintenance follow-up. No forced dependency changes were applied.
+
+A separate clean checkout first resolved the short setup and unversioned test-tool command on Node 26. It produced the same complete resolved tree. This was a resolution comparison, not an additional runtime test. Existing template dependencies remain within their declared ranges; future first installs of newly added packages can differ.
+
+These experiments used disposable local MongoDB 9.0.4, not live Atlas. No application, test, dependency-manifest or lockfile changes were needed in the companion repository. Earlier cloud results retain their original scope. See the [sanitized command-comparison evidence](evidence/2026-11-05/dependency-command-comparison.json). Raw logs and independent review remain outside the repository. Scoped Google Doc readback and visual review of the two changed Shell blocks passed, preserving all existing code-block markers, images and tables. Concurrent suggestions elsewhere in the document were left untouched. See the [document checks](evidence/2026-11-05/simplified-install-document-qa.json).
+
 ## Tutorial review, Node minimum and setup verification, 5 November 2026
 
 The article now follows one local-computer/Atlas route, lists prerequisites, explains how the template becomes the bookmark app, and introduces index and test commands where they are used. `MONGODB_URI` is blank in the example file. Node.js 24 is the minimum (`engines.node: >=24`); the guide recommends a currently supported LTS release and its latest patches, with nvm optional and `.nvmrc` set to `lts/*`. The CI matrix checks Node 24 and 26. These measured versions do not establish compatibility with every future release allowed by the engine range.

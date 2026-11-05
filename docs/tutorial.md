@@ -53,13 +53,10 @@ If you need to update Node.js, use your usual installer or version manager. With
 printf 'lts/*\n' > .nvmrc
 ```
 
-The template already includes Next.js, React, TypeScript, Tailwind CSS and the MongoDB driver. We’ll update the packages used by this walkthrough and add `server-only`, which catches accidental imports of database code into the browser.
-
-These commands select major releases. For example, `next@16` asks npm for a release from the Next.js 16 family. `eslint-config-next@16` keeps the lint configuration aligned with that Next.js major. The final [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) updates the template’s remaining dependencies within the ranges in `package.json`.
+The template already includes Next.js, React, TypeScript, Tailwind CSS and the MongoDB driver. Add `server-only` to catch accidental imports of database code into the browser, then run [`npm update`](https://docs.npmjs.com/cli/v11/commands/npm-update/) to refresh the existing dependencies within the ranges in `package.json`.
 
 ```bash
-npm install next@16 react@19 react-dom@19 mongodb@7 server-only
-npm install --save-dev eslint-config-next@16
+npm install server-only
 npm update
 npm pkg set 'engines.node=>=24'
 ```
@@ -828,7 +825,7 @@ The browser tests need a place to create, edit, and delete bookmarks. The runner
 Prepare the test dependencies. Playwright drives the browser, and `mongodb-memory-server-core` starts the disposable MongoDB process:
 
 ```bash
-npm install --save-dev @playwright/test@1 mongodb-memory-server-core@11
+npm install --save-dev @playwright/test mongodb-memory-server-core
 ```
 
 Copy the [isolated test runner](https://github.com/Eronmmer/mongodb-bookmarks-tutorial/blob/d164bdd3cff87a0f858ce42913b960fc1aec60a2/scripts/verify.mjs) to `scripts/verify.mjs`. It owns the temporary database and app processes, and refuses to rely on a server you already have running.
