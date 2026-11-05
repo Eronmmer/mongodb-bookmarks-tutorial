@@ -1,62 +1,35 @@
 # Bookmarks with Next.js and MongoDB
 
-A single-page bookmark app built from [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). Save a link with a title and an optional note, edit it in place, confirm a deletion, and browse older entries 100 at a time.
+Save links with a title and an optional note, edit them in place, and browse older bookmarks 100 at a time.
 
-This is the reader version used by the tutorial. It contains the app and the small browser test suite shown in the article. It uses one shared list with no application sign-in or per-user records. Use public sample links and restrict access through your deployment platform.
+## Setup
 
-## Run the app locally
-
-Use Node.js 24 or later, choosing a [currently supported LTS release](https://nodejs.org/en/about/previous-releases) and its latest patches. You also need Git, npm and a macOS or Linux shell. If you already have a suitable Node version installed, keep using it. For nvm users, `.nvmrc` follows the current LTS release. Skip the first two commands if you use another installer or version manager:
+Use Node.js 24 or later from a currently supported LTS release, with its latest patches. You also need npm and a macOS or Linux shell. If you use nvm, `nvm install` and `nvm use` read the current LTS selection from `.nvmrc`.
 
 ```bash
-nvm install
-nvm use
-node --version
 npm ci
 cp .env.example .env
 ```
 
-The example leaves `MONGODB_URI` empty. Configure Atlas before starting the app:
+Configure [MongoDB Atlas](https://www.mongodb.com/docs/atlas/getting-started/):
 
-1. Create or select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`, separate from your Atlas website account.
-2. Allow the public outbound IP of the machine running Node in Atlas Network Access. Recheck this address if your network changes or you restart a Codespace.
-3. Choose Connect → Drivers → Node.js. Copy the connection string, replace credential placeholders, percent-encode reserved characters in credentials, and include `bookmark_app` before the query string. Retain the options Atlas supplies.
-4. Set `MONGODB_URI` in `.env` to that connection string. Keep the URI out of Git, screenshots and logs, and never use a `NEXT_PUBLIC_` prefix.
+1. Create or select a cluster and add a database user with `readWrite` access to `bookmark_app`.
+2. In Network Access, allow your computer’s public outbound IP address.
+3. Choose **Connect → Drivers → Node.js** and copy the connection string. Replace the username and password placeholders, percent-encode reserved characters in the credentials, and put `bookmark_app` before the query string. Keep the other connection options Atlas supplies.
+4. Set `MONGODB_URI` in `.env` to that connection string. Keep `.env` out of Git and never use a `NEXT_PUBLIC_` prefix for database credentials.
 
-Prepare the index, then start the app:
+Create the index, then start the app:
 
 ```bash
 npm run db:setup
 npm run dev -- --hostname 127.0.0.1
 ```
 
-Wait for `Bookmark index is ready.`, then open http://127.0.0.1:3000. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Atlas keeps saved bookmarks after the app stops. Restart Next.js after changing `.env`.
+The setup command prints `Bookmark index is ready.` Open http://127.0.0.1:3000 to add a bookmark. Reload to check it was saved, edit its note, then delete it.
 
-`db:setup` creates `bookmarks_newest_first` on `{ createdAt: -1, _id: -1 }`; the app does not create indexes during requests. Run setup for each target database before starting the app. Repeating it is safe. `npm ci` installs the versions recorded in `package-lock.json`.
+`db:setup` creates the `bookmarks_newest_first` index on `{ createdAt: -1, _id: -1 }`. Run it once for each database; repeating it is safe. A `MONGODB_URI` already set in your terminal takes precedence over `.env`, so check that both commands use the intended database. Restart Next.js after changing `.env`.
 
-## Optional temporary local database
-
-For disposable manual development, set `.env` to:
-
-```dotenv
-MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
-```
-
-If `MONGODB_URI` is also set in your terminal environment, update or unset it so it does not override `.env`. Start the database in one terminal and leave it running:
-
-```bash
-npm run db:local
-```
-
-The helper downloads and starts a real MongoDB 9.0.4 process on `127.0.0.1:27028`. Its data is temporary and is deleted when the helper stops. If the port is occupied, the helper reports an error.
-
-In a second terminal at the project root, select the same Node version, then run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1`. Run setup again each time you restart the temporary database, because its index is deleted along with its data. Stop the app and database with Ctrl+C.
-
-## Run in Codespaces
-
-The devcontainer uses Debian Bookworm with Node 24 and runs `npm ci`. It does not configure Atlas, supply credentials or start the database/app. Follow the Atlas setup above in its terminal, or use the optional temporary database. Open port 3000 through the Ports panel and keep its visibility Private. For Atlas, allow the Codespace’s outbound IP and recheck it after a restart.
-
-## Check the app
+## Tests
 
 ```bash
 npx playwright install --with-deps chromium
@@ -64,30 +37,23 @@ npm run verify
 npm run verify:dev
 ```
 
-`verify` runs lint, TypeScript and a production build, then browser checks. `verify:dev` runs the browser checks against the development server. Both start their own temporary MongoDB 9.0.4 instance and Next.js processes, create the index in a unique test database, and stop their processes when finished. They exercise the CRUD flow and missing/unreachable database states. They do not use Atlas credentials or an existing development server. This reader version does not include the separate unit test suite.
+`verify` runs lint, TypeScript checks, a production build and three browser scenarios. `verify:dev` runs those scenarios against the development server. They cover saving, reloading, editing and deleting bookmarks, plus missing and unreachable database connections.
 
-Use these commands rather than invoking Playwright directly. The runner uses POSIX process groups and is intended for macOS or Linux; installing Chromium dependencies on Linux may require elevated permissions. The GitHub workflow runs `npm run verify` on Node 24 and 26 for pushes to `bookmarks` or `main`, pull requests and manual dispatches.
-
-## Project structure
-
-- `app/page.tsx`: Server Component that reads bookmarks and renders pagination or an appropriate empty/error state.
-- `app/actions.ts`: validates form input, calls the database operations and returns form feedback.
-- `db/bookmarks.ts`: MongoDB queries and conversion to the UI’s string IDs and dates.
-- `lib/mongodb.ts`: lazy, reusable MongoDB client.
-- `lib/bookmark-types.ts` and `lib/bookmark-validation.ts`: shared shapes and runtime input checks.
-- `components/bookmark-form.tsx` and `components/bookmark-item.tsx`: add, edit and delete interfaces.
-- `scripts/`: local database, index setup and isolated verification helpers.
-- `tests/e2e/bookmarks.spec.ts`: the article’s browser tests.
-- `EDD.md`: the document model and query contract.
+Both commands start and stop their own disposable MongoDB process and app servers. They do not use Atlas credentials or your running app. Use these commands instead of running Playwright directly. The CI workflow runs production checks on Node 24 and 26 for pushes to `bookmarks` or `main`, pull requests and manual runs.
 
 ## Deployment
 
-Deploy the completed application, not the unmodified template. Configure Vercel Authentication with All Deployments before adding a working Atlas URI. Standard Protection leaves production domains public. Check exceptions and bypass links, configure Atlas networking, and run `db:setup` for each target database before deploying.
+This app has one shared bookmark list and no sign-in screen. Anyone who can access it can read and change the list, so restrict access through your hosting platform before adding database credentials.
 
-Use separate Production and Preview databases where possible. Redeploy after changing environment variables. Verify that production, preview and generated deployment URLs require authentication in a signed-out browser, then repeat the CRUD flow as an allowed visitor before sharing the app. Vercel’s gate controls web access; it does not restrict direct connections to MongoDB.
+For Vercel:
 
-The package declares Node 24 as its minimum (`>=24`). Vercel selects its latest available version that satisfies this range, overriding its dashboard setting. CI checks Node 24 and 26. Verify each new deployment before relying on earlier hosted results. See [Vercel’s Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+1. Enable **Vercel Authentication → All Deployments**, including the production domain. Review any bypass links or exceptions.
+2. Add server-only `MONGODB_URI` for Production. Use a separate database and value for Preview deployments.
+3. Configure [Atlas network access for Vercel](https://vercel.com/kb/guide/how-to-allowlist-deployment-ip-address) and run `npm run db:setup` for each database. The app’s public IP is not its database connection’s outbound IP.
+4. Deploy again after changing environment variables. Check that signed-out visitors cannot open the production, preview or generated deployment URLs. Then sign in as an allowed visitor and repeat the bookmark CRUD flow.
 
-## Attribution
+The `>=24` engine range lets Vercel select its latest matching Node version, overriding the dashboard setting. Verify the runtime and app on each deployment. Vercel’s login gate controls web access; Atlas uses its own network rules and database credentials.
 
-Based on the MongoDB Next.js template. The original MIT licence is retained in `LICENSE`.
+## License
+
+Based on [MongoDB’s Next.js template](https://github.com/mongodb-developer/nextjs-template-mongodb). The original Apache License 2.0 is retained in [LICENSE](LICENSE).
