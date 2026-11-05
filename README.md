@@ -19,7 +19,7 @@ cd mongodb-bookmarks-tutorial
 
 ## Run locally
 
-Use Node.js **24 LTS**, selected by `.nvmrc`. With nvm:
+Use a current patch of **Node.js 24 or 26 LTS**. `.nvmrc` selects Node 24 as the default. If you already use Node 26, you can keep it and skip the nvm commands. With nvm:
 
 ```bash
 nvm install
@@ -29,13 +29,35 @@ npm ci
 cp .env.example .env
 ```
 
-The example selects:
+The example leaves `MONGODB_URI` empty. Configure Atlas before starting the app:
+
+1. Create/select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`. This is separate from your Atlas website account.
+2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
+3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmark_app` as the database.
+4. Set `MONGODB_URI` in `.env` to that connection string. Keep the URI out of Git, screenshots and logs.
+
+Prepare the index, then start the app:
+
+```bash
+npm run db:setup
+npm run dev -- --hostname 127.0.0.1
+```
+
+`db:setup` creates the `{ createdAt: -1, _id: -1 }` index used by bookmark ordering and pagination. Run it once for each database; repeating it is safe. The database user needs permission to create indexes. For a hosted database, run this command from a trusted environment with the destination `MONGODB_URI` before deploying.
+
+Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Stop the app with Ctrl+C. Atlas keeps the saved bookmarks after the app stops.
+
+Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [IP access lists](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [URI encoding](https://www.mongodb.com/docs/v8.3/reference/connection-string-formats/).
+
+## Optional temporary local database
+
+For disposable manual development, set `.env` to:
 
 ```dotenv
 MONGODB_URI=mongodb://127.0.0.1:27028/bookmark_app
 ```
 
-Start the database in one terminal and leave it running:
+If `MONGODB_URI` is also set in your terminal environment, update or unset it so it does not override `.env`. Start the database in one terminal and leave it running:
 
 ```bash
 npm run db:local
@@ -43,25 +65,7 @@ npm run db:local
 
 The helper downloads and starts a real MongoDB **9.0.4** process using `mongodb-memory-server-core`. It needs network access for the first download and uses temporary storage. Stopping it deletes the bookmarks stored in that temporary database. It is not an Atlas account or a mock database.
 
-In another terminal:
-
-```bash
-npm run db:setup
-npm run dev -- --hostname 127.0.0.1
-```
-
-`db:setup` creates the `{ createdAt: -1, _id: -1 }` index used by bookmark ordering and pagination. Run it once for each database (and again after restarting the disposable helper); repeating it is safe. The database user needs permission to create indexes. For a hosted database, run this command from a trusted environment with the destination `MONGODB_URI` before deploying.
-
-Open <http://127.0.0.1:3000>. Add a sample bookmark, refresh to read it again, edit its note, then delete it. Stop the app and database with Ctrl+C. Use your own MongoDB instance or Atlas for persistent data.
-
-## Use Atlas instead
-
-1. Create/select an Atlas project and cluster. Create a database user with `readWrite` access to `bookmark_app`. This is separate from your Atlas website account.
-2. Add the public outbound IP of the machine running Node to the project's IP access list. A browser's address is not necessarily the app server's address. Home addresses can change. A restarted Codespace uses a new VM; recheck its outbound address rather than assuming a stable IP.
-3. Choose Connect → Drivers → Node.js. Copy the URI, replace credential placeholders, percent-encode reserved characters in credentials, and select `bookmark_app` as the database.
-4. Replace `MONGODB_URI` in `.env`. Run `npm run db:setup` for that database before starting or restarting the app. Do not run `db:local` for this path. Keep the URI out of Git, screenshots and logs.
-
-Sources: [Atlas connection prerequisites](https://www.mongodb.com/docs/atlas/connect-to-database-deployment/), [IP access lists](https://www.mongodb.com/docs/atlas/security/ip-access-list/), [URI encoding](https://www.mongodb.com/docs/v8.3/reference/connection-string-formats/).
+In another terminal at the project root, run `npm run db:setup` and `npm run dev -- --hostname 127.0.0.1`. Repeat index setup whenever you restart the disposable database, because its indexes disappear with its data. Stop the app and database with Ctrl+C.
 
 ## Verify the app
 
@@ -114,6 +118,8 @@ Import the [completed bookmarks repository](https://github.com/Eronmmer/mongodb-
 Before deploying working CRUD, configure Vercel Authentication with **All Deployments**, ideally as the team default before project creation. Otherwise configure the project before supplying working database credentials. Under Project → Settings → Deployment Protection, select All Deployments and verify production domains, preview domains and generated URLs are covered. Standard Protection leaves production domains public. Review exceptions and share-link bypasses. All Deployments with Vercel Authentication is available on every plan as of [9 September 2026](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan).
 
 Set server-only `MONGODB_URI` at project level for Production and, if used, Preview. Never use `NEXT_PUBLIC_MONGODB_URI`. Development scope applies to local tooling, not deployed environments. Redeploy after changing variables. Use separate databases for Production and Preview.
+
+The package allows Node 24 and 26. Vercel selects a matching version from `package.json`, overriding its dashboard setting. This range allows Vercel to select Node 26. Verify the runtime on the new deployment before relying on earlier hosted results. See [Vercel's Node.js version selection](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 
 Vercel Functions and builds use dynamic outbound IPs by default. Static IPs supplies an allowlisting option on Pro/Enterprise; build routing is separately configurable. The app domain's resolved IP is not its outbound address. If you choose Atlas `0.0.0.0/0`, understand that it permits database connection attempts from anywhere and removes the IP restriction. Strong database-scoped credentials remain required; prefer restricted outbound networking where available. The Vercel login gate does not protect the database port.
 
